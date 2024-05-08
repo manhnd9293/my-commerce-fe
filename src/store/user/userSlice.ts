@@ -19,11 +19,12 @@ const userSlice = createSlice({
       state.id = payload.id
       state.email = payload.email
     },
-    signOut: (state) => {
-      state = initialState;
+    signOut: () => {
+      localStorage.removeItem('accessToken');
+      return initialState;
     }
   }
 });
 
-export const {signIn} = userSlice.actions;
+export const {signIn, signOut} = userSlice.actions;
 export default userSlice.reducer;

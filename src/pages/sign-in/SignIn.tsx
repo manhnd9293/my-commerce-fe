@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button.tsx';
 import { useMutation } from '@tanstack/react-query';
 import AuthService from '@/services/auth.service.ts';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { signIn } from '@/store/user/userSlice.ts';
 
 const formSchema = z.object({
   email: z.string().min(1),
@@ -23,14 +25,17 @@ function SignIn() {
     },
   });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const {mutate, isPending, isError, error, } = useMutation({
     mutationFn: AuthService.signIn,
     onSuccess: (data) => {
       console.log('Sign in success');
       console.log({data});
+      // @ts-ignore
       const accessToken = data['accessToken'] as string;
       localStorage.setItem('accessToken', accessToken);
+      dispatch(signIn(data));
       navigate('/');
     }
   });

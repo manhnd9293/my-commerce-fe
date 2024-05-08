@@ -1,7 +1,9 @@
+import PageTitle from '@/pages/common/PageTitle.tsx';
+
 function Home() {
   return (
     <div>
-      <div className={'text-xl font-bold'}>Home</div>
+      <PageTitle>Home</PageTitle>
     </div>
   );
 }
