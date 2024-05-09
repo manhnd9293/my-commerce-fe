@@ -1,24 +1,29 @@
 import PageTitle from '@/pages/common/PageTitle.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import categoriesService from '@/services/categories.service.ts';
-import CategoryTable from '@/pages/admin/categories/list/category-table/CategoryTable.tsx';
+import { CategoryTable } from '@/pages/admin/categories/list/category-table/CategoryTable.tsx';
+import { QueryKey } from '@/constant/query-key.ts';
 
-function CategoriesList(props) {
-  const {data, isLoading, error} = useQuery({
-    queryKey: ['categories'],
-    queryFn: categoriesService.get
+function CategoriesList() {
+  const {data, isLoading, isError , error} = useQuery({
+    queryKey: [QueryKey.Categories],
+    queryFn: categoriesService.getAll
   });
   if (isLoading) {
     return <div>Loading data ...</div>
   }
+
+  if(isError) {
+    return <div>Fail to load categories: {error.message}</div>
+  }
+
+  // @ts-ignore
   return (
     <div>
       <PageTitle>Categories</PageTitle>
-      <Link to={'create'}><Button className={'mt-8'}>Create</Button></Link>
+
       <div className={'mt-4 max-w-4xl'}>
-        <CategoryTable data={data}/>
+        {data && <CategoryTable data={data}/>}
       </div>
     </div>
   );

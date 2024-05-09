@@ -7,6 +7,7 @@ import CategoryCreatePage from '@/pages/admin/categories/create/CategoryCreatePa
 import AdminLayout from '@/pages/admin/AdminLayout.tsx';
 import CategoriesList from '@/pages/admin/categories/list/CategoriesList.tsx';
 import TestPage from '@/pages/test/TestPage.tsx';
+import { UpdateCategoryPage } from '@/pages/admin/categories/update/UpdateCategoryPage.tsx';
 
 export const router = createBrowserRouter([
 
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
           {
             path: 'create',
             element: <CategoryCreatePage/>
+          },
+          {
+            path: ':categoryId',
+            element: <UpdateCategoryPage/>
           }
         ]
       },

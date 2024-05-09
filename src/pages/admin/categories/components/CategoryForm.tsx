@@ -1,49 +1,35 @@
-import PageTitle from '@/pages/common/PageTitle.tsx';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
-import CategoriesService from '@/services/categories.service.ts';
-import notification from '@/utils/notification.tsx';
+import { Link } from 'react-router-dom';
+import { Category } from '@/dto/category.ts';
 
 const formSchema = z.object({
   name: z.string().min(1),
+  id: z.number().nullable()
 })
 
-function CategoryCreatePage() {
-  const navigate = useNavigate();
+function CategoryForm({initialData, mutate, isPending}: {initialData: Category, mutate: any, isPending: boolean} ) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: initialData ? initialData.name : "",
+      id: initialData? initialData.id : null,
     },
-  });
-
-  const {mutate, isPending, error,} = useMutation({
-    mutationFn: CategoriesService.create,
-    onSuccess: () => {
-      navigate('/admin/categories');
-      notification.success('Category crated success')
-    },
-    onError: () => {
-      // @ts-ignore
-      notification.error(`Fail to create category: ${error?.message}`)
-    }
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    mutate(values.name);
-  }
+    console.log({values});
+    mutate(values);
+  };
 
   return (
     <div>
-      <PageTitle>New category</PageTitle>
-      <div className={'mt-8 max-w-lg'}>
+      <div className={'mt-6 max-w-lg'}>
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -60,6 +46,7 @@ function CategoryCreatePage() {
               )}
             />
 
+
             <div className={'flex gap-4'}>
               <Button type="submit"
                       disabled={isPending}
@@ -72,10 +59,11 @@ function CategoryCreatePage() {
                         <path strokeLinecap="round" strokeLinejoin="round"
                               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
                       </svg>
-                    </span>
+                  </span>
                 }
-                Create
+                {initialData ? 'Update' : 'Create'}
               </Button>
+
               <Link to={'/admin/categories'}>
                 <Button variant={'secondary'}>Cancel</Button>
               </Link>
@@ -87,4 +75,4 @@ function CategoryCreatePage() {
   );
 }
 
-export default CategoryCreatePage;
+export default CategoryForm;
