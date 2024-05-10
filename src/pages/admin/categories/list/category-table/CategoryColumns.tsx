@@ -10,6 +10,8 @@ import {
 import { Button } from '@/components/ui/button.tsx';
 import { ArrowUpDown, EditIcon, LucideTrash2, MoreHorizontal } from 'lucide-react';
 import { Category } from '@/dto/category.ts';
+import { useState } from 'react';
+import ConfirmDeleteCategoryModal from '@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx';
 
 
 export const categoryColumns: ColumnDef<Category>[] = [
@@ -60,33 +62,41 @@ export const categoryColumns: ColumnDef<Category>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({row, table}) => {
-      const category = row.original as Category
+      const category = row.original as Category;
+      const [openConfirmDeleteModal, setOpenConfirmDeleteModal] = useState(false);
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4"/>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => {
-              // @ts-expect-error
-              table.options.meta?.navigate(`${category.id}`)
-            }}>
-              <EditIcon className={'mr-2 w-4 h-4'}/>
-              <span>Edit</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              // @ts-expect-error
-              table.options.meta?.mutate([category.id])
-            }}>
-              <LucideTrash2 className={'mr-2 h-4 w-4'}/>
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4"/>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => {
+                // @ts-expect-error
+                table.options.meta?.navigate(`${category.id}`)
+              }}>
+                <EditIcon className={'mr-2 w-4 h-4'}/>
+                <span>Edit</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={()=> setOpenConfirmDeleteModal(true)}>
+                <LucideTrash2 className={'mr-2 h-4 w-4'}/>
+                <span>Delete</span>
+              </DropdownMenuItem>
+
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <ConfirmDeleteCategoryModal
+            open={openConfirmDeleteModal}
+            onOpenChange={setOpenConfirmDeleteModal}
+            onConfirm={() => {
+            // @ts-expect-error
+            table.options.meta?.mutate([category.id])
+          }}/>
+        </>
       )
     },
   },

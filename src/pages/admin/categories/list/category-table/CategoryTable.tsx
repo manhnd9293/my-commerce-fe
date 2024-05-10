@@ -24,9 +24,10 @@ import categoriesService from '@/services/categories.service.ts';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryKey } from '@/constant/query-key.ts';
 import notification from '@/utils/notification.tsx';
+import ConfirmDeleteCategoryModal from '@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx';
 
-export function CategoryTable({data}: {data: Category[]}) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+export function CategoryTable({data}: { data: Category[] }) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -40,6 +41,7 @@ export function CategoryTable({data}: {data: Category[]}) {
       queryClient.invalidateQueries({
         queryKey: [QueryKey.Categories]
       }).then(() => {
+        table.toggleAllPageRowsSelected(false);
         notification.success('Deleted categories success');
       })
     },
@@ -69,7 +71,7 @@ export function CategoryTable({data}: {data: Category[]}) {
     },
     meta: {
       navigate,
-      mutate
+      mutate,
     },
     initialState: {
       columnVisibility: {
@@ -77,7 +79,6 @@ export function CategoryTable({data}: {data: Category[]}) {
       }
     }
   });
-
 
   async function handleDeleteSelectedRows() {
     mutate(table.getSelectedRowModel().rows.map(r => r.original.id as number));
@@ -92,13 +93,14 @@ export function CategoryTable({data}: {data: Category[]}) {
             <span>New</span>
           </Button>
         </Link>
-        <Button variant={'outline'}
-                disabled={table.getSelectedRowModel().rows.length === 0}
-                onClick={handleDeleteSelectedRows}
-        >
-          <Trash2Icon className={'w-4 h-4 mr-2'}/>
-          <span>Delete</span>
-        </Button>
+        <ConfirmDeleteCategoryModal onConfirm={handleDeleteSelectedRows}>
+          <Button variant={'outline'}
+                  disabled={table.getSelectedRowModel().rows.length === 0}
+          >
+            <Trash2Icon className={'w-4 h-4 mr-2'}/>
+            <span>Delete</span>
+          </Button>
+        </ConfirmDeleteCategoryModal>
       </div>
       <div className="relative max-w-sm mt-4">
         <Input
