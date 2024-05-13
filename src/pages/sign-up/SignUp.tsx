@@ -8,9 +8,8 @@ import { Button } from '@/components/ui/button.tsx';
 import { useMutation } from '@tanstack/react-query';
 import AuthService from '@/services/auth.service.ts';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { signIn } from '@/store/user/userSlice.ts';
 import { Separator } from '@/components/ui/separator.tsx';
+import Notification from '@/utils/notification.tsx';
 import Utils from '@/utils/utils.ts';
 
 const formSchema = z.object({
@@ -18,7 +17,7 @@ const formSchema = z.object({
   password: z.string().min(1)
 })
 
-function SignIn() {
+function SignUp() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -27,34 +26,30 @@ function SignIn() {
     },
   });
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const {mutate, isPending, isError, error, } = useMutation({
-    mutationFn: AuthService.signIn,
-    onSuccess: (data) => {
-      console.log('Sign in success');
-      console.log({data});
+    mutationFn: AuthService.signUp,
+    onSuccess: () => {
       // @ts-ignore
-      const accessToken = data['accessToken'] as string;
-      localStorage.setItem('accessToken', accessToken);
-      dispatch(signIn(data));
-      navigate('/');
+      Notification.success('Yay ! you created an account. Let sign in to start the journey');
+      navigate('/sign-in');
     }
   });
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
     mutate(values);
+  }
+
+  if (isError) {
+    Notification.error(`Fail to create account: ${Utils.getErrorMessage(error)}`);
   }
 
   return (
     <div>
       <Card className={'w-[480px] mx-auto mt-48'}>
         <CardHeader>
-          <CardTitle className={'text-center'}>Sign In</CardTitle>
+          <CardTitle className={'text-center'}>Sign Up</CardTitle>
         </CardHeader>
         <CardContent>
           <FormProvider {...form}>
@@ -64,7 +59,7 @@ function SignIn() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your email</FormLabel>
+                    <FormLabel>Your Email</FormLabel>
                     <FormControl>
                       <Input placeholder="Your email" {...field} />
                     </FormControl>
@@ -103,22 +98,22 @@ function SignIn() {
                       </svg>
                     </span>
                   }
-                  Sign In
+                  Sign Up
                 </Button>
               </div>
             </form>
           </FormProvider>
           <Separator className={'my-4'}/>
           <div className={'text-center'}>
-            <div
-            >Do not have an account ? <Link to={'/sign-up'}>
-              <span className={'text-blue-600 underline'}>Sign up</span></Link>
-            </div>
+            <div>Already had an account ? <Link to={'/sign-in'}>
+              <span className={'text-blue-600 underline'}>Sign in</span>
+            </Link></div>
           </div>
+
         </CardContent>
       </Card>
     </div>
   );
 }
 
-export default SignIn;
+export default SignUp;

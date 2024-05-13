@@ -8,12 +8,17 @@ import AdminLayout from '@/pages/admin/AdminLayout.tsx';
 import CategoriesList from '@/pages/admin/categories/list/CategoriesList.tsx';
 import TestPage from '@/pages/test/TestPage.tsx';
 import { UpdateCategoryPage } from '@/pages/admin/categories/update/UpdateCategoryPage.tsx';
+import SignUp from '@/pages/sign-up/SignUp.tsx';
 
 export const router = createBrowserRouter([
 
   {
     path: '/sign-in',
     element: <SignIn/>
+  },
+  {
+    path: '/sign-up',
+    element: <SignUp/>
   },
   {
     path: '/admin',

@@ -1,4 +1,5 @@
 export enum QueryKey {
   Categories='categories',
-  Category='category'
+  Category='category',
+  Me='me'
 }
