@@ -9,6 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import CategoriesService from '@/services/categories.service.ts';
 import notification from '@/utils/notification.tsx';
+import Utils from '@/utils/utils.ts';
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -24,15 +25,14 @@ function CategoryCreatePage() {
     },
   });
 
-  const {mutate, isPending, error,} = useMutation({
+  const {mutate, isPending} = useMutation({
     mutationFn: CategoriesService.create,
     onSuccess: () => {
       navigate('/admin/categories');
       notification.success('Category crated success')
     },
-    onError: () => {
-      // @ts-ignore
-      notification.error(`Fail to create category: ${error?.message}`)
+    onError: (error) => {
+      Utils.handleError(error as Error);
     }
   });
 

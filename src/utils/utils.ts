@@ -19,6 +19,7 @@ const Utils = {
         router.navigate(RoutePath.SignIn);
       }
     }
+    console.log({error});
     Notification.error(this.getErrorMessage(error));
   },
 }

@@ -6,6 +6,7 @@ import { Category } from '@/dto/category.ts';
 import PageTitle from '@/pages/common/PageTitle.tsx';
 import { QueryKey } from '@/constant/query-key.ts';
 import notification from '@/utils/notification.tsx';
+import Utils from '@/utils/utils.ts';
 
 export function UpdateCategoryPage() {
   const params = useParams();
@@ -16,7 +17,7 @@ export function UpdateCategoryPage() {
     queryFn: () => CategoriesService.getById(Number(params.categoryId))
   });
 
-  const {mutate, isPending, isError: isMutationError ,error,} = useMutation({
+  const {mutate, isPending} = useMutation({
     mutationFn: (data : Partial<Category>) => CategoriesService.update(Number(params.categoryId), data),
     onSuccess: () => {
       navigate('/admin/categories');
@@ -27,10 +28,8 @@ export function UpdateCategoryPage() {
       })
 
     },
-    onError: (data) => {
-      console.log({data})
-      // @ts-ignore
-      notification.error(`Fail to create category: ${data?.response?.data?.message}`)
+    onError: (error) => {
+      Utils.handleError(error as Error)
     }
   });
 
@@ -41,9 +40,7 @@ export function UpdateCategoryPage() {
   if (isLoadError) {
     return <div>Fail to load category ${loadError.message}</div>
   }
-  if (isMutationError) {
-    return <div>Fail to update category ${error.message}</div>
-  }
+
 
   return (
     <>

@@ -9,6 +9,7 @@ function CategoriesList() {
     queryKey: [QueryKey.Categories],
     queryFn: categoriesService.getAll
   });
+
   if (isLoading) {
     return <div>Loading data ...</div>
   }

@@ -1,5 +1,4 @@
 import { createBrowserRouter } from 'react-router-dom';
-import ProductCreatePage from '@/pages/admin/products/create/ProductCreatePage.tsx';
 import SignIn from '@/pages/sign-in/SignIn.tsx';
 import RootLayout from '@/pages/layout/RootLayout.tsx';
 import Home from '@/pages/home/Home.tsx';
@@ -9,6 +8,8 @@ import CategoriesList from '@/pages/admin/categories/list/CategoriesList.tsx';
 import TestPage from '@/pages/test/TestPage.tsx';
 import { UpdateCategoryPage } from '@/pages/admin/categories/update/UpdateCategoryPage.tsx';
 import SignUp from '@/pages/sign-up/SignUp.tsx';
+import ProductCreatePage from '@/pages/admin/products/new/ProductCreatePage.tsx';
+import ProductListPage from '@/pages/admin/products/list/ProductListPage.tsx';
 
 export const router = createBrowserRouter([
 
@@ -25,8 +26,17 @@ export const router = createBrowserRouter([
     element: <AdminLayout/>,
     children: [
       {
-        path: 'products/create',
-        element: <ProductCreatePage/>
+        path: 'products',
+        children: [
+          {
+            path: 'new',
+            element: <ProductCreatePage/>
+          },
+          {
+            index: true,
+            element: <ProductListPage/>
+          }
+        ]
       },
       {
         path: 'categories',
@@ -59,7 +69,6 @@ export const router = createBrowserRouter([
         path: 'test',
         element: <TestPage/>
       }
-
     ]
   }
 
