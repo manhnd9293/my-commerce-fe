@@ -6,11 +6,20 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { QueryKey } from '@/constant/query-key.ts';
+import CategoriesService from '@/services/categories.service.ts';
+import Utils from '@/utils/utils.ts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import EditorComponent from '@/pages/test/editor/EditorComponent.tsx';
 
 const formSchema = z.object({
-  id: z.number().nullable(),
-  name: z.string().min(1).max(255),
-  categoryId: z.number()
+  id: z.number().nullable().optional(),
+  name: z.string().min(1, {
+    message: 'Please provide product name'
+  }).max(255),
+  description: z.string().max(10000).optional(),
+  categoryId: z.string({message: 'Please provide category information'})
 })
 
 interface ProductFormProps {
@@ -20,19 +29,44 @@ interface ProductFormProps {
 }
 
 function ProductForm(props: ProductFormProps) {
+  const {data: categories, isLoading, isError, error} = useQuery({
+    queryKey: [QueryKey.Categories],
+    queryFn: CategoriesService.getAll
+  });
   const {mutate, isPending, initialData} = props;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {}
-  })
+    defaultValues: initialData ? {
+      ...initialData,
+      categoryId: String(initialData?.categoryId),
+    } : {
+      id: null,
+      name: "",
+      categoryId: undefined,
+    }
+  });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log('submit form');
     console.log(values);
-    mutate(values);
+    mutate({
+      ...values,
+      categoryId: Number(values.categoryId)
+    });
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (isError) {
+    Utils.handleError(error);
+    return <div>Fail to load categories</div>;
   }
 
   return (
-    <div className={'mt-6 max-w-lg'}>
+    <div className={'mt-6 max-w-3xl'}>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className={'space-y-4'}>
           <FormField
@@ -47,6 +81,52 @@ function ProductForm(props: ProductFormProps) {
                 <FormMessage/>
               </FormItem>
             )}
+          />
+
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({field}) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select onValueChange={field.onChange}
+                        defaultValue={field.value?.toString()}>
+                  <FormControl>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Category"/>
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {
+                      categories && categories.map(category => {
+                        return (
+                          <SelectItem key={category.id}
+                                      value={String(category.id)}>
+                            {category.name}
+                          </SelectItem>
+                        )
+                      })
+                    }
+                  </SelectContent>
+                </Select>
+                <FormMessage/>
+              </FormItem>
+            )}
+          />
+
+          <FormField name={'description'}
+                     control={form.control}
+                     render={({field}) => (
+                       <FormItem>
+                         <FormLabel>Description</FormLabel>
+                         <EditorComponent content={field.value}
+                                          onUpdateContent={(data)=> {
+                                            console.log(data)
+                                          }}/>
+                       </FormItem>
+
+                     )
+                     }
           />
 
 

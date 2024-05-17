@@ -43,8 +43,10 @@ function EditorComponent({content, onUpdateContent}: EditorComponentProps) {
             'removeformat | help',
           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
         }}
+        onChange={(e)=> {
+          console.log(e.target.value)
+        }}
       />
-      <Button className={'mt-4'} onClick={log}>Log editor content</Button>
     </div>
   );
 }
