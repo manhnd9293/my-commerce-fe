@@ -1,16 +1,16 @@
-import { z } from 'zod';
-import { Product } from '@/dto/product/product.ts';
-import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
-import { Input } from '@/components/ui/input.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { QueryKey } from '@/constant/query-key.ts';
+import {z} from 'zod';
+import {Product} from '@/dto/product/product.ts';
+import {FormProvider, useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form.tsx';
+import {Input} from '@/components/ui/input.tsx';
+import {Button} from '@/components/ui/button.tsx';
+import {Link} from 'react-router-dom';
+import {useQuery} from '@tanstack/react-query';
+import {QueryKey} from '@/constant/query-key.ts';
 import CategoriesService from '@/services/categories.service.ts';
 import Utils from '@/utils/utils.ts';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import EditorComponent from '@/pages/test/editor/EditorComponent.tsx';
 
 const formSchema = z.object({
@@ -50,10 +50,10 @@ function ProductForm(props: ProductFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log('submit form');
     console.log(values);
-    mutate({
-      ...values,
-      categoryId: Number(values.categoryId)
-    });
+    // mutate({
+    //   ...values,
+    //   categoryId: Number(values.categoryId)
+    // });
   }
 
   if (isLoading) {
@@ -114,15 +114,15 @@ function ProductForm(props: ProductFormProps) {
             )}
           />
 
-          <FormField name={'description'}
+          <FormField name="description"
                      control={form.control}
-                     render={({field}) => (
+                     render={({field: {value, onChange, ...fieldProps}}) => (
                        <FormItem>
                          <FormLabel>Description</FormLabel>
-                         <EditorComponent content={field.value}
-                                          onUpdateContent={(data)=> {
-                                            console.log(data)
-                                          }}/>
+                         <EditorComponent content={value}
+                                          onChange={onChange}
+                                          {...fieldProps}
+                         />
                        </FormItem>
 
                      )

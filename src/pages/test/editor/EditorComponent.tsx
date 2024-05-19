@@ -1,10 +1,9 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
-import { Button } from '@/components/ui/button.tsx';
 
 interface EditorComponentProps {
-  content: string;
-  onUpdateContent: (data: string) => void;
+  content: string | undefined;
+  onChange: (e: Event) => void;
 }
 
 
@@ -43,12 +42,10 @@ function EditorComponent({content, onUpdateContent}: EditorComponentProps) {
             'removeformat | help',
           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
         }}
-        onChange={(e)=> {
-          console.log(e.target.value)
-        }}
+
       />
     </div>
   );
-}
+});
 
 export default EditorComponent;
