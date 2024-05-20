@@ -2,7 +2,7 @@ import { string, z } from 'zod';
 import { Product } from '@/dto/product/product.ts';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Link } from 'react-router-dom';
@@ -16,12 +16,22 @@ import { KeyboardEvent, useRef, useState } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge.tsx';
 import notification from '@/utils/notification.tsx';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
+import { HexColorPicker } from 'react-colorful';
+import { cn } from '@/lib/utils.ts';
+const allowTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
 const formSchema = z.object({
   id: z.number().nullable().optional(),
   name: z.string().min(1, {
     message: 'Please provide product name'
   }).max(255),
+  images: z.instanceof(FileList)
+    .refine((files) => Array.from(files).every(file => file instanceof File), {
+      message: "Expect a file"
+    }).refine((files) => Array.from(files).every(file => allowTypes.includes(file.type)), {
+      message: `Only these file types are allowed: ${allowTypes.map(t => t.replace('image', '.'))}`
+    }),
   description: z.string().max(10000).optional(),
   categoryId: z.string({message: 'Please provide category information'}),
   productSizes: z.object({
@@ -31,6 +41,11 @@ const formSchema = z.object({
     name: string().min(1, {message: 'Product color required'}),
     code: string()
   }).array().optional()
+});
+
+const colorFormSchema = z.object({
+  name: z.string({message: 'Please provide color name'}),
+  code: z.string({message: 'Please provide color'})
 })
 
 interface ProductFormProps {
@@ -42,6 +57,9 @@ interface ProductFormProps {
 function ProductForm(props: ProductFormProps) {
   const [addingSizes, setAddingSizes] = useState(false);
   const [newSize, setNewSize] = useState('');
+
+
+  const [addingColor, setAddingColor] = useState(false);
 
   const {data: categories, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
@@ -59,16 +77,25 @@ function ProductForm(props: ProductFormProps) {
       id: null,
       name: "",
       categoryId: undefined,
+      images: undefined
     }
   });
+
+  const colorForm = useForm<z.infer<typeof colorFormSchema>>({
+    resolver: zodResolver(colorFormSchema),
+    defaultValues: {
+      name: '',
+      code: '',
+    }
+  })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log('submit form');
     console.log(values);
-    mutate({
-      ...values,
-      categoryId: Number(values.categoryId)
-    });
+    // mutate({
+    //   ...values,
+    //   categoryId: Number(values.categoryId)
+    // });
   }
 
   if (isLoading) {
@@ -80,7 +107,7 @@ function ProductForm(props: ProductFormProps) {
     return <div>Fail to load categories</div>;
   }
 
-  function handleKeydownSizeInput(e: KeyboardEvent<HTMLInputElement> ) {
+  function handleKeydownSizeInput(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key !== 'Enter') {
       return;
     }
@@ -94,24 +121,16 @@ function ProductForm(props: ProductFormProps) {
     setNewSize('');
   }
 
-  return (
-    <div className={'mt-6 max-w-3xl'}>
-      <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className={'space-y-4'}>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({field}) => (
-              <FormItem>
-                <FormLabel>Product name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Product name" {...field} />
-                </FormControl>
-                <FormMessage/>
-              </FormItem>
-            )}
-          />
+  function handleAddColor(values: z.infer<typeof colorFormSchema>) {
+    const colors = form.getValues("productColors")
+    form.setValue("productColors", [...(colors || []), {name: values.name, code: values.code}]);
+    colorForm.reset();
+  }
 
+  return (
+    <div className={'mt-4 max-w-3xl'}>
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className={'space-y-6'}>
           <FormField
             control={form.control}
             name="categoryId"
@@ -139,6 +158,224 @@ function ProductForm(props: ProductFormProps) {
                   </SelectContent>
                 </Select>
                 <FormMessage/>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="name"
+            render={({field}) => (
+              <FormItem>
+                <FormLabel>Product name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Product name" {...field} className={'max-w-lg'}/>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="images"
+            render={({field: {value, onChange, ...fieldProps}}) => (
+              <FormItem>
+                <FormLabel>Product images</FormLabel>
+                <FormControl>
+                  <Input
+                    {...fieldProps}
+                    placeholder="Product"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(event) =>
+                      onChange(event.target.files)
+                    }
+                    className={'w-64'}
+                  />
+                </FormControl>
+                <FormMessage/>
+                <div className={'grid grid-cols-3 gap-2'}>
+                  {
+                    form.getValues("images") &&
+                    Array.from(form.getValues("images")).map((file, index) => (
+                      <img className={'h-48 w-full'} key={index} src={URL.createObjectURL(new Blob([file]))}/>
+                    ))
+                  }
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name={"productSizes"}
+            control={form.control}
+            render={() => (
+              <FormItem className={'flex space-y-4 flex-col'}>
+                <FormLabel>Product Size</FormLabel>
+                {
+                  !addingSizes &&
+                  <Button variant={'outline'}
+                          className={'flex items-center w-48'}
+                          type={'button'}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setAddingSizes(true);
+                          }}
+                  >
+                    <PlusIcon className={'size-4 mr-2 font-bold'}/>
+                    Add size
+                  </Button>
+                }
+                {
+                  addingSizes &&
+                  <div className={'flex items-center gap-4'}>
+                    <Input placeholder={'New product size'}
+                           className={'max-w-md'}
+                           value={newSize}
+                           onChange={(e) => setNewSize(e.target.value)}
+                           onKeyDown={handleKeydownSizeInput}
+                           onBlur={()=> setAddingSizes(false)}
+                           id={"asi"}
+                    />
+                    <Button
+                      variant={'outline'}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setAddingSizes(false);
+                        setNewSize('');
+                      }}>Cancel</Button>
+                  </div>
+                }
+                <div className={'flex gap-2 max-w-lg flex-wrap'}>
+                  {
+                    form.getValues('productSizes')?.map((size, index) => {
+                      return (
+                        <Badge key={index}
+                               className={'px-4 py-2 cursor-pointer '}
+                               variant={'secondary'}
+                               onClick={() => {
+                                 const sizes = form.getValues('productSizes') || [];
+                                 form.setValue("productSizes", sizes.filter(s => s.name !== size.name));
+                               }}
+                        >
+                          {size.name}
+                        </Badge>
+                      )
+                    })
+                  }
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name={"productColors"}
+            control={form.control}
+            render={() => (
+              <FormItem className={'flex space-y-4 flex-col'}>
+                <FormLabel>Product Color</FormLabel>
+                {
+                  !addingColor &&
+                  <Button variant={'outline'}
+                          className={'flex items-center w-48'}
+                          type={'button'}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setAddingColor(true);
+                          }}
+                  >
+                    <PlusIcon className={'size-4 mr-2 font-bold'}/>
+                    Add color
+                  </Button>
+                }
+                {
+                  addingColor && (
+                    <Card className={'max-w-xl'}>
+                      <CardHeader>
+                        <CardTitle className={'text-lg'}>Add color</CardTitle>
+                      </CardHeader>
+                      <CardContent className={'flex flex-col space-y-4'}>
+                        <FormProvider {...colorForm}>
+                          <FormField
+                            control={colorForm.control}
+                            name="name"
+                            render={({field}) => (
+                              <FormItem>
+                                <FormLabel>Color</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Color name"
+                                         {...field}
+                                         className={'max-w-xs'}
+                                         onKeyPress={(e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                                           e.key === 'Enter' && e.preventDefault();
+                                         }}
+                                  />
+                                </FormControl>
+                                <FormMessage/>
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={colorForm.control}
+                            name="code"
+                            render={({field}) => (
+                              <FormItem>
+                                <FormLabel>Pick color</FormLabel>
+                                <FormDescription>Pick color for your product</FormDescription>
+                                <FormControl>
+                                  <HexColorPicker color={colorForm.getValues("code")}
+                                                  onChange={value => colorForm.setValue("code", value)}
+                                  />
+                                </FormControl>
+                                <FormMessage/>
+                              </FormItem>
+                            )}
+                          />
+                        </FormProvider>
+                      </CardContent>
+                      <CardFooter>
+                        <div className={'flex gap-2'}>
+                          <Button type={'button'}
+                                  className={'bg-amber-600'}
+                                  onClick={colorForm.handleSubmit(handleAddColor)}
+                          >
+                            Add
+                          </Button>
+                          <Button type={'button'} variant={'outline'}
+                                  onClick={() => {
+                                    setAddingColor(false);
+                                    colorForm.reset();
+                                  }}
+                          >Cancel</Button>
+                        </div>
+                      </CardFooter>
+                    </Card>
+
+                  )
+                }
+
+                <div className={'flex gap-2 max-w-sm'}>
+                  {
+                    form.getValues('productColors')?.map((color, index) => {
+                      return (
+                        <Badge key={index}
+                               className={'px-4 py-2 flex items-center gap-2'}
+                               variant={'secondary'}
+                               onClick={() => {
+                                 const colors = form.getValues('productColors') || [];
+                                 form.setValue("productColors", colors.filter(s => s.name !== color.name));
+                               }}
+                        >
+                          <div style={{backgroundColor: color.code}} className={cn('size-2 rounded')}></div>
+                          <div>{color.name}</div>
+                        </Badge>
+                      )
+                    })
+                  }
+                </div>
               </FormItem>
             )}
           />
@@ -177,66 +414,6 @@ function ProductForm(props: ProductFormProps) {
                          <FormMessage/>
                        </FormItem>
                      )}
-          />
-          <FormField
-            name={"productSizes"}
-            control={form.control}
-            render={() => (
-              <FormItem className={'flex space-y-4 flex-col'}>
-                <FormLabel>Product Size</FormLabel>
-                {
-                  !addingSizes &&
-                  <Button variant={'outline'}
-                          className={'flex items-center w-48'}
-                          type={'button'}
-                          onClick={(event) => {
-                            console.log('add sizes btn clicked');
-                            event.preventDefault();
-                            setAddingSizes(true);
-                          }}
-                  >
-                    <PlusIcon className={'size-4 mr-2 font-bold'}/>
-                    Add size
-                  </Button>
-                }
-                {
-                  addingSizes &&
-                  <div className={'flex items-center gap-4'}>
-                    <Input placeholder={'New product sizes'}
-                           className={'max-w-md'}
-                           value={newSize}
-                           onChange={(e)=> setNewSize(e.target.value)}
-                           onKeyDown={handleKeydownSizeInput}
-                           id={"asi"}
-                    />
-                      <Button
-                        variant={'outline'}
-                        onClick={(e) => {
-                        e.preventDefault();
-                        setAddingSizes(false);
-                        setNewSize('');
-                      }}>Cancel</Button>
-                  </div>
-                }
-                <div className={'flex gap-2'}>
-                  {
-                    form.getValues('productSizes')?.map((size, index) => {
-                      return (
-                      <Badge key={index}
-                             className={'px-4 py-2 rounded-none'}
-                             onClick={()=> {
-                               const sizes = form.getValues('productSizes') || [];
-                               form.setValue("productSizes", sizes.filter(s => s.name !== size.name));
-                             }}
-                      >
-                        {size.name}
-                      </Badge>
-                      )
-                    })
-                  }
-                </div>
-              </FormItem>
-            )}
           />
 
           <div className={'flex gap-4'}>
