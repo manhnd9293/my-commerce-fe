@@ -12,12 +12,9 @@ export interface Product extends BaseDto {
 
   productSizes?: ProductSize[];
 
-
   productColors?: ProductColor[];
 
-
   productVariants?: ProductVariant[];
-
 
   categoryId: number;
 

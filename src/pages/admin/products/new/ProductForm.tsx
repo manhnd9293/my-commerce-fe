@@ -1,17 +1,21 @@
-import {z} from 'zod';
-import {Product} from '@/dto/product/product.ts';
-import {FormProvider, useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form.tsx';
-import {Input} from '@/components/ui/input.tsx';
-import {Button} from '@/components/ui/button.tsx';
-import {Link} from 'react-router-dom';
-import {useQuery} from '@tanstack/react-query';
-import {QueryKey} from '@/constant/query-key.ts';
+import { string, z } from 'zod';
+import { Product } from '@/dto/product/product.ts';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
+import { Input } from '@/components/ui/input.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { QueryKey } from '@/constant/query-key.ts';
 import CategoriesService from '@/services/categories.service.ts';
 import Utils from '@/utils/utils.ts';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import EditorComponent from '@/pages/test/editor/EditorComponent.tsx';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Editor } from '@tinymce/tinymce-react';
+import { KeyboardEvent, useRef, useState } from 'react';
+import { PlusIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge.tsx';
+import notification from '@/utils/notification.tsx';
 
 const formSchema = z.object({
   id: z.number().nullable().optional(),
@@ -19,7 +23,14 @@ const formSchema = z.object({
     message: 'Please provide product name'
   }).max(255),
   description: z.string().max(10000).optional(),
-  categoryId: z.string({message: 'Please provide category information'})
+  categoryId: z.string({message: 'Please provide category information'}),
+  productSizes: z.object({
+    name: z.string()
+  }).array().optional(),
+  productColors: z.object({
+    name: string().min(1, {message: 'Product color required'}),
+    code: string()
+  }).array().optional()
 })
 
 interface ProductFormProps {
@@ -29,11 +40,15 @@ interface ProductFormProps {
 }
 
 function ProductForm(props: ProductFormProps) {
+  const [addingSizes, setAddingSizes] = useState(false);
+  const [newSize, setNewSize] = useState('');
+
   const {data: categories, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
     queryFn: CategoriesService.getAll
   });
   const {mutate, isPending, initialData} = props;
+  const editorRef = useRef(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,10 +65,10 @@ function ProductForm(props: ProductFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log('submit form');
     console.log(values);
-    // mutate({
-    //   ...values,
-    //   categoryId: Number(values.categoryId)
-    // });
+    mutate({
+      ...values,
+      categoryId: Number(values.categoryId)
+    });
   }
 
   if (isLoading) {
@@ -63,6 +78,20 @@ function ProductForm(props: ProductFormProps) {
   if (isError) {
     Utils.handleError(error);
     return <div>Fail to load categories</div>;
+  }
+
+  function handleKeydownSizeInput(e: KeyboardEvent<HTMLInputElement> ) {
+    if (e.key !== 'Enter') {
+      return;
+    }
+    e.preventDefault();
+    const sizes = form.getValues("productSizes");
+    if (sizes && sizes.some(size => size.name.toLowerCase() === newSize)) {
+      notification.error('Fail to add size. Size exists');
+      return;
+    }
+    form.setValue("productSizes", [...(sizes || []), {name: newSize}]);
+    setNewSize('');
   }
 
   return (
@@ -116,19 +145,99 @@ function ProductForm(props: ProductFormProps) {
 
           <FormField name="description"
                      control={form.control}
-                     render={({field: {value, onChange, ...fieldProps}}) => (
+                     render={() => (
                        <FormItem>
                          <FormLabel>Description</FormLabel>
-                         <EditorComponent content={value}
-                                          onChange={onChange}
-                                          {...fieldProps}
+                         <Editor
+                           apiKey='iloqhvyja1d64v0zfn5delyuec4rcmxlju53bq2etbpho9zb'
+                           onInit={(_evt, editor) => {
+                             // @ts-ignore
+                             editorRef.current = editor
+                           }}
+                           value={form.getValues("description")}
+                           init={{
+                             height: 500,
+                             menubar: false,
+                             branding: false,
+                             plugins: [
+                               'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                               'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                               'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                             ],
+                             toolbar: 'undo redo | blocks | ' +
+                               'bold italic forecolor | alignleft aligncenter ' +
+                               'alignright alignjustify | bullist numlist outdent indent | ' +
+                               'removeformat | help',
+                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                           }}
+                           onEditorChange={(newValue) => {
+                             form.setValue("description", newValue, {shouldValidate: true});
+                           }}
                          />
+                         <FormMessage/>
                        </FormItem>
-
-                     )
-                     }
+                     )}
           />
-
+          <FormField
+            name={"productSizes"}
+            control={form.control}
+            render={() => (
+              <FormItem className={'flex space-y-4 flex-col'}>
+                <FormLabel>Product Size</FormLabel>
+                {
+                  !addingSizes &&
+                  <Button variant={'outline'}
+                          className={'flex items-center w-48'}
+                          type={'button'}
+                          onClick={(event) => {
+                            console.log('add sizes btn clicked');
+                            event.preventDefault();
+                            setAddingSizes(true);
+                          }}
+                  >
+                    <PlusIcon className={'size-4 mr-2 font-bold'}/>
+                    Add size
+                  </Button>
+                }
+                {
+                  addingSizes &&
+                  <div className={'flex items-center gap-4'}>
+                    <Input placeholder={'New product sizes'}
+                           className={'max-w-md'}
+                           value={newSize}
+                           onChange={(e)=> setNewSize(e.target.value)}
+                           onKeyDown={handleKeydownSizeInput}
+                           id={"asi"}
+                    />
+                      <Button
+                        variant={'outline'}
+                        onClick={(e) => {
+                        e.preventDefault();
+                        setAddingSizes(false);
+                        setNewSize('');
+                      }}>Cancel</Button>
+                  </div>
+                }
+                <div className={'flex gap-2'}>
+                  {
+                    form.getValues('productSizes')?.map((size, index) => {
+                      return (
+                      <Badge key={index}
+                             className={'px-4 py-2 rounded-none'}
+                             onClick={()=> {
+                               const sizes = form.getValues('productSizes') || [];
+                               form.setValue("productSizes", sizes.filter(s => s.name !== size.name));
+                             }}
+                      >
+                        {size.name}
+                      </Badge>
+                      )
+                    })
+                  }
+                </div>
+              </FormItem>
+            )}
+          />
 
           <div className={'flex gap-4'}>
             <Button type="submit"
