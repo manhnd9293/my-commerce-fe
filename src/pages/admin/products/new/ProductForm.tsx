@@ -26,7 +26,7 @@ const formSchema = z.object({
   name: z.string().min(1, {
     message: 'Please provide product name'
   }).max(255),
-  images: z.instanceof(FileList)
+  images: z.instanceof(FileList, {message: 'Please provide some product images'})
     .refine((files) => Array.from(files).every(file => file instanceof File), {
       message: "Expect a file"
     }).refine((files) => Array.from(files).every(file => allowTypes.includes(file.type)), {
@@ -44,8 +44,8 @@ const formSchema = z.object({
 });
 
 const colorFormSchema = z.object({
-  name: z.string({message: 'Please provide color name'}),
-  code: z.string({message: 'Please provide color'})
+  name: z.string({message: 'Please provide color name'}).min(1, {message: 'Please provide color name'}),
+  code: z.string({message: 'Please provide color'}).min(1, {message: 'Please select product color'})
 })
 
 interface ProductFormProps {
@@ -92,10 +92,10 @@ function ProductForm(props: ProductFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log('submit form');
     console.log(values);
-    // mutate({
-    //   ...values,
-    //   categoryId: Number(values.categoryId)
-    // });
+    mutate({
+      ...values,
+      categoryId: Number(values.categoryId)
+    });
   }
 
   if (isLoading) {
@@ -308,7 +308,7 @@ function ProductForm(props: ProductFormProps) {
                                   <Input placeholder="Color name"
                                          {...field}
                                          className={'max-w-xs'}
-                                         onKeyPress={(e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                                         onKeyDown={(e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
                                            e.key === 'Enter' && e.preventDefault();
                                          }}
                                   />
@@ -321,7 +321,7 @@ function ProductForm(props: ProductFormProps) {
                           <FormField
                             control={colorForm.control}
                             name="code"
-                            render={({field}) => (
+                            render={() => (
                               <FormItem>
                                 <FormLabel>Pick color</FormLabel>
                                 <FormDescription>Pick color for your product</FormDescription>

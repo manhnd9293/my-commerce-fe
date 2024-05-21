@@ -3,15 +3,23 @@ import ProductForm from '@/pages/admin/products/new/ProductForm.tsx';
 import { useMutation } from '@tanstack/react-query';
 import  ProductsService  from '@/services/products.service.ts';
 import Utils from '@/utils/utils.ts';
+import notification from '@/utils/notification.tsx';
+import { useNavigate } from 'react-router-dom';
 
 function ProductCreatePage() {
+  const navigate = useNavigate();
+
   const {
     isPending,
     mutate,
     isError,
     error
   } = useMutation({
-    mutationFn: ProductsService.create
+    mutationFn: ProductsService.create,
+    onSuccess: ()=> {
+      notification.success('Create product success');
+      navigate('/products')
+    }
   });
 
   if (isError) {
