@@ -18,7 +18,6 @@ function CategoriesList() {
     return <div>Fail to load categories: {error.message}</div>
   }
 
-  // @ts-ignore
   return (
     <div>
       <PageTitle>Categories</PageTitle>

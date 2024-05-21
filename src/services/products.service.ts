@@ -16,6 +16,9 @@ class ProductsService {
     })
   }
 
+  getAll() {
+    return httpClient.get('/products');
+  }
 }
 
 export default new ProductsService();
