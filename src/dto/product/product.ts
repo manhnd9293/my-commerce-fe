@@ -3,6 +3,7 @@ import { Category } from '@/dto/category.ts';
 import { ProductSize } from '@/dto/product/product-size.ts';
 import { ProductColor } from '@/dto/product/product-color.ts';
 import { ProductVariant } from '@/dto/product/product-variant.ts';
+import { ProductImage } from '@/dto/product/product-image.ts';
 
 export interface Product extends BaseDto {
 
@@ -19,4 +20,6 @@ export interface Product extends BaseDto {
   categoryId: number;
 
   category?: Category;
+
+  productImages?: ProductImage[];
 }

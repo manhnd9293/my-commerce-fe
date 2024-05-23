@@ -57,8 +57,6 @@ interface ProductFormProps {
 function ProductForm(props: ProductFormProps) {
   const [addingSizes, setAddingSizes] = useState(false);
   const [newSize, setNewSize] = useState('');
-
-
   const [addingColor, setAddingColor] = useState(false);
 
   const {data: categories, isLoading, isError, error} = useQuery({
@@ -87,11 +85,9 @@ function ProductForm(props: ProductFormProps) {
       name: '',
       code: '',
     }
-  })
+  });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('submit form');
-    console.log(values);
     mutate({
       ...values,
       categoryId: Number(values.categoryId)
@@ -186,21 +182,28 @@ function ProductForm(props: ProductFormProps) {
                   <Input
                     {...fieldProps}
                     placeholder="Product"
+                    className='w-64'
                     type="file"
                     multiple
                     accept="image/*"
-                    onChange={(event) =>
-                      onChange(event.target.files)
-                    }
-                    className={'w-64'}
+                    onChange={(event) => {
+                      const imageFiles = form.getValues("images");
+                      const addedFiles = event.target.files;
+                      form.setValue('images', Utils.mergeFileLists(imageFiles, addedFiles))
+                    }}
                   />
                 </FormControl>
                 <FormMessage/>
                 <div className={'grid grid-cols-3 gap-2'}>
                   {
+                    initialData?.productImages?.map((image)=> (
+                      <img className={'h-48 w-full shadow-md rounded-sm'} key={image.id} src={image.asset.preSignUrl}/>
+                    ))
+                  }
+                  {
                     form.getValues("images") &&
                     Array.from(form.getValues("images")).map((file, index) => (
-                      <img className={'h-48 w-full'} key={index} src={URL.createObjectURL(new Blob([file]))}/>
+                      <img className={'h-48 w-full shadow-md rounded-sm'} key={index} src={URL.createObjectURL(new Blob([file]))}/>
                     ))
                   }
                 </div>

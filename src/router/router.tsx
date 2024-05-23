@@ -10,6 +10,7 @@ import { UpdateCategoryPage } from '@/pages/admin/categories/update/UpdateCatego
 import SignUp from '@/pages/sign-up/SignUp.tsx';
 import ProductCreatePage from '@/pages/admin/products/new/ProductCreatePage.tsx';
 import ProductListPage from '@/pages/admin/products/list/ProductListPage.tsx';
+import ProductUpdatePage from '@/pages/admin/products/list/update/ProductUpdatePage.tsx';
 
 export const router = createBrowserRouter([
 
@@ -35,7 +36,11 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <ProductListPage/>
-          }
+          },
+          {
+            path: ':id',
+            element: <ProductUpdatePage/>
+          },
         ]
       },
       {

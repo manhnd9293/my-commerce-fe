@@ -18,7 +18,7 @@ function ProductCreatePage() {
     mutationFn: ProductsService.create,
     onSuccess: ()=> {
       notification.success('Create product success');
-      navigate('/products')
+      navigate('/admin/products')
     }
   });
 

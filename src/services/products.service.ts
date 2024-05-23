@@ -19,6 +19,14 @@ class ProductsService {
   getAll() {
     return httpClient.get('/products');
   }
+
+  get(id: string): Promise<Product | null> {
+    return httpClient.get(`/products/${id}`);
+  }
+
+  update(updateProduct: Partial<Product>, addFiles: FileList) {
+    return httpClient.patch(`/products`, updateProduct)
+  }
 }
 
 export default new ProductsService();

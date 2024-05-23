@@ -22,6 +22,28 @@ const Utils = {
     console.log({error});
     Notification.error(this.getErrorMessage(error));
   },
+
+  /**
+   * Merges two FileList objects and returns a new FileList object
+   * @param fileListA The first FileList object
+   * @param fileListB The second FileList object
+   */
+  mergeFileLists (fileListA: FileList | undefined, fileListB: FileList | undefined): FileList  {
+    const dataTransfer = new DataTransfer();
+
+    if(fileListA !== null && fileListA !== undefined) {
+      for (let i = 0; i < fileListA.length; i++) {
+        dataTransfer.items.add(fileListA[i]);
+      }
+    }
+    if(fileListB !== null && fileListB !== undefined) {
+      for (let i = 0; i < fileListB.length; i++) {
+        dataTransfer.items.add(fileListB[i]);
+      }
+    }
+
+    return dataTransfer.files;
+  }
 }
 
 export default Utils;

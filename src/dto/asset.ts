@@ -4,5 +4,5 @@ export interface Asset extends BaseDto {
   s3Key: string;
   fileType: string;
   size: number;
-  url: string;
+  preSignUrl?: string;
 }
