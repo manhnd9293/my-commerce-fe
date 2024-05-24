@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ProductsService from '@/services/products.service.ts';
 import Utils from '@/utils/utils.ts';
 import PageTitle from '@/pages/common/PageTitle.tsx';
-import ProductForm from '@/pages/admin/products/new/ProductForm.tsx';
+import ProductForm from '@/pages/admin/products/form/ProductForm.tsx';
 import notification from '@/utils/notification.tsx';
 import { Product } from '@/dto/product/product.ts';
 

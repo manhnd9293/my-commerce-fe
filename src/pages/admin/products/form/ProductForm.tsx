@@ -1,24 +1,25 @@
-import { string, z } from 'zod';
-import { Product } from '@/dto/product/product.ts';
-import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
-import { Input } from '@/components/ui/input.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { QueryKey } from '@/constant/query-key.ts';
+import {string, z} from 'zod';
+import {Product} from '@/dto/product/product.ts';
+import {FormProvider, useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form.tsx';
+import {Input} from '@/components/ui/input.tsx';
+import {Button} from '@/components/ui/button.tsx';
+import {Link} from 'react-router-dom';
+import {useQuery} from '@tanstack/react-query';
+import {QueryKey} from '@/constant/query-key.ts';
 import CategoriesService from '@/services/categories.service.ts';
 import Utils from '@/utils/utils.ts';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Editor } from '@tinymce/tinymce-react';
-import { KeyboardEvent, useRef, useState } from 'react';
-import { PlusIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/badge.tsx';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select.tsx';
+import {Editor} from '@tinymce/tinymce-react';
+import {KeyboardEvent, useRef, useState} from 'react';
+import {CrossIcon, PlusIcon, XIcon} from 'lucide-react';
+import {Badge} from '@/components/ui/badge.tsx';
 import notification from '@/utils/notification.tsx';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
-import { HexColorPicker } from 'react-colorful';
-import { cn } from '@/lib/utils.ts';
+import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card.tsx';
+import {HexColorPicker} from 'react-colorful';
+import {cn} from '@/lib/utils.ts';
+
 const allowTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
 const formSchema = z.object({
@@ -26,7 +27,15 @@ const formSchema = z.object({
   name: z.string().min(1, {
     message: 'Please provide product name'
   }).max(255),
-  images: z.instanceof(FileList, {message: 'Please provide some product images'})
+  oldImages: z.object({
+    id: z.number(),
+    assetId: z.number(),
+    asset: z.object({
+      id: z.number(),
+      preSignUrl: z.string().optional()
+    })
+  }).array(),
+  newImages: z.instanceof(FileList, {message: 'Please provide some product images'})
     .refine((files) => Array.from(files).every(file => file instanceof File), {
       message: "Expect a file"
     }).refine((files) => Array.from(files).every(file => allowTypes.includes(file.type)), {
@@ -71,6 +80,7 @@ function ProductForm(props: ProductFormProps) {
     defaultValues: initialData ? {
       ...initialData,
       categoryId: String(initialData?.categoryId),
+      oldImages: initialData.productImages || []
     } : {
       id: null,
       name: "",
@@ -174,7 +184,7 @@ function ProductForm(props: ProductFormProps) {
 
           <FormField
             control={form.control}
-            name="images"
+            name="newImages"
             render={({field: {value, onChange, ...fieldProps}}) => (
               <FormItem>
                 <FormLabel>Product images</FormLabel>
@@ -187,23 +197,43 @@ function ProductForm(props: ProductFormProps) {
                     multiple
                     accept="image/*"
                     onChange={(event) => {
-                      const imageFiles = form.getValues("images");
+                      const imageFiles = form.getValues("newImages");
                       const addedFiles = event.target.files;
-                      form.setValue('images', Utils.mergeFileLists(imageFiles, addedFiles))
+                      form.setValue('newImages', Utils.mergeFileLists(imageFiles, addedFiles))
                     }}
                   />
                 </FormControl>
                 <FormMessage/>
                 <div className={'grid grid-cols-3 gap-2'}>
                   {
-                    initialData?.productImages?.map((image)=> (
-                      <img className={'h-48 w-full shadow-md rounded-sm'} key={image.id} src={image.asset.preSignUrl}/>
+                    form.getValues('oldImages')?.map((image)=> (
+                      <div className={'shadow-md relative'} key={image.id}>
+                        <XIcon className={'size-4 right-1 top-1 absolute hover:cursor-pointer'}
+                               onClick={()=> {
+                                 const oldImages = form.getValues('oldImages');
+                                 form.setValue('oldImages', oldImages.filter(oldImage => oldImage.id !== image.id))
+                               }}
+                        />
+                        <img className={'h-52 w-full rounded-sm'}
+                             key={image.id}
+                             src={image.asset.preSignUrl}/>
+                      </div>
                     ))
                   }
                   {
-                    form.getValues("images") &&
-                    Array.from(form.getValues("images")).map((file, index) => (
-                      <img className={'h-48 w-full shadow-md rounded-sm'} key={index} src={URL.createObjectURL(new Blob([file]))}/>
+                    form.getValues("newImages") &&
+                    Array.from(form.getValues("newImages")).map((file, index) => (
+                      <div className={'shadow-md relative'} key={index}>
+                        <XIcon className={'size-4 right-1 top-1 absolute hover:cursor-pointer'}
+                                  onClick={() => {
+                                    const oldImages = form.getValues('newImages');
+                                    form.setValue('newImages', oldImages.filter(oldImage => oldImage.id !== image.id))
+                                  }}
+                        />
+                        <img className={'h-52 w-full rounded-sm'}
+                             key={index}
+                             src={URL.createObjectURL(new Blob([file]))}/>
+                      </div>
                     ))
                   }
                 </div>

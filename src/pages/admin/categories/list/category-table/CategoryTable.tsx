@@ -1,6 +1,3 @@
-"use client"
-
-import * as React from "react"
 import {
   ColumnFiltersState,
   flexRender,
@@ -25,15 +22,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryKey } from '@/constant/query-key.ts';
 import notification from '@/utils/notification.tsx';
 import ConfirmDeleteCategoryModal from '@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx';
+import {useState} from "react";
 
 export function CategoryTable({data}: { data: Category[] }) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({});
+    useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({});
   const queryClient = useQueryClient();
   const {mutate} = useMutation({
     mutationFn: (ids: number[]) => categoriesService.delete(ids),

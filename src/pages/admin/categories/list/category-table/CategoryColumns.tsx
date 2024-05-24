@@ -12,6 +12,7 @@ import { ArrowUpDown, EditIcon, LucideTrash2, MoreHorizontal } from 'lucide-reac
 import { Category } from '@/dto/category.ts';
 import { useState } from 'react';
 import ConfirmDeleteCategoryModal from '@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx';
+import {Link} from "react-router-dom";
 
 
 export const categoryColumns: ColumnDef<Category>[] = [
@@ -49,6 +50,9 @@ export const categoryColumns: ColumnDef<Category>[] = [
         </Button>
       )
     },
+    cell: ({row}) => (
+      <Link to={`${row.original.id}`}>{row.original.name}</Link>
+    )
   },
   {
     accessorKey: "createdAt",

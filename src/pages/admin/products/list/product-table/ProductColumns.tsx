@@ -1,19 +1,20 @@
-import { ColumnDef } from '@tanstack/react-table';
-import { Category } from '@/dto/category.ts';
-import { Checkbox } from '@/components/ui/checkbox.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { ArrowUpDown, EditIcon, LucideTrash2, MoreHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import {ColumnDef} from '@tanstack/react-table';
+import {Checkbox} from '@/components/ui/checkbox.tsx';
+import {Button} from '@/components/ui/button.tsx';
+import {ArrowUpDown, EditIcon, LucideTrash2, MoreHorizontal} from 'lucide-react';
+import {useState} from 'react';
 import {
   DropdownMenu,
-  DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu.tsx';
-import { Product } from '@/dto/product/product.ts';
+import {Product} from '@/dto/product/product.ts';
 import ConfirmDeleteProductModal from '@/pages/admin/products/list/product-table/ConfirmDeleteProductModal.tsx';
+import {Link} from "react-router-dom";
 
-export const productColumns: ColumnDef<Category>[] = [
+export const productColumns: ColumnDef<Product>[] = [
   {
     id: 'select-row',
     header: ({table}) => (
@@ -48,6 +49,9 @@ export const productColumns: ColumnDef<Category>[] = [
         </Button>
       )
     },
+    cell: ({row}) => (
+      <Link to={`${row.original.id}`}>{row.original.name}</Link>
+    )
   },
   {
     accessorKey: "createdAt",
@@ -62,6 +66,7 @@ export const productColumns: ColumnDef<Category>[] = [
     enableHiding: false,
     cell: ({row, table}) => {
       const product = row.original as Product;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const [openConfirmDeleteModal, setOpenConfirmDeleteModal] = useState(false);
       return (
         <>

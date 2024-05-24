@@ -1,5 +1,5 @@
 import PageTitle from '@/pages/common/PageTitle.tsx';
-import ProductForm from '@/pages/admin/products/new/ProductForm.tsx';
+import ProductForm from '@/pages/admin/products/form/ProductForm.tsx';
 import { useMutation } from '@tanstack/react-query';
 import  ProductsService  from '@/services/products.service.ts';
 import Utils from '@/utils/utils.ts';
