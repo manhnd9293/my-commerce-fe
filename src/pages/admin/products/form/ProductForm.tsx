@@ -13,12 +13,14 @@ import Utils from '@/utils/utils.ts';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select.tsx';
 import {Editor} from '@tinymce/tinymce-react';
 import {KeyboardEvent, useRef, useState} from 'react';
-import {CrossIcon, PlusIcon, XIcon} from 'lucide-react';
+import {PlusIcon, XIcon} from 'lucide-react';
 import {Badge} from '@/components/ui/badge.tsx';
 import notification from '@/utils/notification.tsx';
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card.tsx';
 import {HexColorPicker} from 'react-colorful';
 import {cn} from '@/lib/utils.ts';
+import OldProductImageList from "@/pages/admin/products/form/OldProductImageList.tsx";
+import NewProductImageList from "@/pages/admin/products/form/NewProductImageList.tsx";
 
 const allowTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
@@ -67,6 +69,7 @@ function ProductForm(props: ProductFormProps) {
   const [addingSizes, setAddingSizes] = useState(false);
   const [newSize, setNewSize] = useState('');
   const [addingColor, setAddingColor] = useState(false);
+  const [newImageFiles, setNewImageFiles] = useState([]);
 
   const {data: categories, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
@@ -197,45 +200,35 @@ function ProductForm(props: ProductFormProps) {
                     multiple
                     accept="image/*"
                     onChange={(event) => {
-                      const imageFiles = form.getValues("newImages");
                       const addedFiles = event.target.files;
+                      if (!addedFiles) {
+                        return;
+                      }
+                      const imageFiles = form.getValues("newImages");
+                      let update = [...newImageFiles, ...Array.from(addedFiles)];
+                      console.log({update});
+                      setNewImageFiles(update);
                       form.setValue('newImages', Utils.mergeFileLists(imageFiles, addedFiles))
                     }}
                   />
                 </FormControl>
                 <FormMessage/>
                 <div className={'grid grid-cols-3 gap-2'}>
-                  {
-                    form.getValues('oldImages')?.map((image)=> (
-                      <div className={'shadow-md relative'} key={image.id}>
-                        <XIcon className={'size-4 right-1 top-1 absolute hover:cursor-pointer'}
-                               onClick={()=> {
-                                 const oldImages = form.getValues('oldImages');
-                                 form.setValue('oldImages', oldImages.filter(oldImage => oldImage.id !== image.id))
-                               }}
-                        />
-                        <img className={'h-52 w-full rounded-sm'}
-                             key={image.id}
-                             src={image.asset.preSignUrl}/>
-                      </div>
-                    ))
-                  }
-                  {
-                    form.getValues("newImages") &&
-                    Array.from(form.getValues("newImages")).map((file, index) => (
-                      <div className={'shadow-md relative'} key={index}>
-                        <XIcon className={'size-4 right-1 top-1 absolute hover:cursor-pointer'}
-                                  onClick={() => {
-                                    const oldImages = form.getValues('newImages');
-                                    form.setValue('newImages', oldImages.filter(oldImage => oldImage.id !== image.id))
-                                  }}
-                        />
-                        <img className={'h-52 w-full rounded-sm'}
-                             key={index}
-                             src={URL.createObjectURL(new Blob([file]))}/>
-                      </div>
-                    ))
-                  }
+                  <OldProductImageList onDelete={(id) => {
+                                         const oldImages = form.getValues('oldImages');
+                                         form.setValue('oldImages', oldImages.filter(oldImage => oldImage.id !== id))
+                  }}
+                                       initialValues={form.getValues('oldImages')}
+                  />
+                  <NewProductImageList onDelete={(index)=> {
+                                         setNewImageFiles(newImageFiles.filter((_img, idx) => idx !== index)); // for display product image
+                                         const newImages = form.getValues('newImages'); // for add image file to form
+                                         const newImagesArray = Array.from(newImages).filter((_file, idx)=> idx !== index);
+                                         form.setValue('newImages', Utils.createFileList(newImagesArray))
+                                       }}
+                                       imageFiles={newImageFiles}
+                  />
+
                 </div>
               </FormItem>
             )}
@@ -269,7 +262,7 @@ function ProductForm(props: ProductFormProps) {
                            value={newSize}
                            onChange={(e) => setNewSize(e.target.value)}
                            onKeyDown={handleKeydownSizeInput}
-                           onBlur={()=> setAddingSizes(false)}
+                           onBlur={() => setAddingSizes(false)}
                            id={"asi"}
                     />
                     <Button

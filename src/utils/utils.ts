@@ -28,22 +28,31 @@ const Utils = {
    * @param fileListA The first FileList object
    * @param fileListB The second FileList object
    */
-  mergeFileLists (fileListA: FileList | undefined, fileListB: FileList | undefined): FileList  {
+  mergeFileLists (fileListA: FileList | undefined | null, fileListB: FileList | undefined | null): FileList  {
     const dataTransfer = new DataTransfer();
 
-    if(fileListA !== null && fileListA !== undefined) {
+    if(fileListA) {
       for (let i = 0; i < fileListA.length; i++) {
         dataTransfer.items.add(fileListA[i]);
       }
     }
-    if(fileListB !== null && fileListB !== undefined) {
+    if(fileListB) {
       for (let i = 0; i < fileListB.length; i++) {
         dataTransfer.items.add(fileListB[i]);
       }
     }
 
     return dataTransfer.files;
+  },
+
+  createFileList(list: File[]) {
+    const dataTransfer = new DataTransfer();
+    for (let i = 0; i < list.length; i++) {
+      dataTransfer.items.add(list[i]);
+    }
+    return dataTransfer.files;
   }
+
 }
 
 export default Utils;
