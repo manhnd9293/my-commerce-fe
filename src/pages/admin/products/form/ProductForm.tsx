@@ -13,7 +13,7 @@ import Utils from '@/utils/utils.ts';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select.tsx';
 import {Editor} from '@tinymce/tinymce-react';
 import {KeyboardEvent, useRef, useState} from 'react';
-import {PlusIcon, XIcon} from 'lucide-react';
+import {PlusIcon} from 'lucide-react';
 import {Badge} from '@/components/ui/badge.tsx';
 import notification from '@/utils/notification.tsx';
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card.tsx';
@@ -36,7 +36,7 @@ const formSchema = z.object({
       id: z.number(),
       preSignUrl: z.string().optional()
     })
-  }).array(),
+  }).array().optional(),
   newImages: z.instanceof(FileList, {message: 'Please provide some product images'})
     .refine((files) => Array.from(files).every(file => file instanceof File), {
       message: "Expect a file"
@@ -69,7 +69,7 @@ function ProductForm(props: ProductFormProps) {
   const [addingSizes, setAddingSizes] = useState(false);
   const [newSize, setNewSize] = useState('');
   const [addingColor, setAddingColor] = useState(false);
-  const [newImageFiles, setNewImageFiles] = useState([]);
+  const [newImageFiles, setNewImageFiles] = useState<File []>([]);
 
   const {data: categories, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
@@ -205,9 +205,7 @@ function ProductForm(props: ProductFormProps) {
                         return;
                       }
                       const imageFiles = form.getValues("newImages");
-                      let update = [...newImageFiles, ...Array.from(addedFiles)];
-                      console.log({update});
-                      setNewImageFiles(update);
+                      setNewImageFiles([...newImageFiles, ...Array.from(addedFiles)]);
                       form.setValue('newImages', Utils.mergeFileLists(imageFiles, addedFiles))
                     }}
                   />

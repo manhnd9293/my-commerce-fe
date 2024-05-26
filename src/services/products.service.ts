@@ -4,11 +4,12 @@ import { Product } from '@/dto/product/product.ts';
 
 class ProductsService {
   async create(data: CreateProductDto) {
+
     const product = await httpClient.post('/products', data) as Product;
 
-    const images = data.images;
+    const images = data.newImages;
     const formData = new FormData();
-    Array.from(images).forEach(item =>  formData.append('productImages', item))
+    Array.from(images).forEach(item => formData.append('productImages', item));
     return httpClient.patch(`/products/${product.id}/images`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'

@@ -34,6 +34,13 @@ export const productColumns: ColumnDef<Product>[] = [
     enableHiding: false
   },
   {
+    id: 'category',
+    header: "Category",
+    cell: ({row}) => (
+      <span>{row.original.category?.name}</span>
+    )
+  },
+  {
     id: 'id',
     accessorKey: "id",
     header: "ID",
