@@ -1,30 +1,28 @@
-import {string, z} from 'zod';
-import {Product} from '@/dto/product/product.ts';
-import {FormProvider, useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form.tsx';
-import {Input} from '@/components/ui/input.tsx';
-import {Button} from '@/components/ui/button.tsx';
-import {Link} from 'react-router-dom';
-import {useQuery} from '@tanstack/react-query';
-import {QueryKey} from '@/constant/query-key.ts';
+import { z } from 'zod';
+import { Product } from '@/dto/product/product.ts';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
+import { Input } from '@/components/ui/input.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { QueryKey } from '@/constant/query-key.ts';
 import CategoriesService from '@/services/categories.service.ts';
 import Utils from '@/utils/utils.ts';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select.tsx';
-import {Editor} from '@tinymce/tinymce-react';
-import {KeyboardEvent, useRef, useState} from 'react';
-import {PlusIcon} from 'lucide-react';
-import {Badge} from '@/components/ui/badge.tsx';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
+import { Editor } from '@tinymce/tinymce-react';
+import { KeyboardEvent, useRef, useState } from 'react';
+import { PlusIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge.tsx';
 import notification from '@/utils/notification.tsx';
-import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card.tsx';
-import {HexColorPicker} from 'react-colorful';
-import {cn} from '@/lib/utils.ts';
 import OldProductImageList from "@/pages/admin/products/form/OldProductImageList.tsx";
 import NewProductImageList from "@/pages/admin/products/form/NewProductImageList.tsx";
+import ProductColorForm, { colorFormSchema } from '@/pages/admin/products/form/product-colors/ProductColorForm.tsx';
 
 const allowTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
-const formSchema = z.object({
+const productFormSchema = z.object({
   id: z.number().nullable().optional(),
   name: z.string().min(1, {
     message: 'Please provide product name'
@@ -46,18 +44,16 @@ const formSchema = z.object({
   description: z.string().max(10000).optional(),
   categoryId: z.string({message: 'Please provide category information'}),
   productSizes: z.object({
-    name: z.string()
+    name: z.string(),
+    index: z.number()
   }).array().optional(),
   productColors: z.object({
-    name: string().min(1, {message: 'Product color required'}),
-    code: string()
+    name: z.string().min(1, {message: 'Product color required'}),
+    code: z.string(),
+    index: z.number()
   }).array().optional()
 });
 
-const colorFormSchema = z.object({
-  name: z.string({message: 'Please provide color name'}).min(1, {message: 'Please provide color name'}),
-  code: z.string({message: 'Please provide color'}).min(1, {message: 'Please select product color'})
-})
 
 interface ProductFormProps {
   mutate: any,
@@ -68,22 +64,21 @@ interface ProductFormProps {
 function ProductForm(props: ProductFormProps) {
   const [addingSizes, setAddingSizes] = useState(false);
   const [newSize, setNewSize] = useState('');
-  const [addingColor, setAddingColor] = useState(false);
-  const [newImageFiles, setNewImageFiles] = useState<File []>([]);
 
   const {data: categories, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
     queryFn: CategoriesService.getAll
   });
+
   const {mutate, isPending, initialData} = props;
   const editorRef = useRef(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const productForm = useForm<z.infer<typeof productFormSchema>>({
+    resolver: zodResolver(productFormSchema),
     defaultValues: initialData ? {
       ...initialData,
-      categoryId: String(initialData?.categoryId),
-      oldImages: initialData.productImages || []
+      categoryId: String(initialData?.categoryId || ''),
+      oldImages: initialData?.productImages || []
     } : {
       id: null,
       name: "",
@@ -92,15 +87,7 @@ function ProductForm(props: ProductFormProps) {
     }
   });
 
-  const colorForm = useForm<z.infer<typeof colorFormSchema>>({
-    resolver: zodResolver(colorFormSchema),
-    defaultValues: {
-      name: '',
-      code: '',
-    }
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof productFormSchema>) {
     mutate({
       ...values,
       categoryId: Number(values.categoryId)
@@ -116,32 +103,42 @@ function ProductForm(props: ProductFormProps) {
     return <div>Fail to load categories</div>;
   }
 
+  function handleAddColor(values: z.infer<typeof colorFormSchema>) {
+    const colors = productForm.getValues("productColors")
+    productForm.setValue("productColors", [...(colors || []), {name: values.name, code: values.code, id: null}]);
+  }
+
+  function handleUpdateColor(values: z.infer<typeof colorFormSchema>) {
+    const colors = productForm.getValues("productColors");
+    const updateColors = colors.map((color, index) => index === values.index ? {...color, ...{name: values.name, code: values.code, id: values.id}} : color);
+    productForm.setValue('productColors', updateColors);
+  }
+
+  function handleDeleteColor(removeIndex: number) {
+    const updateProductColors = (productForm.getValues('productColors') || []).filter((color, index) => index !== removeIndex)
+    productForm.setValue('productColors', updateProductColors);
+  }
+
   function handleKeydownSizeInput(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key !== 'Enter') {
       return;
     }
     e.preventDefault();
-    const sizes = form.getValues("productSizes");
+    const sizes = productForm.getValues("productSizes");
     if (sizes && sizes.some(size => size.name.toLowerCase() === newSize)) {
       notification.error('Fail to add size. Size exists');
       return;
     }
-    form.setValue("productSizes", [...(sizes || []), {name: newSize}]);
+    productForm.setValue("productSizes", [...(sizes || []), {name: newSize}]);
     setNewSize('');
-  }
-
-  function handleAddColor(values: z.infer<typeof colorFormSchema>) {
-    const colors = form.getValues("productColors")
-    form.setValue("productColors", [...(colors || []), {name: values.name, code: values.code}]);
-    colorForm.reset();
   }
 
   return (
     <div className={'mt-4 max-w-3xl'}>
-      <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className={'space-y-6'}>
+      <FormProvider {...productForm}>
+        <form onSubmit={productForm.handleSubmit(onSubmit)} className={'space-y-8'}>
           <FormField
-            control={form.control}
+            control={productForm.control}
             name="categoryId"
             render={({field}) => (
               <FormItem>
@@ -172,7 +169,7 @@ function ProductForm(props: ProductFormProps) {
           />
 
           <FormField
-            control={form.control}
+            control={productForm.control}
             name="name"
             render={({field}) => (
               <FormItem>
@@ -186,7 +183,7 @@ function ProductForm(props: ProductFormProps) {
           />
 
           <FormField
-            control={form.control}
+            control={productForm.control}
             name="newImages"
             render={({field: {value, onChange, ...fieldProps}}) => (
               <FormItem>
@@ -204,27 +201,26 @@ function ProductForm(props: ProductFormProps) {
                       if (!addedFiles) {
                         return;
                       }
-                      const imageFiles = form.getValues("newImages");
-                      setNewImageFiles([...newImageFiles, ...Array.from(addedFiles)]);
-                      form.setValue('newImages', Utils.mergeFileLists(imageFiles, addedFiles))
+                      const imageFiles = productForm.getValues("newImages");
+                      productForm.setValue('newImages', Utils.mergeFileLists(imageFiles, addedFiles))
                     }}
                   />
                 </FormControl>
                 <FormMessage/>
                 <div className={'grid grid-cols-3 gap-2'}>
                   <OldProductImageList onDelete={(id) => {
-                                         const oldImages = form.getValues('oldImages');
-                                         form.setValue('oldImages', oldImages.filter(oldImage => oldImage.id !== id))
+                    const oldImages = productForm.getValues('oldImages');
+                    productForm.setValue('oldImages', oldImages.filter(oldImage => oldImage.id !== id))
                   }}
-                                       initialValues={form.getValues('oldImages')}
+                                       initialValues={productForm.getValues('oldImages')}
                   />
-                  <NewProductImageList onDelete={(index)=> {
-                                         setNewImageFiles(newImageFiles.filter((_img, idx) => idx !== index)); // for display product image
-                                         const newImages = form.getValues('newImages'); // for add image file to form
-                                         const newImagesArray = Array.from(newImages).filter((_file, idx)=> idx !== index);
-                                         form.setValue('newImages', Utils.createFileList(newImagesArray))
-                                       }}
-                                       imageFiles={newImageFiles}
+                  <NewProductImageList
+                    onDelete={(index) => {
+                      const newImages = productForm.getValues('newImages'); // for add image file to productForm
+                      const newImagesArray = Array.from(newImages).filter((_file, idx) => idx !== index);
+                      productForm.setValue('newImages', Utils.createFileList(newImagesArray))
+                    }}
+                    imageFiles={productForm.getValues('newImages')}
                   />
 
                 </div>
@@ -234,7 +230,7 @@ function ProductForm(props: ProductFormProps) {
 
           <FormField
             name={"productSizes"}
-            control={form.control}
+            control={productForm.control}
             render={() => (
               <FormItem className={'flex space-y-4 flex-col'}>
                 <FormLabel>Product Size</FormLabel>
@@ -274,14 +270,14 @@ function ProductForm(props: ProductFormProps) {
                 }
                 <div className={'flex gap-2 max-w-lg flex-wrap'}>
                   {
-                    form.getValues('productSizes')?.map((size, index) => {
+                    productForm.getValues('productSizes')?.map((size, index) => {
                       return (
                         <Badge key={index}
                                className={'px-4 py-2 cursor-pointer '}
                                variant={'secondary'}
                                onClick={() => {
-                                 const sizes = form.getValues('productSizes') || [];
-                                 form.setValue("productSizes", sizes.filter(s => s.name !== size.name));
+                                 const sizes = productForm.getValues('productSizes') || [];
+                                 productForm.setValue("productSizes", sizes.filter(s => s.name !== size.name));
                                }}
                         >
                           {size.name}
@@ -296,126 +292,31 @@ function ProductForm(props: ProductFormProps) {
 
           <FormField
             name={"productColors"}
-            control={form.control}
+            control={productForm.control}
             render={() => (
               <FormItem className={'flex space-y-4 flex-col'}>
                 <FormLabel>Product Color</FormLabel>
-                {
-                  !addingColor &&
-                  <Button variant={'outline'}
-                          className={'flex items-center w-48'}
-                          type={'button'}
-                          onClick={(event) => {
-                            event.preventDefault();
-                            setAddingColor(true);
-                          }}
-                  >
-                    <PlusIcon className={'size-4 mr-2 font-bold'}/>
-                    Add color
-                  </Button>
-                }
-                {
-                  addingColor && (
-                    <Card className={'max-w-xl'}>
-                      <CardHeader>
-                        <CardTitle className={'text-lg'}>Add color</CardTitle>
-                      </CardHeader>
-                      <CardContent className={'flex flex-col space-y-4'}>
-                        <FormProvider {...colorForm}>
-                          <FormField
-                            control={colorForm.control}
-                            name="name"
-                            render={({field}) => (
-                              <FormItem>
-                                <FormLabel>Color</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Color name"
-                                         {...field}
-                                         className={'max-w-xs'}
-                                         onKeyDown={(e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-                                           e.key === 'Enter' && e.preventDefault();
-                                         }}
-                                  />
-                                </FormControl>
-                                <FormMessage/>
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={colorForm.control}
-                            name="code"
-                            render={() => (
-                              <FormItem>
-                                <FormLabel>Pick color</FormLabel>
-                                <FormDescription>Pick color for your product</FormDescription>
-                                <FormControl>
-                                  <HexColorPicker color={colorForm.getValues("code")}
-                                                  onChange={value => colorForm.setValue("code", value)}
-                                  />
-                                </FormControl>
-                                <FormMessage/>
-                              </FormItem>
-                            )}
-                          />
-                        </FormProvider>
-                      </CardContent>
-                      <CardFooter>
-                        <div className={'flex gap-2'}>
-                          <Button type={'button'}
-                                  className={'bg-amber-600'}
-                                  onClick={colorForm.handleSubmit(handleAddColor)}
-                          >
-                            Add
-                          </Button>
-                          <Button type={'button'} variant={'outline'}
-                                  onClick={() => {
-                                    setAddingColor(false);
-                                    colorForm.reset();
-                                  }}
-                          >Cancel</Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
-
-                  )
-                }
-
-                <div className={'flex gap-2 max-w-sm'}>
-                  {
-                    form.getValues('productColors')?.map((color, index) => {
-                      return (
-                        <Badge key={index}
-                               className={'px-4 py-2 flex items-center gap-2'}
-                               variant={'secondary'}
-                               onClick={() => {
-                                 const colors = form.getValues('productColors') || [];
-                                 form.setValue("productColors", colors.filter(s => s.name !== color.name));
-                               }}
-                        >
-                          <div style={{backgroundColor: color.code}} className={cn('size-2 rounded')}></div>
-                          <div>{color.name}</div>
-                        </Badge>
-                      )
-                    })
-                  }
-                </div>
+                <ProductColorForm onAddColor={handleAddColor}
+                                  onUpdateColor={handleUpdateColor}
+                                  onDeleteColor={handleDeleteColor}
+                                  initialColors={productForm.getValues('productColors')}
+                />
               </FormItem>
             )}
           />
 
           <FormField name="description"
-                     control={form.control}
+                     control={productForm.control}
                      render={() => (
                        <FormItem>
                          <FormLabel>Description</FormLabel>
                          <Editor
-                           apiKey='iloqhvyja1d64v0zfn5delyuec4rcmxlju53bq2etbpho9zb'
+                           apiKey={import.meta.env.VITE_TINY_EDITOR_API_KEY}
                            onInit={(_evt, editor) => {
                              // @ts-ignore
                              editorRef.current = editor
                            }}
-                           value={form.getValues("description")}
+                           value={productForm.getValues("description")}
                            init={{
                              height: 500,
                              menubar: false,
@@ -432,7 +333,7 @@ function ProductForm(props: ProductFormProps) {
                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                            }}
                            onEditorChange={(newValue) => {
-                             form.setValue("description", newValue, {shouldValidate: true});
+                             productForm.setValue("description", newValue, {shouldValidate: true});
                            }}
                          />
                          <FormMessage/>

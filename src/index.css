@@ -31,8 +31,9 @@
 
       --border: 214.3 31.8% 91.4%;
       --input: 214.3 31.8% 91.4%;
-      --ring: 222.2 84% 4.9%;
-
+      --ring: 155 1% 69%;
+      --tw-ring-offset-color: 155 1% 39%;
+      --tw-ring-color: 155 1% 39%;
       --radius: 0.5rem;
     }
 
