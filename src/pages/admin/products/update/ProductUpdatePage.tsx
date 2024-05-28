@@ -9,7 +9,7 @@ import ProductForm from '@/pages/admin/products/form/ProductForm.tsx';
 function ProductUpdatePage() {
   const params = useParams();
   const {data, isLoading, isError, error} = useQuery({
-    queryKey: [QueryKey.Products, {id: params.id}],
+    queryKey: [QueryKey.Product, {id: Number(params.id)}],
     queryFn: () => ProductsService.get(params.id!),
   });
 

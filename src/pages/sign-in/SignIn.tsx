@@ -32,8 +32,6 @@ function SignIn() {
   const {mutate, isPending, isError, error, } = useMutation({
     mutationFn: AuthService.signIn,
     onSuccess: (data) => {
-      console.log('Sign in success');
-      console.log({data});
       // @ts-ignore
       const accessToken = data['accessToken'] as string;
       localStorage.setItem('accessToken', accessToken);

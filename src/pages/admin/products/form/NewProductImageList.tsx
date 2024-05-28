@@ -2,7 +2,7 @@ import {XIcon} from "lucide-react";
 
 interface NewProductImageListProps {
   onDelete: (imageId: number)=> void,
-  imageFiles: FileList
+  imageFiles: FileList | undefined
 }
 
 function OldProductImageList({onDelete, imageFiles}: NewProductImageListProps) {

@@ -8,7 +8,8 @@ class ProductsService {
     const product = await httpClient.post('/products', data) as Product;
     const images = data.newImages;
     const formData = new FormData();
-    Array.from(images).forEach(item => formData.append('productImages', item));
+
+    images && Array.from(images).forEach(item => formData.append('productImages', item));
     return httpClient.patch(`/products/${product.id}/images`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -24,8 +25,18 @@ class ProductsService {
     return httpClient.get(`/products/${id}`);
   }
 
-  update(updateProduct: z.infer<typeof productFormSchema>) {
-    return httpClient.patch(`/products`, updateProduct)
+  async update(updateProduct: z.infer<typeof productFormSchema>) {
+
+    await httpClient.put(`/products`, updateProduct)
+
+    const images = updateProduct.newImages;
+    const formData = new FormData();
+    images && Array.from(images).forEach(item => formData.append('productImages', item));
+    return httpClient.patch(`/products/${updateProduct.id}/images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }
 

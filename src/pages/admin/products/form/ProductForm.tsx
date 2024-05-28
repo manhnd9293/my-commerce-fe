@@ -6,15 +6,13 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Link, useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QueryKey } from '@/constant/query-key.ts';
 import CategoriesService from '@/services/categories.service.ts';
 import Utils from '@/utils/utils.ts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
 import { Editor } from '@tinymce/tinymce-react';
-import { KeyboardEvent, useRef, useState } from 'react';
-import { PlusIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/badge.tsx';
+import { useRef } from 'react';
 import notification from '@/utils/notification.tsx';
 import OldProductImageList from "@/pages/admin/products/form/OldProductImageList.tsx";
 import NewProductImageList from "@/pages/admin/products/form/NewProductImageList.tsx";
@@ -29,7 +27,7 @@ export const productFormSchema = z.object({
   name: z.string().min(1, {
     message: 'Please provide product name'
   }).max(255),
-  oldImages: z.object({
+  productImages: z.object({
     id: z.number(),
     assetId: z.number(),
     asset: z.object({
@@ -42,7 +40,7 @@ export const productFormSchema = z.object({
       message: "Expect a file"
     }).refine((files) => Array.from(files).every(file => allowTypes.includes(file.type)), {
       message: `Only these file types are allowed: ${allowTypes.map(t => t.replace('image', '.'))}`
-    }),
+    }).optional(),
   description: z.string().max(10000).optional(),
   categoryId: z.string({message: 'Please provide category information'}),
   productSizes: z.object({
@@ -55,7 +53,7 @@ export const productFormSchema = z.object({
     index: z.number().optional(),
     id: z.number().optional().nullable()
   }).array().optional()
-});
+})
 
 
 interface ProductFormProps {
@@ -63,11 +61,10 @@ interface ProductFormProps {
 }
 
 function ProductForm(props: ProductFormProps) {
-  const [addingSizes, setAddingSizes] = useState(false);
-  const [newSize, setNewSize] = useState('');
   const navigate = useNavigate();
   const {initialData} = props;
   const isUpdate = !!initialData;
+  const queryClient = useQueryClient();
 
   const {data: categories, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
@@ -79,9 +76,14 @@ function ProductForm(props: ProductFormProps) {
     mutate,
   } = useMutation({
     mutationFn: isUpdate ? ProductsService.update : ProductsService.create,
-    onSuccess: () => {
+    onSuccess: async () => {
       notification.success(`${isUpdate ? 'Update' : 'Create'} product success`);
-      navigate('/admin/products')
+      if (isUpdate) {
+        await queryClient.invalidateQueries({
+          queryKey: [QueryKey.Product, {id: initialData?.id}]
+        })
+      }
+      navigate('/admin/products');
     },
     onError: (error) => {
       Utils.handleError(error)
@@ -95,12 +97,10 @@ function ProductForm(props: ProductFormProps) {
     defaultValues: initialData ? {
       ...initialData,
       categoryId: String(initialData?.categoryId || ''),
-      oldImages: initialData?.productImages || []
     } : {
       id: null,
       name: "",
       categoryId: undefined,
-      oldImages: undefined
     }
   });
 
@@ -236,15 +236,15 @@ function ProductForm(props: ProductFormProps) {
                 <FormMessage/>
                 <div className={'grid grid-cols-3 gap-2'}>
                   <OldProductImageList onDelete={(id) => {
-                                         const oldImages = productForm.getValues('oldImages');
-                                         productForm.setValue('oldImages', oldImages?.filter(oldImage => oldImage.id !== id))
+                                         const oldImages = productForm.getValues('productImages');
+                                         productForm.setValue('productImages', oldImages?.filter(oldImage => oldImage.id !== id))
                                        }}
-                                       initialValues={productForm.getValues('oldImages')}
+                                       initialValues={productForm.getValues('productImages')}
                   />
                   <NewProductImageList
                     onDelete={(index) => {
                       const newImages = productForm.getValues('newImages'); // for add image file to productForm
-                      const newImagesArray = Array.from(newImages).filter((_file, idx) => idx !== index);
+                      const newImagesArray = Array.from(newImages!).filter((_file, idx) => idx !== index);
                       productForm.setValue('newImages', Utils.createFileList(newImagesArray))
                     }}
                     imageFiles={productForm.getValues('newImages')}
