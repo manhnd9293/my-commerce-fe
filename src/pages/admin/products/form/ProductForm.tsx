@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { QueryKey } from '@/constant/query-key.ts';
 import CategoriesService from '@/services/categories.service.ts';
 import Utils from '@/utils/utils.ts';
@@ -19,10 +19,12 @@ import notification from '@/utils/notification.tsx';
 import OldProductImageList from "@/pages/admin/products/form/OldProductImageList.tsx";
 import NewProductImageList from "@/pages/admin/products/form/NewProductImageList.tsx";
 import ProductColorForm, { colorFormSchema } from '@/pages/admin/products/form/product-colors/ProductColorForm.tsx';
+import ProductsService from '@/services/products.service.ts';
+import ProductSizeForm, { sizeFormSchema } from '@/pages/admin/products/form/product-sizes/ProductSizeForm.tsx';
 
 const allowTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
-const productFormSchema = z.object({
+export const productFormSchema = z.object({
   id: z.number().nullable().optional(),
   name: z.string().min(1, {
     message: 'Please provide product name'
@@ -45,32 +47,47 @@ const productFormSchema = z.object({
   categoryId: z.string({message: 'Please provide category information'}),
   productSizes: z.object({
     name: z.string(),
-    index: z.number()
+    index: z.number().optional()
   }).array().optional(),
   productColors: z.object({
     name: z.string().min(1, {message: 'Product color required'}),
     code: z.string(),
-    index: z.number()
+    index: z.number().optional(),
+    id: z.number().optional().nullable()
   }).array().optional()
 });
 
 
 interface ProductFormProps {
-  mutate: any,
-  isPending: boolean,
   initialData?: Product
 }
 
 function ProductForm(props: ProductFormProps) {
   const [addingSizes, setAddingSizes] = useState(false);
   const [newSize, setNewSize] = useState('');
+  const navigate = useNavigate();
+  const {initialData} = props;
+  const isUpdate = !!initialData;
 
   const {data: categories, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
     queryFn: CategoriesService.getAll
   });
 
-  const {mutate, isPending, initialData} = props;
+  const {
+    isPending,
+    mutate,
+  } = useMutation({
+    mutationFn: isUpdate ? ProductsService.update : ProductsService.create,
+    onSuccess: () => {
+      notification.success(`${isUpdate ? 'Update' : 'Create'} product success`);
+      navigate('/admin/products')
+    },
+    onError: (error) => {
+      Utils.handleError(error)
+    }
+  });
+
   const editorRef = useRef(null);
 
   const productForm = useForm<z.infer<typeof productFormSchema>>({
@@ -83,15 +100,12 @@ function ProductForm(props: ProductFormProps) {
       id: null,
       name: "",
       categoryId: undefined,
-      images: undefined
+      oldImages: undefined
     }
   });
 
   function onSubmit(values: z.infer<typeof productFormSchema>) {
-    mutate({
-      ...values,
-      categoryId: Number(values.categoryId)
-    });
+    mutate(values,);
   }
 
   if (isLoading) {
@@ -103,6 +117,27 @@ function ProductForm(props: ProductFormProps) {
     return <div>Fail to load categories</div>;
   }
 
+  function handleAddSize(values: z.infer<typeof sizeFormSchema>) {
+    const sizes = productForm.getValues("productSizes")
+    productForm.setValue("productSizes", [...(sizes || []), {name: values.name, id: null}]);
+  }
+
+  function handleUpdateSize(values: z.infer<typeof sizeFormSchema>) {
+    const sizes = productForm.getValues("productSizes");
+    const updateSizes = sizes!.map((size, index) => index === values.index ? {
+      ...size, ...{
+        name: values.name,
+        id: values.id
+      }
+    } : size);
+    productForm.setValue('productSizes', updateSizes);
+  }
+
+  function handleDeleteSize(removeIndex: number) {
+    const updateProductSizes = (productForm.getValues('productSizes') || []).filter((_color, index) => index !== removeIndex)
+    productForm.setValue('productSizes', updateProductSizes);
+  }
+
   function handleAddColor(values: z.infer<typeof colorFormSchema>) {
     const colors = productForm.getValues("productColors")
     productForm.setValue("productColors", [...(colors || []), {name: values.name, code: values.code, id: null}]);
@@ -110,27 +145,19 @@ function ProductForm(props: ProductFormProps) {
 
   function handleUpdateColor(values: z.infer<typeof colorFormSchema>) {
     const colors = productForm.getValues("productColors");
-    const updateColors = colors.map((color, index) => index === values.index ? {...color, ...{name: values.name, code: values.code, id: values.id}} : color);
+    const updateColors = colors!.map((color, index) => index === values.index ? {
+      ...color, ...{
+        name: values.name,
+        code: values.code,
+        id: values.id
+      }
+    } : color);
     productForm.setValue('productColors', updateColors);
   }
 
   function handleDeleteColor(removeIndex: number) {
-    const updateProductColors = (productForm.getValues('productColors') || []).filter((color, index) => index !== removeIndex)
+    const updateProductColors = (productForm.getValues('productColors') || []).filter((_color, index) => index !== removeIndex)
     productForm.setValue('productColors', updateProductColors);
-  }
-
-  function handleKeydownSizeInput(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key !== 'Enter') {
-      return;
-    }
-    e.preventDefault();
-    const sizes = productForm.getValues("productSizes");
-    if (sizes && sizes.some(size => size.name.toLowerCase() === newSize)) {
-      notification.error('Fail to add size. Size exists');
-      return;
-    }
-    productForm.setValue("productSizes", [...(sizes || []), {name: newSize}]);
-    setNewSize('');
   }
 
   return (
@@ -209,9 +236,9 @@ function ProductForm(props: ProductFormProps) {
                 <FormMessage/>
                 <div className={'grid grid-cols-3 gap-2'}>
                   <OldProductImageList onDelete={(id) => {
-                    const oldImages = productForm.getValues('oldImages');
-                    productForm.setValue('oldImages', oldImages.filter(oldImage => oldImage.id !== id))
-                  }}
+                                         const oldImages = productForm.getValues('oldImages');
+                                         productForm.setValue('oldImages', oldImages?.filter(oldImage => oldImage.id !== id))
+                                       }}
                                        initialValues={productForm.getValues('oldImages')}
                   />
                   <NewProductImageList
@@ -233,59 +260,12 @@ function ProductForm(props: ProductFormProps) {
             control={productForm.control}
             render={() => (
               <FormItem className={'flex space-y-4 flex-col'}>
-                <FormLabel>Product Size</FormLabel>
-                {
-                  !addingSizes &&
-                  <Button variant={'outline'}
-                          className={'flex items-center w-48'}
-                          type={'button'}
-                          onClick={(event) => {
-                            event.preventDefault();
-                            setAddingSizes(true);
-                          }}
-                  >
-                    <PlusIcon className={'size-4 mr-2 font-bold'}/>
-                    Add size
-                  </Button>
-                }
-                {
-                  addingSizes &&
-                  <div className={'flex items-center gap-4'}>
-                    <Input placeholder={'New product size'}
-                           className={'max-w-md'}
-                           value={newSize}
-                           onChange={(e) => setNewSize(e.target.value)}
-                           onKeyDown={handleKeydownSizeInput}
-                           onBlur={() => setAddingSizes(false)}
-                           id={"asi"}
-                    />
-                    <Button
-                      variant={'outline'}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setAddingSizes(false);
-                        setNewSize('');
-                      }}>Cancel</Button>
-                  </div>
-                }
-                <div className={'flex gap-2 max-w-lg flex-wrap'}>
-                  {
-                    productForm.getValues('productSizes')?.map((size, index) => {
-                      return (
-                        <Badge key={index}
-                               className={'px-4 py-2 cursor-pointer '}
-                               variant={'secondary'}
-                               onClick={() => {
-                                 const sizes = productForm.getValues('productSizes') || [];
-                                 productForm.setValue("productSizes", sizes.filter(s => s.name !== size.name));
-                               }}
-                        >
-                          {size.name}
-                        </Badge>
-                      )
-                    })
-                  }
-                </div>
+                <FormLabel>Product Sizes</FormLabel>
+                <ProductSizeForm onAddSize={handleAddSize}
+                                 onUpdateSize={handleUpdateSize}
+                                 onDeleteSize={handleDeleteSize}
+                                 initialSizes={productForm.getValues('productSizes')}
+                />
               </FormItem>
             )}
           />

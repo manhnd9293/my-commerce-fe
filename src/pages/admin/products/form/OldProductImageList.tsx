@@ -3,7 +3,7 @@ import {XIcon} from "lucide-react";
 
 interface ProductImageListProps {
   onDelete: (imageId: number)=> void,
-  initialValues: {
+  initialValues?: {
     id: number,
     assetId: number,
     asset: {
@@ -20,7 +20,7 @@ function OldProductImageList({onDelete, initialValues}: ProductImageListProps) {
       <div className={'shadow-md relative'} key={image.id}>
         <XIcon className={'size-4 right-1 top-1 absolute hover:cursor-pointer'}
                onClick={() => {
-                 setImages(images.filter(img => img.id !== image.id))
+                 setImages(images?.filter(img => img.id !== image.id));
                  onDelete(image.id);
                }}
         />

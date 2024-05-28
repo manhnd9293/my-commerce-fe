@@ -3,8 +3,6 @@ import { Edit2Icon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { z } from 'zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ProductColor } from '@/dto/product/product-color.ts';
-import { cn } from '@/lib/utils.ts';
 import {
   Dialog,
   DialogContent,
@@ -13,10 +11,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog.tsx';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { useState } from 'react';
-import { HexColorPicker } from 'react-colorful';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx';
 import {
   AlertDialog,
@@ -28,64 +25,59 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog.tsx';
+import { ProductSize } from '@/dto/product/product-size.ts';
 
 
 const blankFormState = {
   id: null,
   name: '',
-  code: '#FFFFFF',
   index: -1
 };
 
-export const colorFormSchema = z.object({
+export const sizeFormSchema = z.object({
   id: z.number().optional().nullable(),
   index: z.number().optional().nullable(),
-  name: z.string({message: 'Please provide color name'}).min(1, {message: 'Please provide color name'}),
-  code: z.string({message: 'Please provide color'}).min(1, {message: 'Please select product color'})
+  name: z.string({message: 'Please provide size name'}).min(1, {message: 'Please provide color name'}),
 })
 
 interface ProductColorFormProps {
-  onAddColor: (values: z.infer<typeof colorFormSchema>) => void,
-  onUpdateColor: (values: z.infer<typeof colorFormSchema>) => void,
-  onDeleteColor: (index: number) => void
-  initialColors?: Pick<ProductColor, 'name' | 'code' | 'id'>[];
+  onAddSize: (values: z.infer<typeof sizeFormSchema>) => void,
+  onUpdateSize: (values: z.infer<typeof sizeFormSchema>) => void,
+  onDeleteSize: (index: number) => void
+  initialSizes?: Pick<ProductSize, 'name' | 'id'>[];
 }
 
-function ProductColorForm({onAddColor, initialColors, onUpdateColor, onDeleteColor}: ProductColorFormProps) {
+function ProductSizeForm({onAddSize, initialSizes, onUpdateSize, onDeleteSize}: ProductColorFormProps) {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [openDeleteConfirmDialog, setOpenDeleteConfirmDialog] = useState<boolean>(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState<number>(-1);
 
-  const colorFormSchemaRefine = colorFormSchema.refine((data)=>{
-      return !initialColors?.some((color, index) => color.name.toLowerCase() === data.name.toLowerCase() && index !== data.index )
+  const sizeFormSchemaRefine = sizeFormSchema.refine((data)=>{
+      return !initialSizes?.some((color, index) => color.name.toLowerCase() === data.name.toLowerCase() && index !== data.index )
   }, {
-    message: 'Product color name existed',
+    message: 'Product size name existed',
     path: ['name']
-  }).refine((data)=> !initialColors?.some((color, index) => color.code.toLowerCase() === data.code.toLowerCase() && index !== data.index)
-  , {
-    message: 'Product color existed',
-    path: ['code']
   });
 
-  const [initialFormValue, setInitialFormValue] = useState<z.infer<typeof colorFormSchemaRefine>>(blankFormState);
+  const [initialFormValue, setInitialFormValue] = useState<z.infer<typeof sizeFormSchemaRefine>>(blankFormState);
 
-  const colorForm = useForm<z.infer<typeof colorFormSchemaRefine>>({
-    resolver: zodResolver(colorFormSchemaRefine),
+  const sizeForm = useForm<z.infer<typeof sizeFormSchemaRefine>>({
+    resolver: zodResolver(sizeFormSchemaRefine),
     defaultValues: blankFormState,
     values: initialFormValue
   });
 
-  function handleAddColor(values: z.infer<typeof colorFormSchemaRefine>) {
-    onAddColor(values);
+  function handleAddColor(values: z.infer<typeof sizeFormSchemaRefine>) {
+    onAddSize(values);
     setOpenDialog(false);
-    colorForm.reset();
+    sizeForm.reset();
   }
 
-  function handleUpdateColor(values: z.infer<typeof colorFormSchemaRefine>) {
-    onUpdateColor(values);
+  function handleUpdateColor(values: z.infer<typeof sizeFormSchemaRefine>) {
+    onUpdateSize(values);
     setOpenDialog(false);
-    colorForm.reset();
+    sizeForm.reset();
   }
 
   return (
@@ -100,26 +92,26 @@ function ProductColorForm({onAddColor, initialColors, onUpdateColor, onDeleteCol
               }}
       >
         <PlusIcon className={'size-4 mr-2 font-bold'}/>
-        Add color
+        Add Size
       </Button>
       <Dialog open={openDialog}
               onOpenChange={setOpenDialog}
       >
         <DialogContent onOpenAutoFocus={ (e) => e.preventDefault() }>
           <DialogHeader>
-            <DialogTitle>Product Color</DialogTitle>
+            <DialogTitle>Product Size</DialogTitle>
             <DialogDescription>
-              Add or update product color
+              {isUpdate ? 'Update': 'Add'} product size
             </DialogDescription>
-            <FormProvider {...colorForm}>
+            <FormProvider {...sizeForm}>
               <FormField
-                control={colorForm.control}
+                control={sizeForm.control}
                 name="name"
                 render={({field}) => (
                   <FormItem>
-                    <FormLabel>Color</FormLabel>
+                    <FormLabel>Size</FormLabel>
                     <FormControl>
-                      <Input placeholder="Color name"
+                      <Input placeholder="Size name"
                              {...field}
                              className={'max-w-xs'}
                       />
@@ -129,22 +121,7 @@ function ProductColorForm({onAddColor, initialColors, onUpdateColor, onDeleteCol
                 )}
               />
 
-              <FormField
-                control={colorForm.control}
-                name="code"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Pick color</FormLabel>
-                    <FormDescription>Pick color for your product</FormDescription>
-                    <FormControl>
-                      <HexColorPicker color={colorForm.getValues("code")}
-                                      onChange={value => colorForm.setValue("code", value)}
-                      />
-                    </FormControl>
-                    <FormMessage/>
-                  </FormItem>
-                )}
-              />
+
             </FormProvider>
             <DialogFooter>
               <div className={'flex gap-2'}>
@@ -152,7 +129,7 @@ function ProductColorForm({onAddColor, initialColors, onUpdateColor, onDeleteCol
                   !isUpdate &&
                   <Button type={'button'}
                           className={'bg-amber-600'}
-                          onClick={colorForm.handleSubmit(handleAddColor)}
+                          onClick={sizeForm.handleSubmit(handleAddColor)}
                   >
                     Add
                   </Button>
@@ -161,14 +138,14 @@ function ProductColorForm({onAddColor, initialColors, onUpdateColor, onDeleteCol
                   isUpdate &&
                   <Button type={'button'}
                           className={'bg-amber-600'}
-                          onClick={colorForm.handleSubmit(handleUpdateColor)}
+                          onClick={sizeForm.handleSubmit(handleUpdateColor)}
                   >
                     Update
                   </Button>
                 }
                 <Button type={'button'} variant={'outline'}
                         onClick={() => {
-                          colorForm.reset();
+                          sizeForm.reset();
                           setOpenDialog(false);
                         }}
                 >Cancel</Button>
@@ -183,29 +160,23 @@ function ProductColorForm({onAddColor, initialColors, onUpdateColor, onDeleteCol
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Code</TableHead>
+
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {initialColors ? initialColors.map((color, index) => (
+            {initialSizes ? initialSizes.map((color, index) => (
               <TableRow key={index}>
                 <TableCell className="font-medium cursor-pointer">
                   <div>{color.name}</div>
                 </TableCell>
-                <TableCell>
-                  <div className={'flex gap-4 items-center'}>
-                    <div style={{backgroundColor: color.code}} className={cn('size-4 rounded')}></div>
-                    <span>{color.code.toUpperCase()}</span>
-                  </div>
-                </TableCell>
+
                 <TableCell>
                   <div className={'flex items-center gap-4'}>
                     <Edit2Icon className={'size-4 cursor-pointer'}
                                onClick={() => {
                       setInitialFormValue({
                         name: color.name,
-                        code: color.code,
                         id: color.id,
                         index: index
                       });
@@ -238,19 +209,17 @@ function ProductColorForm({onAddColor, initialColors, onUpdateColor, onDeleteCol
           <AlertDialogHeader>
             <AlertDialogTitle>
               <div className={'flex gap-2 items-center flex-wrap'}>
-                <span>Do you want to delete this product color ?</span>
-                <div style={{backgroundColor: initialColors?.[deleteIndex]?.code}}
-                     className={cn('size-4 rounded')}/>
+                <span>Do you want to delete this product size ?</span>
               </div>
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Do you really want to delete color {initialColors?.[deleteIndex]?.name} from your product ?
+              Do you really want to delete size {initialSizes?.[deleteIndex]?.name} from your product ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={()=> {
-              onDeleteColor(deleteIndex);
+              onDeleteSize(deleteIndex);
               setDeleteIndex(-1);
             }}>Confirm</AlertDialogAction>
           </AlertDialogFooter>
@@ -261,4 +230,4 @@ function ProductColorForm({onAddColor, initialColors, onUpdateColor, onDeleteCol
   );
 }
 
-export default ProductColorForm;
+export default ProductSizeForm;
