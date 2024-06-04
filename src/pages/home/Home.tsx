@@ -25,13 +25,13 @@ function Home() {
           {
             carouselImages.map(image => (
               <CarouselItem>
-                <img src={image}/>
+                <img src={image} className={'w-full h-94 aspect-[900/277]'}/>
               </CarouselItem>
             ))
           }
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className={'left-3'} />
+        <CarouselNext className={'right-3'} />
       </Carousel>
     </div>
   );
