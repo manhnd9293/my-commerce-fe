@@ -41,7 +41,7 @@ export const productFormSchema = z.object({
     }).refine((files) => Array.from(files).every(file => allowTypes.includes(file.type)), {
       message: `Only these file types are allowed: ${allowTypes.map(t => t.replace('image', '.'))}`
     }).optional(),
-  description: z.string().max(10000).optional(),
+  description: z.string().max(50000).optional(),
   categoryId: z.string({message: 'Please provide category information'}),
   productSizes: z.object({
     name: z.string(),

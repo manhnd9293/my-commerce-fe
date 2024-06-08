@@ -17,7 +17,7 @@ class ProductsService {
     })
   }
 
-  getAll() {
+  getAll(): Promise<Product[]> {
     return httpClient.get('/products');
   }
 
