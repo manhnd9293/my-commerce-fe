@@ -1,5 +1,3 @@
-
-// @ts-ignore
 import { useEffect } from 'react';
 
 function PageTitle({children}: {children: string}) {

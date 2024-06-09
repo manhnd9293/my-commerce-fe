@@ -7,10 +7,11 @@ import {Card} from "@/components/ui/card.tsx";
 import ProductRecommend from "@/pages/home/product-recommend/ProductRecommend.tsx";
 
 const carouselImages = [
-  'https://cf.shopee.vn/file/vn-50009109-473bd7441d08aab685ff8b8565d59f64_xxhdpi',
-  'https://cf.shopee.vn/file/vn-50009109-eb66403b7abdf73c2701c23397f7d613_xxhdpi',
-  'https://cf.shopee.vn/file/vn-50009109-20159ea4ab9606ad244afdcc16a240af_xxhdpi',
-  'https://cf.shopee.vn/file/vn-50009109-7e9ea039d64765a29a81957605c8eb69_xxhdpi',
+  'https://cf.shopee.vn/file/vn-50009109-3345c9947aefda2820f25d4a0f788a37_xxhdpi',
+  'https://cf.shopee.vn/file/vn-50009109-1c3004dfbba14f5a1cc10a148bb6640b_xxhdpi',
+  'https://cf.shopee.vn/file/vn-50009109-fed2b689331aeb813aa4ececbed5748b_xxhdpi',
+  'https://cf.shopee.vn/file/vn-50009109-3fcb2fa296c2640136ea49e79fd212c9_xxhdpi',
+  'https://cf.shopee.vn/file/vn-50009109-41ff07edc9d41572f5805a6a026f25ae_xxhdpi'
 ]
 
 function Home() {
