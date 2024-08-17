@@ -1,0 +1,117 @@
+Nguyen Duc Manh
+Software Engineer
+
+Details
+Address:          Imperia Garden, Nguyen Huy Tuong Street, Thanh Xuan, Hanoi
+DOB:		09/02/1993
+Email:		Manhnd9293@gmail.com
+Phone: 	0911.148.568
+
+Summary
+I’m an experienced developer with 4 years of experience working in domains: ecommerce, business management. I’m specialized in NodeJS and Javascript technologies and always try to deliver high quality source code which is maintainable, reliable and have high performance. 
+
+Employment History
+May 2023 – current  Uptempo Vietnam -  Software engineer
+* Joining engineer team to develop software system for Korean clients 
+* Collaborate with BA and Design Team in Korean to clarify software requirements.
+* Design feature flow, API endpoints and implement, test and fix them if any
+* Review code for other team members
+* Setup infrastructure in Google Cloud and AWS to deploy services to environments (development, staging, production)
+* Setup CI/CD pipeline for projects to automate deploy process.
+* Using Technology: NestJS, ReactJS, AWS, Google Cloud, Terraform, Docker, MySQL, Redis
+
+Jan 2022 – Feb 2023 Advesa Digital Solution– Backend Software engineer
+* Joining in production team of company to develop a chat application for customer care agents of ecommerce companies to support online customers
+* Collaborating with Business Analysis, Design and Engineer teams in Canada to clarify software requirements
+* Design technical solutions and implement, test, and fix them
+* Review code for other team members
+* Using technologies: NodeJs, Mongodb, Redis, SocketIO, Docker
+
+Jul 2019 – Jan 2022 Rabiloo Software Company– Software engineer
+* Participate in projects to build enterprise systems on web for Japanese Client.
+* Main responsibilities: develop features, fix bugs, unit test, integration test
+* Using Technology:  NodeJs, Spring Boot, VueJs, MySQL, AWS
+
+ Projects 
+Customer support Chat System
+This system is for customer care agents of ecommerce companies communicating with customers when they are visiting online stores. The system is designed as micro services with REST API, web socket service, and worker nodes. Some main features that I developed are:
+* Creating API endpoint for managing information about customer care agents, stores, support categories, …
+* Develop real time dashboard to show statistic data about conversation, rating, chat duration, …
+* Integrate with Stripe platform to purchase subscription plans, additional seats and capacity in the system.
+* Limit features which users can use based on their subscription plan and purchased capacity.
+* Link and synchronize store data between CRM system and chat system
+* Auto assign agent to conversation, tracking customer idle state and auto response
+* Setup codebase for REST API service and worker nodes.
+
+Technologies used:
+* Backend:  Nodejs, Python, Fastify, SocketIO
+* Database: Mongodb, Redis
+* Infrastructure: Google Kubernetes Engine
+
+Construction Supervision System
+The system is used to support construction supervision work by using web technologies, computer files and online meeting to substitute for paper and on-site supervising activities. Some main features that I developed are:
+* Design database schema and create API endpoints for managing entities in the system such as: users, construction site, drawing, supervision area, inspection checklist, inspection category, online meeting, project documents
+* Creating supervision plans with drawing, inspection position, inspection category, inspection status
+* Upload and download drawings, site images, videos
+* Integrate with Amazon Chime SDK to create online video meeting to perform online supervision. Real time update documents and status of the meeting to all participants
+* Storing construction documents under folder tree structure. Supporting copy, paste, cut, rename actions with files and folders
+* Setup infrastructure in AWS to deploy the system 
+Technology used:
+* Backend: NestJS, Prisma, SocketIO
+* Database: PostgreSQL
+* Infrastructure: AWS EC2, Load Balance, CloudFront, S3, Route 53, Chime SDK, Github Action
+	
+Freelancer Management System 
+The system is used to manage freelancers’ information and their projects from many countries in the world. My responsibilities are:
+* Design database schema entities in the system including business units, freelancers, projects, invoices ...
+* Develop features to query and update information of entities in the system (create, update, filter, paging, delete, restore data)
+* Integrate with Google Authentication API for feature login using Google account
+* Check users’ authorization based on their roles
+* Tracking changes in freelancer profile data and show these change logs when needed
+* Setup infrastructure for develop, staging, production environments using Google Cloud Platform including: Cloud Run, Load balance, Cloud Build, Google SQL, Google Compute Engine, Google Artifact Registry.
+* Set up CI/CD pipeline using CloudBuild to automatically deploy the system to environments
+
+Technology used: 
+* Backend: NestJs, Apollo Server, TypeORM
+* Database: PostgresSql, Redis, 
+* Infrastructure: Docker, Google Cloud Platform, Github Action, Terraform
+
+HR information management system
+The system is developed for HR department to manage work shift of workers. Some main functions include:
+* Manage employee, departments, timekeeping data information
+* Calculate number of working days in month for employees from various external sources and send mail results to them
+* Display and export statistic information on request from HR manager
+I participated in the project as a member of engineer team. My task includes analyzing client requirement, designing modules, coding, testing and deploying.
+Technologies used: Linux, Nginx, MySql, Vuejs, Spring Boot
+
+Assets management System
+Source code link: https://github.com/manhnd9293/QLTS
+The project is built by Django Framework for backend, and HTML, CSS and JavaScript for frontend. Some major functions of the web are:
+* Authentication: enables user sign in to and out from the system, permission checking
+* CRUD operations with databases: search for items, add new assets, update import/export quantities of assets
+* Return reports to user in html and csv format
+* Create interactive user interfaces using DOM API and fetch API
+
+ Education
+Hanoi University of Science and Technology
+May 2018 – July 2020
+Engineer in Information Technology, Fulltime, GPA: 3.23 /4
+       
+Foreign Trade University 
+September 2011-  May 2015
+Bsc in Banking & International Finance, Fulltime, GPA: 3.24 /4
+
+ Certificates
+* IELTS 7.0 (Listening 7.0, Reading 8.0, Speaking 6.0, Writing 6.5) – IDP Vietnam
+* Machine Learning by Professor Andrew Ng –  Coursera & Stanford University
+* MongoDB data modeling course – MongoDB university: Credential
+* Problem Solving (intermediate) - Hackerank – Credential
+
+Other Skills
+* Soft skills: teamwork, time management, communication
+* Working in Agile model
+Hobbies
+Research technologies, swimming, football 
+
+Reference
+Available on request
