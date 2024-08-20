@@ -3,28 +3,38 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
-import { PlusIcon, Search, Trash2Icon } from "lucide-react"
+import {PlusIcon, Search, Trash2Icon} from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
-import { categoryColumns } from '@/pages/admin/categories/list/category-table/CategoryColumns.tsx';
-import { Link, useNavigate } from 'react-router-dom';
-import { Category } from '@/dto/category.ts';
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
+import {categoryColumns} from '@/pages/admin/categories/list/category-table/CategoryColumns.tsx';
+import {Link, useNavigate, useSearchParams} from 'react-router-dom';
 import categoriesService from '@/services/categories.service.ts';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { QueryKey } from '@/constant/query-key.ts';
+import {keepPreviousData, useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {QueryKey} from '@/constant/query-key.ts';
 import notification from '@/utils/notification.tsx';
 import ConfirmDeleteCategoryModal from '@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
-export function CategoryTable({data}: { data: Category[] }) {
+export function CategoryTable() {
+  const [params, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const [page, setPage] = useState(params.get('page') ? Number(params.get('page')) : 0);
+  const [pageSize, setPageSize] = useState(params.get('pageSize') ? Number(params.get('pageSize')) : 5);
+
+  const {data, isLoading, isError , error} = useQuery({
+    queryKey: [QueryKey.Categories, page, pageSize],
+    queryFn: () => categoriesService.getPage(page, pageSize),
+    placeholderData: keepPreviousData,
+  });
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
@@ -48,19 +58,20 @@ export function CategoryTable({data}: { data: Category[] }) {
     }
   });
 
-  const navigate = useNavigate();
+
 
   const table = useReactTable({
-    data,
+    data: data?.items ?? [],
     columns: categoryColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    manualPagination: true,
+    rowCount: data?.total,
     state: {
       sorting,
       columnFilters,
@@ -74,13 +85,32 @@ export function CategoryTable({data}: { data: Category[] }) {
     initialState: {
       columnVisibility: {
         id: false
+      },
+      pagination: {
+        pageIndex: 0,
+        pageSize,
       }
     }
   });
 
+  useEffect(()=>{
+    setSearchParams((params)=> ({...params, page, pageSize}))
+  }, [page, pageSize])
+
+
+  if (isLoading) {
+    return <div>Loading data ...</div>
+  }
+
+  if(isError) {
+    return <div>Fail to load categories: {error.message}</div>
+  }
+
   async function handleDeleteSelectedRows() {
     mutate(table.getSelectedRowModel().rows.map(r => r.original.id as number));
   }
+
+
 
   return (
     <div className="w-full">
@@ -170,15 +200,21 @@ export function CategoryTable({data}: { data: Category[] }) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => {
+              setPage(page => page - 1);
+              table.resetRowSelection();
+            }}
+            disabled={page === 0}
           >
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
+            onClick={() => {
+              setPage(page => page + 1);
+              table.resetRowSelection();
+            }}
             disabled={!table.getCanNextPage()}
           >
             Next

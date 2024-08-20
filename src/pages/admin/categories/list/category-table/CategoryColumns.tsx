@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { ArrowUpDown, EditIcon, LucideTrash2, MoreHorizontal } from 'lucide-react';
+import {ArrowDown, ArrowUp, ArrowUpDown, EditIcon, LucideTrash2, MoreHorizontal} from 'lucide-react';
 import { Category } from '@/dto/category.ts';
 import { useState } from 'react';
 import ConfirmDeleteCategoryModal from '@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx';

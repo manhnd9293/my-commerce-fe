@@ -15,8 +15,8 @@ class CategoriesService {
     return httpClient.put(`/categories/${id}`, category );
   }
 
-  getAll(): Promise<Category[]> {
-    return httpClient.get('/categories');
+  getPage(page: number, pageSize: number = 5): Promise<{total: number, items: Category[]}> {
+    return httpClient.get(`/categories?page=${page}&pageSize=${pageSize}`);
   }
 
   getById(id: number | undefined): Promise<Category> {

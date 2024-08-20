@@ -68,7 +68,7 @@ function ProductForm(props: ProductFormProps) {
 
   const {data: categories, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
-    queryFn: CategoriesService.getAll
+    queryFn: CategoriesService.getPage
   });
 
   const {

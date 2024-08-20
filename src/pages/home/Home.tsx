@@ -17,7 +17,7 @@ const carouselImages = [
 function Home() {
   const {data: categoryList, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Categories],
-    queryFn: categoriesService.getAll
+    queryFn: categoriesService.getPage
   });
 
   return (

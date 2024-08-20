@@ -13,6 +13,7 @@ import ProductListPage from '@/pages/admin/products/list/ProductListPage.tsx';
 import ProductUpdatePage from '@/pages/admin/products/update/ProductUpdatePage.tsx';
 import {RoutePath} from "@/router/RoutePath.ts";
 import ProductDetailPage from "@/pages/admin/products/detail/ProductDetailPage.tsx";
+import CategoriesPaginate from "@/pages/admin/categories/list/CategoriesPaginate.tsx";
 
 export const router = createBrowserRouter([
 
@@ -51,6 +52,10 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <CategoriesList/>,
+          },
+          {
+            path: 'paginate',
+            element: <CategoriesPaginate/>,
           },
           {
             path: 'create',
