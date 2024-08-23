@@ -34,7 +34,7 @@ function ProductRecommend() {
                 {product.name}
               </div>
               <div>
-                <img src={product.productImages[0].asset.preSignUrl}/>
+                <img src={product.productImages[0]?.asset.preSignUrl}/>
               </div>
               <div>
                 Price: Coming soon
