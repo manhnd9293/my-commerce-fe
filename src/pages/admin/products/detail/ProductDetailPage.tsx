@@ -1,18 +1,24 @@
-import {useQuery} from "@tanstack/react-query";
-import {DEFAULT_COLOR, DEFAULT_SIZE, QueryKey} from "@/constant/query-key.ts";
+import { useQuery } from "@tanstack/react-query";
+import { DEFAULT_COLOR, DEFAULT_SIZE, QueryKey } from "@/constant/query-key.ts";
 import ProductsService from "@/services/products.service.ts";
-import {useParams} from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import PageTitle from "@/pages/common/PageTitle.tsx";
-import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from "@/components/ui/carousel.tsx";
-import {useEffect, useState} from "react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel.tsx";
+import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
-import {Button} from "@/components/ui/button.tsx";
-import {MinusIcon, PlusIcon, ShoppingCartIcon} from "lucide-react";
-import {Input} from "@/components/ui/input.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { MinusIcon, PlusIcon, ShoppingCartIcon } from "lucide-react";
+import { Input } from "@/components/ui/input.tsx";
+import { cn } from '@/lib/utils.ts';
 
 function ProductDetailPage() {
   const params = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
+  const [orderQuantity, setOrderQuantity] = useState(searchParams.get('quantity') ? parseInt(searchParams.get('quantity')!) : 0);
+  const [selectedColor, setSelectedColor] = useState(searchParams.get('color'));
+  const [selectedSize, setSelectedSize] = useState(searchParams.get('size'));
+
   const {data, isLoading, isError, error} = useQuery({
     queryKey: [QueryKey.Product, {id: Number(params.id)}],
     queryFn: () => ProductsService.get(params.id!),
@@ -24,12 +30,43 @@ function ProductDetailPage() {
     }
     // @ts-ignore
     setCurrentImageUrl(data.productImages[0]!.asset.preSignUrl);
+
+    if(data.productSizes && data.productSizes.length > 0 && !searchParams.get('size')) {
+      setSelectedSize(data.productSizes[0].name);
+    }
+    if(data.productColors && data.productColors.length > 0 && !searchParams.get('color')) {
+      setSelectedColor(data.productColors[0].code);
+    }
   }, [data])
 
   if (isLoading) {
     return <div>Loading product ... </div>
   }
 
+  function handleChangeQuantity(e) {
+    const quantity = parseInt(e.target.value);
+    let validQuantity = null;
+    if (isNaN(quantity)) {
+      validQuantity = 0;
+    } else {
+      validQuantity = Math.min(quantity, 100);
+    }
+    setOrderQuantity(validQuantity);
+    setSearchParams({...Object.fromEntries(searchParams) ,quantity: String(validQuantity)})
+  }
+
+  function changeOrderQuantityBy(amount: number) {
+    const updateQuantity = orderQuantity + amount;
+    const validQuantity = Math.max(Math.min(updateQuantity, 100), 0)
+    setOrderQuantity(validQuantity);
+    setSearchParams({...Object.fromEntries(searchParams) ,quantity: String(validQuantity)})
+  }
+
+  function handleOrderQuantityKeyDown(e) {
+    if(isNaN(parseInt(e.key))) {
+      return;
+    }
+  }
 
 
   return (
@@ -77,7 +114,18 @@ function ProductDetailPage() {
                       <div className={'flex gap-4 mt-2'}>
                         {
                           data.productSizes.map(size => (
-                            <div className={'flex gap-2 items-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer justify-center'} key={size.id}>
+                            <div className={
+                              cn('flex gap-2 items-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer justify-center',
+                                {'border-orange-400': selectedSize === size.name},
+                                {'border-[2px]': selectedColor === size.name},
+                              )
+                            }
+                                 key={size.id}
+                                 onClick={() => {
+                                   setSelectedSize(size.name)
+                                   setSearchParams({ ...Object.fromEntries(searchParams),size: size.name })
+                                 }}
+                            >
                               <span>{size.name}</span>
                             </div>
                           ))
@@ -93,8 +141,19 @@ function ProductDetailPage() {
                       <div className={'flex gap-4 mt-2'}>
                         {
                           data.productColors.map(color => (
-                            <div className={'flex gap-2 items-center justify-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer'} key={color.id}>
-                              <div style={{backgroundColor: color.code}} className={'size-4 rounded border-2'}></div>
+                            <div className={cn(
+                                  'flex gap-2 items-center justify-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer box-border',
+                                  {'border-orange-400': selectedColor === color.code},
+                                  {'border-[2px]': selectedColor === color.code},
+                                )
+                                } key={color.id}
+                                 onClick={() => {
+                                   setSelectedColor(color.code)
+                                   setSearchParams({ ...Object.fromEntries(searchParams),color: color.code })
+                                 }}
+                            >
+                              <div style={{backgroundColor: color.code}}
+                                   className={'size-4 rounded border-2'}></div>
                               <span>{color.name}</span>
                             </div>
                           ))
@@ -105,20 +164,32 @@ function ProductDetailPage() {
                 }
                 <div className={'mt-4'}>
                   <div className={'font-semibold'}>Quantity</div>
-                  <div className={'flex mt-2'}>
-                    <Button variant={'outline'} size={'icon'}>
+                  <div className={'flex mt-2 gap-1'}>
+                    <Button variant={'outline'}
+                            size={'icon'}
+                            onClick={() => changeOrderQuantityBy(-1)}
+                    >
                       <MinusIcon className={'size-4'}></MinusIcon>
                     </Button>
-                    <Input type={'number'}
-                           defaultValue={1}
-                           className={'w-24 text-center'}/>
-                    <Button variant={'outline'} size={'icon'}>
+                    <Input defaultValue={1}
+                           className={'w-24 text-center'}
+                           value={orderQuantity}
+                           onKeyDown={handleOrderQuantityKeyDown}
+                           onChange={handleChangeQuantity}
+                    />
+                    <Button variant={'outline'}
+                            size={'icon'}
+                            onClick={()=> changeOrderQuantityBy(1)}
+                    >
                       <PlusIcon className={'size-4'}/>
                     </Button>
                   </div>
+                  {orderQuantity === 100 && <div className={'text-red-500 mt-2'}>You can order maximum 100 items</div>}
                 </div>
                 <div className={'mt-8 flex gap-4'}>
-                  <Button variant={'secondary'} className={'flex gap-2 items-center justify-center'} size={'lg'}>
+                  <Button variant={'secondary'}
+                          className={'flex gap-2 items-center justify-center'}
+                          size={'lg'}>
                     <ShoppingCartIcon className={'size-4'}/>
                     <span>Add to card</span>
                   </Button>
