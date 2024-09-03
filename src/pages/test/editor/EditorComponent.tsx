@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import  { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
 interface EditorComponentProps {
   content: string | undefined;
   onChange: (e: Event) => void;
+  onUpdateContent: (s: string) => void
 }
 
 
@@ -46,6 +47,6 @@ function EditorComponent({content, onUpdateContent}: EditorComponentProps) {
       />
     </div>
   );
-});
+}
 
 export default EditorComponent;
