@@ -105,7 +105,7 @@ function ProductDetailPage() {
               <div className={'col-span-4'}>
                 <PageTitle>{data ? data.name : `Loading product ..`}</PageTitle>
                 <div className={'mt-4'}>
-                  <span className={'font-semibold text-xl'}>Price: 8.000.000</span>
+                  <span className={'font-semibold text-xl'}>Price: {new Intl.NumberFormat().format(data.price) || 'Coming soon'}</span>
                 </div>
                 {
                   data.productSizes && data.productSizes.filter(c => c.name !== DEFAULT_SIZE).length > 0 &&  (

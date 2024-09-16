@@ -12,14 +12,13 @@ import CategoriesService from '@/services/categories.service.ts';
 import Utils from '@/utils/utils.ts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
 import { Editor } from '@tinymce/tinymce-react';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import notification from '@/utils/notification.tsx';
 import OldProductImageList from "@/pages/admin/products/form/OldProductImageList.tsx";
 import NewProductImageList from "@/pages/admin/products/form/NewProductImageList.tsx";
 import ProductColorForm, { colorFormSchema } from '@/pages/admin/products/form/product-colors/ProductColorForm.tsx';
 import ProductsService from '@/services/products.service.ts';
 import ProductSizeForm, { sizeFormSchema } from '@/pages/admin/products/form/product-sizes/ProductSizeForm.tsx';
-
 const allowTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
 export const productFormSchema = z.object({
@@ -41,6 +40,7 @@ export const productFormSchema = z.object({
     }).refine((files) => Array.from(files).every(file => allowTypes.includes(file.type)), {
       message: `Only these file types are allowed: ${allowTypes.map(t => t.replace('image', '.'))}`
     }).optional(),
+  price: z.number().optional(),
   description: z.string().max(50000).optional(),
   categoryId: z.string({message: 'Please provide category information'}),
   productSizes: z.object({
@@ -105,7 +105,7 @@ function ProductForm(props: ProductFormProps) {
   });
 
   function onSubmit(values: z.infer<typeof productFormSchema>) {
-    mutate(values,);
+    mutate(values);
   }
 
   if (isLoading) {
@@ -158,6 +158,18 @@ function ProductForm(props: ProductFormProps) {
   function handleDeleteColor(removeIndex: number) {
     const updateProductColors = (productForm.getValues('productColors') || []).filter((_color, index) => index !== removeIndex)
     productForm.setValue('productColors', updateProductColors);
+  }
+
+
+  function handleChangePrice(e: React.ChangeEvent<HTMLInputElement>) {
+    let targetValue = e.target.value;
+
+    if(isNaN(parseInt(targetValue))) {
+      const oldPrice = productForm.getValues('price');
+      productForm.setValue('price', targetValue !== '' ? oldPrice : undefined);
+      return;
+    }
+    productForm.setValue('price', parseInt(targetValue));
   }
 
   return (
@@ -281,6 +293,24 @@ function ProductForm(props: ProductFormProps) {
                                   onDeleteColor={handleDeleteColor}
                                   initialColors={productForm.getValues('productColors')}
                 />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={productForm.control}
+            name="price"
+            render={({field}) => (
+              <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input placeholder="Price" {...field}
+                         className={'w-64'}
+                         value={productForm.getValues('price') ?? ''}
+                         onChange={handleChangePrice}
+                  />
+                </FormControl>
+                <FormMessage/>
               </FormItem>
             )}
           />

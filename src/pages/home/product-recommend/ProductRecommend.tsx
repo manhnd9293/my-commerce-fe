@@ -36,8 +36,8 @@ function ProductRecommend() {
               <div>
                 <img src={product.productImages[0].asset.preSignUrl}/>
               </div>
-              <div>
-                Price: Coming soon
+               <div>
+                Price: { product.price ? new Intl.NumberFormat().format(product.price) : 'No Information'}
               </div>
             </Card>
           ))

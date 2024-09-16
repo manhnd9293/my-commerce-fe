@@ -22,4 +22,6 @@ export interface Product extends BaseDto {
   category?: Category;
 
   productImages?: ProductImage[];
+
+  price: number;
 }
