@@ -13,6 +13,7 @@ import ProductListPage from '@/pages/admin/products/list/ProductListPage.tsx';
 import ProductUpdatePage from '@/pages/admin/products/update/ProductUpdatePage.tsx';
 import {RoutePath} from "@/router/RoutePath.ts";
 import ProductDetailPage from "@/pages/admin/products/detail/ProductDetailPage.tsx";
+import CartPage from '@/pages/cart/CartPage.tsx';
 
 export const router = createBrowserRouter([
 
@@ -75,6 +76,10 @@ export const router = createBrowserRouter([
       {
         path: `${RoutePath.ProductDetail}/:id`,
         element: <ProductDetailPage/>
+      },
+      {
+        path: 'cart',
+        element: <CartPage/>
       },
       {
         path: 'test',

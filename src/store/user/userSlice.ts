@@ -1,13 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { CartItemDto } from '@/dto/cart/cart-item.dto.ts';
 
 export interface UserState {
   id: number | null,
-  email: string
+  email: string,
+  cart: CartItemDto []
 }
 
 const initialState: UserState  = {
   id: null,
-  email: ''
+  email: '',
+  cart: []
 }
 
 const userSlice = createSlice({
@@ -18,6 +21,7 @@ const userSlice = createSlice({
       const payload : UserState = action.payload;
       state.id = payload.id
       state.email = payload.email
+      state.cart = payload.cart
     },
     signOut: () => {
       localStorage.removeItem('accessToken');

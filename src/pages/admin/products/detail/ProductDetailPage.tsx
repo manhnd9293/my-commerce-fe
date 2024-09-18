@@ -24,17 +24,17 @@ function ProductDetailPage() {
     queryFn: () => ProductsService.get(params.id!),
   });
 
-  useEffect(()=> {
+  useEffect(() => {
     if (!data) {
       return;
     }
     // @ts-ignore
     setCurrentImageUrl(data.productImages[0]!.asset.preSignUrl);
 
-    if(data.productSizes && data.productSizes.length > 0 && !searchParams.get('size')) {
+    if (data.productSizes && data.productSizes.length > 0 && !searchParams.get('size')) {
       setSelectedSize(data.productSizes[0].name);
     }
-    if(data.productColors && data.productColors.length > 0 && !searchParams.get('color')) {
+    if (data.productColors && data.productColors.length > 0 && !searchParams.get('color')) {
       setSelectedColor(data.productColors[0].code);
     }
   }, [data])
@@ -52,18 +52,18 @@ function ProductDetailPage() {
       validQuantity = Math.min(quantity, 100);
     }
     setOrderQuantity(validQuantity);
-    setSearchParams({...Object.fromEntries(searchParams) ,quantity: String(validQuantity)})
+    setSearchParams({...Object.fromEntries(searchParams), quantity: String(validQuantity)})
   }
 
   function changeOrderQuantityBy(amount: number) {
     const updateQuantity = orderQuantity + amount;
     const validQuantity = Math.max(Math.min(updateQuantity, 100), 0)
     setOrderQuantity(validQuantity);
-    setSearchParams({...Object.fromEntries(searchParams) ,quantity: String(validQuantity)})
+    setSearchParams({...Object.fromEntries(searchParams), quantity: String(validQuantity)})
   }
 
   function handleOrderQuantityKeyDown(e) {
-    if(isNaN(parseInt(e.key))) {
+    if (isNaN(parseInt(e.key))) {
       return;
     }
   }
@@ -105,10 +105,11 @@ function ProductDetailPage() {
               <div className={'col-span-4'}>
                 <PageTitle>{data ? data.name : `Loading product ..`}</PageTitle>
                 <div className={'mt-4'}>
-                  <span className={'font-semibold text-xl'}>Price: {new Intl.NumberFormat().format(data.price) || 'Coming soon'}</span>
+                  <span
+                    className={'font-semibold text-xl'}>Price: {new Intl.NumberFormat().format(data.price) || 'Coming soon'}</span>
                 </div>
                 {
-                  data.productSizes && data.productSizes.filter(c => c.name !== DEFAULT_SIZE).length > 0 &&  (
+                  data.productSizes && data.productSizes.filter(c => c.name !== DEFAULT_SIZE).length > 0 && (
                     <div className={'mt-4'}>
                       <div className={'font-semibold'}>Sizes</div>
                       <div className={'flex gap-4 mt-2'}>
@@ -123,7 +124,7 @@ function ProductDetailPage() {
                                  key={size.id}
                                  onClick={() => {
                                    setSelectedSize(size.name)
-                                   setSearchParams({ ...Object.fromEntries(searchParams),size: size.name })
+                                   setSearchParams({...Object.fromEntries(searchParams), size: size.name})
                                  }}
                             >
                               <span>{size.name}</span>
@@ -135,25 +136,26 @@ function ProductDetailPage() {
                   )
                 }
                 {
-                  data.productColors && data.productColors.filter(c => c.name !== DEFAULT_COLOR).length > 0 &&  (
+                  data.productColors && data.productColors.filter(c => c.name !== DEFAULT_COLOR).length > 0 && (
                     <div className={'mt-4'}>
                       <div className={'font-semibold'}>Colors</div>
                       <div className={'flex gap-4 mt-2'}>
                         {
                           data.productColors.map(color => (
                             <div className={cn(
-                                  'flex gap-2 items-center justify-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer box-border',
-                                  {'border-orange-400': selectedColor === color.code},
-                                  {'border-[2px]': selectedColor === color.code},
-                                )
-                                } key={color.id}
+                              'flex gap-2 items-center justify-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer box-border',
+                              {'border-orange-400': selectedColor === color.code},
+                              {'border-[2px]': selectedColor === color.code},
+                            )
+                            } key={color.id}
                                  onClick={() => {
                                    setSelectedColor(color.code)
-                                   setSearchParams({ ...Object.fromEntries(searchParams),color: color.code })
+                                   setSearchParams({...Object.fromEntries(searchParams), color: color.code})
                                  }}
                             >
                               <div style={{backgroundColor: color.code}}
-                                   className={'size-4 rounded border-2'}></div>
+                                   className={'size-4 rounded border-2'}
+                              />
                               <span>{color.name}</span>
                             </div>
                           ))
@@ -167,7 +169,7 @@ function ProductDetailPage() {
                   <div className={'flex mt-2 gap-1'}>
                     <Button variant={'outline'}
                             size={'icon'}
-                            onClick={() => changeOrderQuantityBy(-1)}
+                            onClick={() => changeOrderQuantityBy(- 1)}
                     >
                       <MinusIcon className={'size-4'}></MinusIcon>
                     </Button>
@@ -179,7 +181,7 @@ function ProductDetailPage() {
                     />
                     <Button variant={'outline'}
                             size={'icon'}
-                            onClick={()=> changeOrderQuantityBy(1)}
+                            onClick={() => changeOrderQuantityBy(1)}
                     >
                       <PlusIcon className={'size-4'}/>
                     </Button>
@@ -189,7 +191,9 @@ function ProductDetailPage() {
                 <div className={'mt-8 flex gap-4'}>
                   <Button variant={'secondary'}
                           className={'flex gap-2 items-center justify-center'}
-                          size={'lg'}>
+                          size={'lg'}
+                          disabled={orderQuantity === 0}
+                  >
                     <ShoppingCartIcon className={'size-4'}/>
                     <span>Add to card</span>
                   </Button>

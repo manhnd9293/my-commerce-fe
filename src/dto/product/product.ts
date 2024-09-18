@@ -24,4 +24,6 @@ export interface Product extends BaseDto {
   productImages?: ProductImage[];
 
   price: number;
+
+  thumbnailUrl: string;
 }
