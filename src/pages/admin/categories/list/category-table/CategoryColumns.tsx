@@ -41,15 +41,20 @@ export const categoryColumns: ColumnDef<Category>[] = [
   },
   {
     accessorKey: "name",
-    header: ({column}) => {
+    header: ({column, table}) => {
+      const nextState = { 'desc': true, 'asc': false}
+      const nextSortingOrder = column.getNextSortingOrder();
       return (
         <Button variant={"ghost"}
-                onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                onClick={() => column.toggleSorting(nextSortingOrder ? nextState[nextSortingOrder] : undefined )}>
           <span>Name</span>
-          <ArrowUpDown className={'ml-2 h-4 w-4'}/>
+          {table.getState().sorting.length > 0 && table.getState().sorting[0].id === 'name' && (
+            table.getState().sorting[0].desc ? <ArrowDown className={'ml-8 size-4'}/> : <ArrowUp className={'ml-8 size-4'}/>
+          )}
         </Button>
       )
     },
+    enableSorting: true,
     cell: ({row}) => (
       <Link to={`${row.original.id}`}>{row.original.name}</Link>
     )

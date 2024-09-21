@@ -28,14 +28,14 @@ export function CategoryTable() {
 
   const [page, setPage] = useState(params.get('page') ? Number(params.get('page')) : 0);
   const [pageSize, setPageSize] = useState(params.get('pageSize') ? Number(params.get('pageSize')) : 5);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const {data, isLoading, isError , error} = useQuery({
-    queryKey: [QueryKey.Categories, page, pageSize],
-    queryFn: () => categoriesService.getPage(page, pageSize),
+    queryKey: [QueryKey.Categories, page, pageSize, sorting],
+    queryFn: () => categoriesService.getPage(page, pageSize, sorting),
     placeholderData: keepPreviousData,
   });
 
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   );
@@ -58,20 +58,23 @@ export function CategoryTable() {
     }
   });
 
-
+  function onSortingChange(data) {
+    setSorting(data);
+  }
 
   const table = useReactTable({
     data: data?.items ?? [],
     columns: categoryColumns,
-    onSortingChange: setSorting,
+    onSortingChange: onSortingChange,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     manualPagination: true,
     rowCount: data?.total,
+    manualSorting: true,
+    enableSortingRemoval: true,
     state: {
       sorting,
       columnFilters,
@@ -153,7 +156,7 @@ export function CategoryTable() {
                         ? null
                         : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          {...header.getContext()}
                         )}
                     </TableHead>
                   )

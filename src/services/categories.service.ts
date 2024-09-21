@@ -1,5 +1,6 @@
 import httpClient from '@/http-client/http-client.ts';
 import { Category } from '@/dto/category.ts';
+import {SortingState} from "@tanstack/react-table";
 
 class CategoriesService {
   create(name: string): Promise<Category> {
@@ -15,8 +16,10 @@ class CategoriesService {
     return httpClient.put(`/categories/${id}`, category );
   }
 
-  getPage(page: number, pageSize: number = 5): Promise<{total: number, items: Category[]}> {
-    return httpClient.get(`/categories?page=${page}&pageSize=${pageSize}`);
+  getPage(page: number, pageSize: number = 5, sorting: SortingState): Promise<{total: number, items: Category[]}> {
+    let url = `/categories?page=${page}&pageSize=${pageSize}`;
+    sorting.length > 0 && (url += `&sort=${sorting[0].id}&order=${sorting[0].desc ? 'desc' : 'asc'}`);
+    return httpClient.get(url);
   }
 
   getById(id: number | undefined): Promise<Category> {
