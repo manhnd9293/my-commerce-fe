@@ -14,7 +14,9 @@ import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button.tsx";
 import {
+  Loader2Icon,
   LoaderCircle,
+  LoaderIcon,
   MinusIcon,
   PlusIcon,
   ShoppingCartIcon,
@@ -287,7 +289,7 @@ function ProductDetailPage() {
                 >
                   <ShoppingCartIcon className={"size-4"} />
                   <span>Add to card</span>
-                  {pendingAddCartItem && <LoaderCircle size={"4"} />}
+                  {pendingAddCartItem && <LoaderIcon />}
                 </Button>
 
                 <Button

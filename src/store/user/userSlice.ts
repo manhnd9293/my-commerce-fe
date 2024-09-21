@@ -32,7 +32,11 @@ const userSlice = createSlice({
       const cartItem: CartItemDto = action.payload;
       const cart = state.cart;
       const index = cart.findIndex((item) => item.id === cartItem.id);
-      cart[index] = cartItem;
+      if (index !== -1) {
+        cart[index] = cartItem;
+      } else {
+        cart.push(cartItem);
+      }
       return state;
     },
 
