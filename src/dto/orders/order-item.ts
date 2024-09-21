@@ -1,17 +1,17 @@
 import { BaseDto } from "@/dto/base.dto.ts";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
-import { UserDto } from "@/dto/user/user.dto.ts";
+import { OrderDto } from "@/dto/orders/order.dto.ts";
 
-export interface CartItemDto extends BaseDto {
-  userId: number;
-
-  user: UserDto;
-
+export interface OrderItem extends BaseDto {
   productVariantId: number;
 
   productVariant: ProductVariant;
 
   quantity: number;
 
-  checkOut?: boolean;
+  unitPrice: number;
+
+  orderId: number;
+
+  order: OrderDto;
 }

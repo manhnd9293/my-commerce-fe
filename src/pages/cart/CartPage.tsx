@@ -10,15 +10,19 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Trash2Icon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import CartService from "@/services/cart.service.ts";
 import { removeCartItem } from "@/store/user/userSlice.ts";
+import {
+  addCheckOutCartItemId,
+  removeCheckOutCartItemId,
+} from "@/store/checkout/checkOutSlice.ts";
+import { useNavigate } from "react-router-dom";
 
 function CartPage() {
   const currentUser: UserDto = useSelector((state) => state.user);
-  const [checkOutIds, setCheckOutIds] = useState<number[]>([]);
-
+  const checkOutCartItemIds: number[] = useSelector((state) => state.checkOut);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mutate: removeItemMutate } = useMutation({
     mutationFn: CartService.removeCartItem,
@@ -39,17 +43,18 @@ function CartPage() {
           currentUser.cart.length > 0 &&
           currentUser.cart.map((item) => {
             return (
-              <Card className={"max-w-[700px] flex items-center px-4 gap-2"}>
+              <Card
+                key={item.id}
+                className={"max-w-[700px] flex items-center px-4 gap-2"}
+              >
                 <Checkbox
+                  checked={checkOutCartItemIds.includes(item.id!)}
                   onCheckedChange={(checked) => {
+                    const cartItemId = item.id;
                     if (checked) {
-                      setCheckOutIds((oldIds) =>
-                        oldIds.concat(item.productVariant.id!),
-                      );
+                      dispatch(addCheckOutCartItemId(cartItemId));
                     } else {
-                      setCheckOutIds((oldIds) =>
-                        oldIds.filter((id) => id !== item.productVariant.id!),
-                      );
+                      dispatch(removeCheckOutCartItemId(cartItemId));
                     }
                   }}
                 />
@@ -110,8 +115,9 @@ function CartPage() {
       </div>
 
       <Button
-        disabled={checkOutIds.length === 0}
+        disabled={checkOutCartItemIds.length === 0}
         className={"mt-4 bg-amber-600 hover:bg-amber-500"}
+        onClick={() => navigate("/check-out")}
       >
         Check out
       </Button>
