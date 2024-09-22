@@ -26,6 +26,42 @@ import { cn } from "@/lib/utils.ts";
 import CartService from "@/services/cart.service.ts";
 import { useDispatch } from "react-redux";
 import { addCartItem } from "@/store/user/userSlice.ts";
+import { Product } from "@/dto/product/product.ts";
+
+function ProductDescription(props: { product: Product }) {
+  const [collapse, setCollapse] = useState(true);
+
+  return (
+    <div>
+      <div className={"mt-8 font-semibold text-lg"}>Description</div>
+      <div
+        className={cn(
+          {
+            "h-[300px]": collapse,
+          },
+          "overflow-hidden",
+        )}
+      >
+        <div
+          className={cn("prose prose-a:text-blue-600 max-w-none mt-4")}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(props.product.description),
+          }}
+        />
+      </div>
+
+      <div className={"text-center"}>
+        <Button
+          size={"sm"}
+          variant={"outline"}
+          onClick={() => setCollapse((value) => !value)}
+        >
+          {collapse ? `Show more` : "Show less"}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function ProductDetailPage() {
   const params = useParams();
@@ -147,7 +183,6 @@ function ProductDetailPage() {
           <div className={"grid grid-cols-6 gap-16"}>
             <div className={"col-span-2"}>
               <img src={currentImageUrl} className={"w-full aspect-[1/1]"} />
-
               <Carousel
                 opts={{
                   align: "center",
@@ -301,13 +336,7 @@ function ProductDetailPage() {
               </div>
             </div>
           </div>
-          <div className={"mt-4 font-semibold text-lg"}>Description</div>
-          <div
-            className={"prose prose-a:text-blue-600 max-w-none mt-4"}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(product.description),
-            }}
-          ></div>
+          <ProductDescription product={product} />
         </div>
       )}
     </>
