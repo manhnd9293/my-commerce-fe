@@ -12,29 +12,41 @@ import { Trash2Icon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
 import { useMutation } from "@tanstack/react-query";
 import CartService from "@/services/cart.service.ts";
-import { removeCartItem } from "@/store/user/userSlice.ts";
 import {
-  addCheckOutCartItemId,
-  removeCheckOutCartItemId,
-} from "@/store/checkout/checkOutSlice.ts";
+  removeCartItem,
+  updateCartItemCheckOut,
+} from "@/store/user/userSlice.ts";
 import { useNavigate } from "react-router-dom";
+import { CartCheckOutUpdateDto } from "@/dto/cart/cart-check-out-update.dto.ts";
 
 function CartPage() {
   const currentUser: UserDto = useSelector((state) => state.user);
-  const checkOutCartItemIds: number[] = useSelector((state) => state.checkOut);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mutate: removeItemMutate } = useMutation({
     mutationFn: CartService.removeCartItem,
-    onSuccess: (data, variables, context) => {
-      console.log({ data, variables, context });
+    onSuccess: (_data, variables) => {
       const removeId = variables;
       dispatch(removeCartItem(removeId));
     },
   });
+
+  const {
+    mutate: mutateCartItemCheckOut,
+    isError,
+    isPending: isPendingCartItemCheckOut,
+    error,
+  } = useMutation({
+    mutationFn: CartService.updateCartItemCheckOut,
+    onSuccess: (data) => {
+      dispatch(updateCartItemCheckOut(data));
+    },
+  });
+
   async function onDeleteCartItem(id: number) {
     removeItemMutate(id);
   }
+
   return (
     <div>
       <PageTitle>Shopping Cart</PageTitle>
@@ -48,14 +60,13 @@ function CartPage() {
                 className={"max-w-[700px] flex items-center px-4 gap-2"}
               >
                 <Checkbox
-                  checked={checkOutCartItemIds.includes(item.id!)}
+                  checked={item.isCheckedOut}
                   onCheckedChange={(checked) => {
-                    const cartItemId = item.id;
-                    if (checked) {
-                      dispatch(addCheckOutCartItemId(cartItemId));
-                    } else {
-                      dispatch(removeCheckOutCartItemId(cartItemId));
-                    }
+                    const updateData: CartCheckOutUpdateDto = {
+                      cartItemId: item.id!,
+                      isCheckedOut: !!checked,
+                    };
+                    mutateCartItemCheckOut(updateData);
                   }}
                 />
                 <div className={"flex-1"}>
@@ -115,7 +126,9 @@ function CartPage() {
       </div>
 
       <Button
-        disabled={checkOutCartItemIds.length === 0}
+        disabled={
+          currentUser.cart.filter((item) => item.isCheckedOut).length === 0
+        }
         className={"mt-4 bg-amber-600 hover:bg-amber-500"}
         onClick={() => navigate("/check-out")}
       >

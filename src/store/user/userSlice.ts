@@ -42,8 +42,15 @@ const userSlice = createSlice({
 
     removeCartItem: (state, action) => {
       const id = action.payload;
-      console.log({ id });
       state.cart = state.cart.filter((item) => item.id !== id);
+      return state;
+    },
+
+    updateCartItemCheckOut: (state, action) => {
+      const data: CartItemDto = action.payload;
+      const index = state.cart.findIndex((item) => item.id === data.id);
+      state.cart[index].isCheckedOut = data.isCheckedOut;
+
       return state;
     },
 
@@ -54,6 +61,11 @@ const userSlice = createSlice({
   },
 });
 
-export const { signIn, signOut, addCartItem, removeCartItem } =
-  userSlice.actions;
+export const {
+  signIn,
+  signOut,
+  addCartItem,
+  removeCartItem,
+  updateCartItemCheckOut,
+} = userSlice.actions;
 export default userSlice.reducer;

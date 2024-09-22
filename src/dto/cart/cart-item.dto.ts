@@ -13,5 +13,5 @@ export interface CartItemDto extends BaseDto {
 
   quantity: number;
 
-  checkOut?: boolean;
+  isCheckedOut: boolean;
 }

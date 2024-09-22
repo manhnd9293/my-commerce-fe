@@ -19,10 +19,8 @@ import { CreateOrderItemDto } from "@/dto/orders/create-order-item.dto.ts";
 import { useState } from "react";
 import { LoaderIcon } from "lucide-react";
 import { removeCartItem } from "@/store/user/userSlice.ts";
-import { removeCheckOutCartItemId } from "@/store/checkout/checkOutSlice.ts";
 
 function CheckOutPage() {
-  const checkOutItemIds: number[] = useSelector((state) => state.checkOut);
   const currentUser: UserDto = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
@@ -37,17 +35,15 @@ function CheckOutPage() {
   } = useMutation({
     mutationFn: OrdersService.create,
     onSuccess: () => {
-      console.log("Create order success");
-      checkOutItemIds.forEach((id) => {
-        dispatch(removeCheckOutCartItemId(id));
+      checkOutItems.forEach(({ id }) => {
         dispatch(removeCartItem(id));
       });
       setDone(true);
     },
   });
 
-  const checkOutItems: CartItemDto[] = currentUser.cart.filter((item) =>
-    checkOutItemIds.includes(item.id!),
+  const checkOutItems: CartItemDto[] = currentUser.cart.filter(
+    (item) => item.isCheckedOut,
   );
 
   const totalCheckOut = checkOutItems.reduce((total, item) => {
