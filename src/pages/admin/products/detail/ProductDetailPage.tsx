@@ -50,7 +50,7 @@ function ProductDescription(props: { product: Product }) {
         />
       </div>
 
-      <div className={"text-center"}>
+      <div className={"text-center mt-4"}>
         <Button
           size={"sm"}
           variant={"outline"}
@@ -99,7 +99,6 @@ function ProductDetailPage() {
 
   function handleAddItemToCart() {
     if (!product) return;
-
     const productSize = product.productSizes?.find(
       (size) => size.name === selectedSize,
     );
@@ -108,8 +107,8 @@ function ProductDetailPage() {
     );
     const productVariant = product.productVariants?.find(
       (pv) =>
-        pv.productSizeId === productSize?.id &&
-        pv.productColorId === productColor?.id,
+        pv.productSizeId === (productSize?.id || null) &&
+        pv.productColorId === (productColor?.id || null),
     );
     productVariant &&
       mutateAddCartItem({
