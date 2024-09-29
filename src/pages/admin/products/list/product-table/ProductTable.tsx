@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import {
   ColumnFiltersState,
   flexRender,
@@ -8,52 +8,61 @@ import {
   getSortedRowModel,
   SortingState,
   useReactTable,
-  VisibilityState
-} from '@tanstack/react-table';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import categoriesService from '@/services/categories.service.ts';
-import { QueryKey } from '@/constant/query-key.ts';
-import notification from '@/utils/notification.tsx';
-import { Link, useNavigate } from 'react-router-dom';
-import { categoryColumns } from '@/pages/admin/categories/list/category-table/CategoryColumns.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { PlusIcon, Search, Trash2Icon } from 'lucide-react';
-import ConfirmDeleteCategoryModal from '@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx';
-import { Input } from '@/components/ui/input.tsx';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx';
-import ProductsService from '@/services/products.service.ts';
-import { productColumns } from '@/pages/admin/products/list/product-table/ProductColumns.tsx';
+  VisibilityState,
+} from "@tanstack/react-table";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import categoriesService from "@/services/categories.service.ts";
+import { QueryKey } from "@/common/constant/query-key.ts";
+import notification from "@/utils/notification.tsx";
+import { Link, useNavigate } from "react-router-dom";
+import { categoryColumns } from "@/pages/admin/categories/list/category-table/CategoryColumns.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { PlusIcon, Search, Trash2Icon } from "lucide-react";
+import ConfirmDeleteCategoryModal from "@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table.tsx";
+import ProductsService from "@/services/products.service.ts";
+import { productColumns } from "@/pages/admin/products/list/product-table/ProductColumns.tsx";
 
 export function ProductTable() {
-  const {data, isLoading, isError, error} = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: [QueryKey.Products],
-    queryFn: ProductsService.getAll
+    queryFn: ProductsService.getAll,
   });
   const navigate = useNavigate();
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
 
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const queryClient = useQueryClient();
 
-  const {mutate} = useMutation({
+  const { mutate } = useMutation({
     mutationFn: (ids: number[]) => categoriesService.delete(ids),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKey.Categories]
-      }).then(() => {
-        table.toggleAllPageRowsSelected(false);
-        notification.success('Deleted categories success');
-      })
+      queryClient
+        .invalidateQueries({
+          queryKey: [QueryKey.Categories],
+        })
+        .then(() => {
+          table.toggleAllPageRowsSelected(false);
+          notification.success("Deleted categories success");
+        });
     },
-    onError: error => {
-      notification.error(`Fail to delete categories: ${error?.message}`)
-    }
+    onError: (error) => {
+      notification.error(`Fail to delete categories: ${error?.message}`);
+    },
   });
 
   const table = useReactTable({
@@ -79,33 +88,36 @@ export function ProductTable() {
     },
     initialState: {
       columnVisibility: {
-        id: false
-      }
-    }
+        id: false,
+      },
+    },
   });
 
   async function handleDeleteSelectedRows() {
-    mutate(table.getSelectedRowModel().rows.map(r => r.original.id as number));
+    mutate(
+      table.getSelectedRowModel().rows.map((r) => r.original.id as number),
+    );
   }
 
   if (isLoading) {
-    return 'Loading products ...';
+    return "Loading products ...";
   }
 
   return (
     <div className="w-full">
-      <div className={'flex gap-4 items-center'}>
-        <Link to={'new'}>
-          <Button className={'bg-amber-600 hover:bg-amber-500'}>
-            <PlusIcon className={'w-4 h-4 mr-2 font-bold'}/>
+      <div className={"flex gap-4 items-center"}>
+        <Link to={"new"}>
+          <Button className={"bg-amber-600 hover:bg-amber-500"}>
+            <PlusIcon className={"w-4 h-4 mr-2 font-bold"} />
             <span>New</span>
           </Button>
         </Link>
         <ConfirmDeleteCategoryModal onConfirm={handleDeleteSelectedRows}>
-          <Button variant={'outline'}
-                  disabled={table.getSelectedRowModel().rows.length === 0}
+          <Button
+            variant={"outline"}
+            disabled={table.getSelectedRowModel().rows.length === 0}
           >
-            <Trash2Icon className={'w-4 h-4 mr-2'}/>
+            <Trash2Icon className={"w-4 h-4 mr-2"} />
             <span>Delete</span>
           </Button>
         </ConfirmDeleteCategoryModal>
@@ -119,7 +131,7 @@ export function ProductTable() {
           }
           className="max-w-sm pr-9"
         />
-        <Search className="absolute right-0 top-0 m-2.5 h-4 w-4 text-muted-foreground"/>
+        <Search className="absolute right-0 top-0 m-2.5 h-4 w-4 text-muted-foreground" />
       </div>
       <div className="rounded-md border mt-4">
         <Table>
@@ -132,11 +144,11 @@ export function ProductTable() {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -152,7 +164,7 @@ export function ProductTable() {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { QueryKey } from "@/constant/query-key.ts";
+import { QueryKey } from "@/common/constant/query-key.ts";
 import productsService from "@/services/products.service.ts";
 import Utils from "@/utils/utils.ts";
 import { Card } from "@/components/ui/card.tsx";

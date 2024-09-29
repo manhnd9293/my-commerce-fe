@@ -1,5 +1,9 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { DEFAULT_COLOR, DEFAULT_SIZE, QueryKey } from "@/constant/query-key.ts";
+import {
+  DEFAULT_COLOR,
+  DEFAULT_SIZE,
+  QueryKey,
+} from "@/common/constant/query-key.ts";
 import ProductsService from "@/services/products.service.ts";
 import { useParams, useSearchParams } from "react-router-dom";
 import PageTitle from "@/pages/common/PageTitle.tsx";
@@ -229,9 +233,9 @@ function ProductDetailPage() {
                       {product.productSizes.map((size) => (
                         <div
                           className={cn(
-                            "flex gap-2 items-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer justify-center",
+                            "flex gap-2 items-center border-[1px] border-gray-200 rounded-md py-1 px-2 cursor-pointer justify-center min-w-12",
                             { "border-orange-400": selectedSize === size.name },
-                            { "border-[2px]": selectedColor === size.name },
+                            { "border-[2px]": selectedSize === size.name },
                           )}
                           key={size.id}
                           onClick={() => {
@@ -257,7 +261,7 @@ function ProductDetailPage() {
                       {product.productColors.map((color) => (
                         <div
                           className={cn(
-                            "flex gap-2 items-center justify-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer box-border",
+                            "flex gap-2 items-center justify-center border-[1px] border-gray-200 rounded-md py-1 px-2 cursor-pointer box-border",
                             {
                               "border-orange-400": selectedColor === color.code,
                             },

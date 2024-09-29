@@ -15,6 +15,7 @@ import { RoutePath } from "@/router/RoutePath.ts";
 import ProductDetailPage from "@/pages/admin/products/detail/ProductDetailPage.tsx";
 import CartPage from "@/pages/cart/CartPage.tsx";
 import CheckOutPage from "@/pages/checkOut/CheckOutPage.tsx";
+import AdminOrderPage from "@/pages/admin/orders/AdminOrderPage.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -60,6 +61,15 @@ export const router = createBrowserRouter([
           {
             path: ":categoryId",
             element: <UpdateCategoryPage />,
+          },
+        ],
+      },
+      {
+        path: "orders",
+        children: [
+          {
+            index: true,
+            element: <AdminOrderPage />,
           },
         ],
       },
