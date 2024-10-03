@@ -73,8 +73,7 @@ function ProductRecommend() {
               <div>
                 <img src={product.thumbnailUrl} />
               </div>
-              <div>
-                Price:{" "}
+              <div className={"text-center"}>
                 {product.price
                   ? new Intl.NumberFormat().format(product.price)
                   : "No Information"}

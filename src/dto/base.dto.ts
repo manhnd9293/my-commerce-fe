@@ -1,6 +1,6 @@
 export interface BaseDto {
   id?: number | null;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+  deletedAt?: Date | null;
 }

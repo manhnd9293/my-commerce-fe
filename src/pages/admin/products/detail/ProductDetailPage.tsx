@@ -5,7 +5,7 @@ import {
   QueryKey,
 } from "@/common/constant/query-key.ts";
 import ProductsService from "@/services/products.service.ts";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import PageTitle from "@/pages/common/PageTitle.tsx";
 import {
   Carousel,
@@ -14,7 +14,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel.tsx";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -29,8 +29,9 @@ import { Input } from "@/components/ui/input.tsx";
 import { cn } from "@/lib/utils.ts";
 import CartService from "@/services/cart.service.ts";
 import { useDispatch } from "react-redux";
-import { addCartItem } from "@/store/user/userSlice.ts";
+import { addCartItem, updateInstantBuy } from "@/store/user/userSlice.ts";
 import { Product } from "@/dto/product/product.ts";
+import { ProductVariant } from "@/dto/product/product-variant.ts";
 
 function ProductDescription(props: { product: Product }) {
   const [collapse, setCollapse] = useState(true);
@@ -77,6 +78,7 @@ function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(searchParams.get("color"));
   const [selectedSize, setSelectedSize] = useState(searchParams.get("size"));
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const {
     data: product,
@@ -101,7 +103,7 @@ function ProductDetailPage() {
     },
   });
 
-  function handleAddItemToCart() {
+  function getSelectProductVariant(): ProductVariant | undefined {
     if (!product) return;
     const productSize = product.productSizes?.find(
       (size) => size.name === selectedSize,
@@ -114,6 +116,12 @@ function ProductDetailPage() {
         pv.productSizeId === (productSize?.id || null) &&
         pv.productColorId === (productColor?.id || null),
     );
+
+    return productVariant;
+  }
+
+  function handleAddItemToCart() {
+    const productVariant = getSelectProductVariant();
     productVariant &&
       mutateAddCartItem({
         productVariantId: productVariant.id!,
@@ -169,6 +177,22 @@ function ProductDetailPage() {
     if (isNaN(parseInt(e.key))) {
       return;
     }
+  }
+
+  function handleBuyNow() {
+    const productVariant = getSelectProductVariant();
+    if (!productVariant) return;
+    console.log({ product });
+    productVariant.product = structuredClone(product);
+    dispatch(
+      updateInstantBuy({
+        productVariantId: productVariant.id!,
+        productVariant,
+        quantity: orderQuantity,
+        isCheckedOut: true,
+      }),
+    );
+    navigate("/check-out?instant-buy=true");
   }
 
   return (
@@ -325,6 +349,7 @@ function ProductDetailPage() {
                 <Button
                   className={"bg-amber-600 hover:bg-amber-500"}
                   size={"lg"}
+                  onClick={handleBuyNow}
                 >
                   <span>Buy now</span>
                 </Button>

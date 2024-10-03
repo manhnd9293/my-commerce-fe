@@ -74,7 +74,7 @@ function CartPage() {
                     <CardTitle
                       className={"font-semibold text-lg truncate max-w-[500px]"}
                     >
-                      {item.productVariant.product.name}
+                      {item.productVariant.product?.name}
                     </CardTitle>
                   </CardHeader>
 
@@ -85,7 +85,7 @@ function CartPage() {
                           <span>Price:</span>
                           <span>
                             {new Intl.NumberFormat().format(
-                              item.productVariant.product.price,
+                              item.productVariant.product?.price || 0,
                             )}
                           </span>
                         </div>
@@ -97,7 +97,8 @@ function CartPage() {
                           <span>Total:</span>
                           <span>
                             {new Intl.NumberFormat().format(
-                              item.productVariant.product.price * item.quantity,
+                              (item.productVariant.product?.price || 0) *
+                                item.quantity,
                             )}
                           </span>
                         </div>
@@ -115,7 +116,7 @@ function CartPage() {
                       </div>
                       <img
                         className={"size-32"}
-                        src={item.productVariant.product.thumbnailUrl}
+                        src={item.productVariant.product?.thumbnailUrl}
                       />
                     </div>
                   </CardContent>

@@ -26,6 +26,7 @@ function AdminOrderPage() {
     search: searchParams.get("search"),
     order: searchParams.get("sortOrder"),
     sortBy: searchParams.get("sortBy"),
+    pageSize: Number(searchParams.get("pageSize")) || 10,
   });
 
   const {
@@ -39,12 +40,13 @@ function AdminOrderPage() {
   });
 
   useEffect(() => {
-    const { page, search, order, sortBy } = queryData;
+    const { page, search, order, sortBy, pageSize } = queryData;
     const queryObject = {};
     page && Object.assign(queryObject, { page: String(page) });
     search && Object.assign(queryObject, { search });
     order && Object.assign(queryObject, { order });
     sortBy && Object.assign(queryObject, { sortBy });
+    pageSize !== undefined && Object.assign(queryObject, { pageSize });
     setSearchParams(queryObject);
   }, [queryData]);
 
@@ -54,6 +56,7 @@ function AdminOrderPage() {
       search: searchParams.get("search"),
       order: searchParams.get("sortOrder"),
       sortBy: searchParams.get("sortBy"),
+      pageSize: Number(searchParams.get("pageSize")) || 10,
     };
     setQueryData(queryObject);
     setSearchInput(queryObject.search);
@@ -64,7 +67,7 @@ function AdminOrderPage() {
   }
 
   function onChangeSearchInput() {
-    const assign = Object.assign(queryData, { search: searchInput });
+    const assign = Object.assign(queryData, { search: searchInput, page: 1 });
     setQueryData(structuredClone(assign));
   }
 

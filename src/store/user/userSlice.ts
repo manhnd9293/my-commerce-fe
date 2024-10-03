@@ -5,12 +5,14 @@ export interface UserState {
   id: number | null;
   email: string;
   cart: CartItemDto[];
+  instantBuy: CartItemDto | null;
 }
 
 const initialState: UserState = {
   id: null,
   email: "",
   cart: [],
+  instantBuy: null,
 };
 
 const userSlice = createSlice({
@@ -58,6 +60,12 @@ const userSlice = createSlice({
       const updateCart: CartItemDto[] = action.payload;
       state.cart = updateCart;
     },
+
+    updateInstantBuy: (state, action: { payload: CartItemDto }) => {
+      const instantBuy: CartItemDto = action.payload;
+      state.instantBuy = instantBuy;
+      return state;
+    },
   },
 });
 
@@ -67,5 +75,6 @@ export const {
   addCartItem,
   removeCartItem,
   updateCartItemCheckOut,
+  updateInstantBuy,
 } = userSlice.actions;
 export default userSlice.reducer;
