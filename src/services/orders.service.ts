@@ -11,7 +11,6 @@ class OrdersService {
 
   getOrders(data: OrderQueryDto): Promise<PageData<OrderDto>> {
     const { pageSize, page, search, order, sortBy, userId } = data;
-    const queryString = "";
     const arr = [];
     search && arr.push(`search=${search}`);
     page && arr.push(`page=${page}`);
@@ -19,7 +18,6 @@ class OrdersService {
     order && arr.push(`order=${order}`);
     sortBy && arr.push(`sortBy=${sortBy}`);
     userId && arr.push(`userId=${userId}`);
-    console.log({ queryString });
     return httpClient.get(`/orders?${arr.join("&")}`);
   }
 }

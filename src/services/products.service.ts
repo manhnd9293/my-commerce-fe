@@ -3,6 +3,8 @@ import { Product } from "@/dto/product/product.ts";
 import { z } from "zod";
 import { productFormSchema } from "@/pages/admin/products/form/ProductForm.tsx";
 import { ProductQueryDto } from "@/dto/product/product-query.dto.ts";
+import { PageData } from "@/dto/page-data/page-data.ts";
+import { BaseQueryDto } from "@/dto/query/base-query.dto.ts";
 
 class ProductsService {
   async create(data: z.infer<typeof productFormSchema>) {
@@ -46,6 +48,19 @@ class ProductsService {
         "Content-Type": "multipart/form-data",
       },
     });
+  }
+
+  async getSimilarProducts(
+    productId: number,
+    query: BaseQueryDto,
+  ): Promise<PageData<Product>> {
+    const queryArr: string[] = [];
+    for (const key of Object.keys(query)) {
+      query[key] !== undefined && queryArr.push(`${key}=${query[key]}`);
+    }
+    return httpClient.get(
+      `/products/${productId}/similar?${queryArr.join("&")}`,
+    );
   }
 }
 

@@ -4,11 +4,11 @@ import UserDropdown from "@/pages/layout/header/UserDropdown.tsx";
 const paths = [
   {
     to: "categories",
-    name: "Category",
+    name: "Categories",
   },
   {
     to: "products",
-    name: "Product",
+    name: "Products",
   },
   {
     to: "orders",

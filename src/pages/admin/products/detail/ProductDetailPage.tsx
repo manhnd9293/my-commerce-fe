@@ -14,12 +14,10 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel.tsx";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button.tsx";
 import {
-  Loader2Icon,
-  LoaderCircle,
   LoaderIcon,
   MinusIcon,
   PlusIcon,
@@ -32,6 +30,8 @@ import { useDispatch } from "react-redux";
 import { addCartItem, updateInstantBuy } from "@/store/user/userSlice.ts";
 import { Product } from "@/dto/product/product.ts";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
+import { Card } from "@/components/ui/card.tsx";
+import { RoutePath } from "@/router/RoutePath.ts";
 
 function ProductDescription(props: { product: Product }) {
   const [collapse, setCollapse] = useState(true);
@@ -88,6 +88,11 @@ function ProductDetailPage() {
   } = useQuery({
     queryKey: [QueryKey.Product, { id: Number(params.id) }],
     queryFn: () => ProductsService.get(params.id!),
+  });
+
+  const { data: similarProductPage, isLoading: isLoadingSimilar } = useQuery({
+    queryKey: [QueryKey.SimilarProducts, { id: params.id }],
+    queryFn: () => ProductsService.getSimilarProducts(Number(params.id!), {}),
   });
 
   const {
@@ -357,6 +362,33 @@ function ProductDetailPage() {
             </div>
           </div>
           <ProductDescription product={product} />
+
+          <div>
+            <div className={"text-lg font-semibold"}>Similar Products</div>
+            <div className={"grid grid-cols-4 lg:grid-cols-5 gap-4 mt-4"}>
+              {similarProductPage?.data &&
+                similarProductPage?.data.map((product) => (
+                  <Card
+                    className={"p-2 cursor-pointer flex flex-col space-y-3"}
+                    onClick={() =>
+                      navigate(`${RoutePath.ProductDetail}/${product.id}`)
+                    }
+                  >
+                    <div className={"truncate font-semibold"}>
+                      {product.name}
+                    </div>
+                    <div>
+                      <img src={product.thumbnailUrl} />
+                    </div>
+                    <div className={"text-center"}>
+                      {product.price
+                        ? new Intl.NumberFormat().format(product.price)
+                        : "No Information"}
+                    </div>
+                  </Card>
+                ))}
+            </div>
+          </div>
         </div>
       )}
     </>

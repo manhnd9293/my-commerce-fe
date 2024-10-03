@@ -115,7 +115,7 @@ function AdminOrderPage() {
               <TableRow key={order.id}>
                 <TableCell className="font-medium">{order.id}</TableCell>
                 <TableCell>{order.user.email}</TableCell>
-                <TableCell>{order.createdAt.toString()}</TableCell>
+                <TableCell>{order.createdAt?.toString()}</TableCell>
                 <TableCell>Pending</TableCell>
                 <TableCell>{utils.getMoneyNumber(order.total)}</TableCell>
               </TableRow>
