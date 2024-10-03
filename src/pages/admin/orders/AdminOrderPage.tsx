@@ -8,15 +8,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input.tsx";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination.tsx";
 import { useQuery } from "@tanstack/react-query";
 import OrdersService from "@/services/orders.service.ts";
 import utils from "@/utils/utils.ts";
@@ -24,6 +15,7 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { OrderQueryDto } from "@/dto/query/order-query.dto.ts";
 import { QueryKey } from "@/common/constant/query-key.ts";
+import { PaginationGroup } from "@/components/common/PaginationGroup.tsx";
 
 function AdminOrderPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -56,12 +48,31 @@ function AdminOrderPage() {
     setSearchParams(queryObject);
   }, [queryData]);
 
+  useEffect(() => {
+    const queryObject = {
+      page: Number(searchParams.get("page") || 1),
+      search: searchParams.get("search"),
+      order: searchParams.get("sortOrder"),
+      sortBy: searchParams.get("sortBy"),
+    };
+    setQueryData(queryObject);
+    setSearchInput(queryObject.search);
+  }, [searchParams]);
+
   if (isLoading) {
     return "Loading orders ...";
   }
 
   function onChangeSearchInput() {
     const assign = Object.assign(queryData, { search: searchInput });
+    setQueryData(structuredClone(assign));
+  }
+
+  function onChangePage(changeValue: number) {
+    if (!queryData.page) return;
+    const assign = Object.assign(queryData, {
+      page: queryData.page + changeValue,
+    });
     setQueryData(structuredClone(assign));
   }
 
@@ -111,30 +122,11 @@ function AdminOrderPage() {
       </div>
 
       <div className={"mt-4"}>
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href="#" />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <PaginationGroup
+          currentPage={queryData.page}
+          onChangePage={onChangePage}
+          pageData={pageOrder}
+        />
       </div>
     </div>
   );

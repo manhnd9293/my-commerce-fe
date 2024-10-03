@@ -157,20 +157,12 @@ function ProductDetailPage() {
       validQuantity = Math.min(quantity, 100);
     }
     setOrderQuantity(validQuantity);
-    setSearchParams({
-      ...Object.fromEntries(searchParams),
-      quantity: String(validQuantity),
-    });
   }
 
   function changeOrderQuantityBy(amount: number) {
     const updateQuantity = orderQuantity + amount;
     const validQuantity = Math.max(Math.min(updateQuantity, 100), 0);
     setOrderQuantity(validQuantity);
-    setSearchParams({
-      ...Object.fromEntries(searchParams),
-      quantity: String(validQuantity),
-    });
   }
 
   function handleOrderQuantityKeyDown(e) {
