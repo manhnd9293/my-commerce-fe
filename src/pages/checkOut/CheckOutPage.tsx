@@ -49,7 +49,7 @@ function CheckOutPage() {
     : currentUser.cart.filter((item) => item.isCheckedOut);
 
   const totalCheckOut = checkOutItems.reduce((total, item) => {
-    total += item.quantity * item.productVariant.product.price;
+    total += item.quantity * item.productVariant.product!.price;
     return total;
   }, 0);
 
@@ -85,23 +85,23 @@ function CheckOutPage() {
               <TableRow key={item.id}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell className="font-medium">
-                  <span>{item.productVariant.product.name}</span>
+                  <span>{item.productVariant.product!.name}</span>
                 </TableCell>
                 <TableCell>
                   <img
-                    src={item.productVariant.product.thumbnailUrl}
+                    src={item.productVariant.product!.thumbnailUrl}
                     className={"size-16"}
                   />
                 </TableCell>
                 <TableCell className={"text-center"}>
                   {new Intl.NumberFormat().format(
-                    item.productVariant.product.price * item.quantity,
+                    item.productVariant.product!.price,
                   )}
                 </TableCell>
                 <TableCell className={"text-center"}>{item.quantity}</TableCell>
                 <TableCell className={"text-right"}>
                   {new Intl.NumberFormat().format(
-                    item.productVariant.product.price * item.quantity,
+                    item.productVariant.product!.price * item.quantity,
                   )}
                 </TableCell>
               </TableRow>
@@ -133,7 +133,7 @@ function CheckOutPage() {
                   const createOrderItemDto: CreateOrderItemDto = {
                     cartItemId: item.id!,
                     quantity: item.quantity,
-                    unitPrice: item.productVariant.product.price,
+                    unitPrice: item.productVariant.product!.price,
                     productVariantId: item.productVariantId,
                   };
                   return createOrderItemDto;

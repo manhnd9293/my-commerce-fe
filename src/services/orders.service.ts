@@ -20,6 +20,10 @@ class OrdersService {
     userId && arr.push(`userId=${userId}`);
     return httpClient.get(`/orders?${arr.join("&")}`);
   }
+
+  getOrderDetail(orderId: number): Promise<OrderDto> {
+    return httpClient.get(`/orders/${orderId}`);
+  }
 }
 
 export default new OrdersService();

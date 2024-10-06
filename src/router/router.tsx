@@ -16,6 +16,7 @@ import ProductDetailPage from "@/pages/admin/products/detail/ProductDetailPage.t
 import CartPage from "@/pages/cart/CartPage.tsx";
 import CheckOutPage from "@/pages/checkOut/CheckOutPage.tsx";
 import AdminOrderPage from "@/pages/admin/orders/AdminOrderPage.tsx";
+import OrderDetail from "@/pages/admin/orders/OrderDetail.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <AdminOrderPage />,
+          },
+          {
+            path: ":id",
+            element: <OrderDetail />,
           },
         ],
       },

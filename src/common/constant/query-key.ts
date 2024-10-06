@@ -5,6 +5,7 @@ export enum QueryKey {
   Products = "products",
   Product = "product",
   Orders = "orders",
+  Order = "order",
   SimilarProducts = "similar-products",
 }
 

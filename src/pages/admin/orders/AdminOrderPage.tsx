@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { useQuery } from "@tanstack/react-query";
 import OrdersService from "@/services/orders.service.ts";
 import utils from "@/utils/utils.ts";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { OrderQueryDto } from "@/dto/query/order-query.dto.ts";
 import { QueryKey } from "@/common/constant/query-key.ts";
@@ -20,6 +20,7 @@ import { PaginationGroup } from "@/components/common/PaginationGroup.tsx";
 function AdminOrderPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(searchParams.get("search"));
+  const navigate = useNavigate();
 
   const [queryData, setQueryData] = useState<OrderQueryDto>({
     page: Number(searchParams.get("page") || 1),
@@ -29,12 +30,7 @@ function AdminOrderPage() {
     pageSize: Number(searchParams.get("pageSize")) || 10,
   });
 
-  const {
-    data: pageOrder,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data: pageOrder, isLoading } = useQuery({
     queryKey: [QueryKey.Orders, queryData],
     queryFn: () => OrdersService.getOrders(queryData),
   });
@@ -79,6 +75,10 @@ function AdminOrderPage() {
     setQueryData(structuredClone(assign));
   }
 
+  function handleOrderClick(id: number) {
+    navigate(`${id}`);
+  }
+
   return (
     <div>
       <PageTitle>Orders</PageTitle>
@@ -99,7 +99,7 @@ function AdminOrderPage() {
         />
       </div>
 
-      <div className={"mt-4"}>
+      <div className={"mt-4 max-w-4xl"}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -112,7 +112,11 @@ function AdminOrderPage() {
           </TableHeader>
           <TableBody>
             {pageOrder?.data.map((order) => (
-              <TableRow key={order.id}>
+              <TableRow
+                key={order.id}
+                className={"cursor-pointer"}
+                onClick={() => handleOrderClick(order.id!)}
+              >
                 <TableCell className="font-medium">{order.id}</TableCell>
                 <TableCell>{order.user.email}</TableCell>
                 <TableCell>{order.createdAt?.toString()}</TableCell>
@@ -122,14 +126,14 @@ function AdminOrderPage() {
             ))}
           </TableBody>
         </Table>
-      </div>
 
-      <div className={"mt-4"}>
-        <PaginationGroup
-          currentPage={queryData.page}
-          onChangePage={onChangePage}
-          pageData={pageOrder}
-        />
+        <div className={"mt-4"}>
+          <PaginationGroup
+            currentPage={queryData.page}
+            onChangePage={onChangePage}
+            pageData={pageOrder}
+          />
+        </div>
       </div>
     </div>
   );
