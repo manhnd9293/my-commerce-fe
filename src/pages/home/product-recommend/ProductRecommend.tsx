@@ -53,6 +53,7 @@ function ProductRecommend() {
             <Card
               className={"text-center cursor-pointer p-1"}
               onClick={() => setCategoryId(category.id!)}
+              key={category.id!}
             >
               <span className={"font-semibold"}>{category.name}</span>
             </Card>
@@ -68,6 +69,7 @@ function ProductRecommend() {
               onClick={() =>
                 navigate(`${RoutePath.ProductDetail}/${product.id}`)
               }
+              key={product.id!}
             >
               <div className={"truncate font-semibold"}>{product.name}</div>
               <div>

@@ -33,7 +33,7 @@ function Home() {
       >
         <CarouselContent>
           {carouselImages.map((image) => (
-            <CarouselItem>
+            <CarouselItem key={image}>
               <img src={image} className={"w-full h-94 aspect-[900/277]"} />
             </CarouselItem>
           ))}
