@@ -17,7 +17,6 @@ import { OrderQueryDto } from "@/dto/query/order-query.dto.ts";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import { PaginationGroup } from "@/components/common/PaginationGroup.tsx";
 import { ArrowDown, ArrowUp, Search } from "lucide-react";
-import * as React from "react";
 
 function AdminOrderPage() {
   const [searchParams, setSearchParams] = useSearchParams();
