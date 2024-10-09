@@ -6,8 +6,21 @@ const menuItems = [
     path: "",
   },
   {
+    label: "Address",
+    path: "address",
+  },
+  {
+    label: "Payments",
+    path: "payments",
+  },
+  {
     label: "Orders",
     path: "my-order",
+  },
+
+  {
+    label: "Reviews",
+    path: "reviews",
   },
 ];
 
@@ -33,7 +46,7 @@ function MyAccountPage() {
             );
           })}
         </div>
-        <div>
+        <div className={"flex-1"}>
           <Outlet />
         </div>
       </div>

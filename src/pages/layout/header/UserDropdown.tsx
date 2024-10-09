@@ -11,12 +11,15 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar.tsx";
-import { useDispatch } from "react-redux";
-import { signOut } from "@/store/user/userSlice.ts";
+import { useDispatch, useSelector } from "react-redux";
+import { signOut, UserState } from "@/store/user/userSlice.ts";
 import { useNavigate } from "react-router-dom";
+import { LogOutIcon, Settings, UserCog } from "lucide-react";
 
 function UserDropdown() {
   const dispatch = useDispatch();
+  const currentUser: UserState = useSelector((state) => state.user);
+
   const navigate = useNavigate();
 
   function handleSignOut() {
@@ -28,20 +31,33 @@ function UserDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src={currentUser.avatarUrl || ""} />
+          <AvatarFallback>{currentUser.email[0].toUpperCase()}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={"end"} side={"bottom"} sideOffset={8}>
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          <span>My Account</span>
+        </DropdownMenuLabel>
         <DropdownMenuItem onClick={() => navigate("/my-account")}>
-          Account setting
+          <div className={"flex gap-2 items-center"}>
+            <Settings className={"size-4"} />
+            <span>Account setting</span>
+          </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSignOut}>
+          <div className={"flex gap-2 items-center"}>
+            <LogOutIcon className={"size-4"} />
+            <span>Sign out</span>
+          </div>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Shop management</DropdownMenuLabel>
         <DropdownMenuItem onClick={() => navigate("/admin")}>
-          Admin page
+          <div className={"flex gap-2 items-center"}>
+            <UserCog className={"size-4"} />
+            <span>Admin page</span>
+          </div>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

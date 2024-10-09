@@ -3,5 +3,6 @@ import { CartItemDto } from "@/dto/cart/cart-item.dto.ts";
 
 export interface UserDto extends BaseDto {
   email: string;
+  avatarUrl: string | null;
   cart: CartItemDto[];
 }
