@@ -19,6 +19,10 @@ class UsersService {
       },
     });
   }
+
+  deleteAvatar(): Promise<string> {
+    return httpClient.delete("/users/avatar");
+  }
 }
 
 export default new UsersService();

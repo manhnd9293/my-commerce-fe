@@ -69,7 +69,10 @@ const userSlice = createSlice({
       state.instantBuy = instantBuy;
       return state;
     },
-    updateAvatar: (state, action: { payload: { avatarUrl: string } }) => {
+    updateAvatar: (
+      state,
+      action: { payload: { avatarUrl: string | null } },
+    ) => {
       const { avatarUrl } = action.payload;
       state.avatarUrl = avatarUrl;
       return state;

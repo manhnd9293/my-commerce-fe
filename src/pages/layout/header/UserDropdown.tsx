@@ -15,11 +15,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { signOut, UserState } from "@/store/user/userSlice.ts";
 import { useNavigate } from "react-router-dom";
 import { LogOutIcon, Settings, UserCog } from "lucide-react";
+import { RootState } from "@/store";
 
 function UserDropdown() {
   const dispatch = useDispatch();
-  const currentUser: UserState = useSelector((state) => state.user);
-
+  const currentUser: UserState = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
 
   function handleSignOut() {

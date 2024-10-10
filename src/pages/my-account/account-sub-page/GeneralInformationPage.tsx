@@ -24,13 +24,26 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { useMutation } from "@tanstack/react-query";
 import UsersService from "@/services/users.service.ts";
+import { AlertDialog } from "@radix-ui/react-alert-dialog";
+import {
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog.tsx";
+import usersService from "@/services/users.service.ts";
+import { RootState } from "@/store";
 
 function GeneralInformationPage() {
-  const currentUser: UserState = useSelector((state) => state.user);
+  const currentUser: UserState = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
   const [avatarFile, setAvatarFile] = useState<BlobPart | null>();
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const { mutate: uploadAvatar, isPending } = useMutation({
     mutationFn: () => UsersService.uploadAvatar(avatarFile as File),
     onSuccess: (data) => {
@@ -39,9 +52,17 @@ function GeneralInformationPage() {
     },
   });
 
+  const { mutate: deleteAvatar, isPending: isPendingDelete } = useMutation({
+    mutationFn: usersService.deleteAvatar,
+    onSuccess: () => {
+      dispatch(updateAvatar({ avatarUrl: null }));
+      setOpenDeleteModal(false);
+    },
+  });
+
   function selectFile() {
     const avaInput = document.getElementById("ava-input");
-    avaInput.click();
+    avaInput!.click();
   }
 
   return (
@@ -72,7 +93,9 @@ function GeneralInformationPage() {
                 <DropdownMenuItem onClick={selectFile}>
                   Upload a photo ...
                 </DropdownMenuItem>
-                <DropdownMenuItem>Remove Avatar</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOpenDeleteModal(true)}>
+                  Remove Avatar
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <input
@@ -87,6 +110,9 @@ function GeneralInformationPage() {
                 }
                 setAvatarFile(files[0]);
                 setOpenModal(true);
+                (document.getElementById(
+                  "ava-input",
+                ) as HTMLInputElement)!.value = "";
               }}
             />
           </div>
@@ -117,6 +143,26 @@ function GeneralInformationPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={openDeleteModal} onOpenChange={setOpenDeleteModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Warning</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure to delete avatar ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteAvatar()}
+              disabled={isPendingDelete}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

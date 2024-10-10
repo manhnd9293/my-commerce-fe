@@ -18,9 +18,10 @@ import {
 } from "@/store/user/userSlice.ts";
 import { useNavigate } from "react-router-dom";
 import { CartCheckOutUpdateDto } from "@/dto/cart/cart-check-out-update.dto.ts";
+import { RootState } from "@/store";
 
 function CartPage() {
-  const currentUser: UserDto = useSelector((state) => state.user);
+  const currentUser: UserDto = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mutate: removeItemMutate } = useMutation({
@@ -31,12 +32,7 @@ function CartPage() {
     },
   });
 
-  const {
-    mutate: mutateCartItemCheckOut,
-    isError,
-    isPending: isPendingCartItemCheckOut,
-    error,
-  } = useMutation({
+  const { mutate: mutateCartItemCheckOut } = useMutation({
     mutationFn: CartService.updateCartItemCheckOut,
     onSuccess: (data) => {
       dispatch(updateCartItemCheckOut(data));

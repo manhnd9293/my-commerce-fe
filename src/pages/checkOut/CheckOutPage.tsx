@@ -18,9 +18,10 @@ import { CreateOrderItemDto } from "@/dto/orders/create-order-item.dto.ts";
 import { useState } from "react";
 import { LoaderIcon } from "lucide-react";
 import { removeCartItem, UserState } from "@/store/user/userSlice.ts";
+import { RootState } from "@/store";
 
 function CheckOutPage() {
-  const currentUser: UserState = useSelector((state) => state.user);
+  const currentUser: UserState = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
   const [done, setDone] = useState<boolean>(false);
