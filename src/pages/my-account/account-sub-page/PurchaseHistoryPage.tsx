@@ -15,6 +15,7 @@ import {
 import { useQueryState } from "@/hooks";
 import { useState } from "react";
 import { PaginationGroup } from "@/components/common/PaginationGroup.tsx";
+import { Button } from "@/components/ui/button.tsx";
 
 function PurchaseHistoryPage() {
   const { queryData, setQueryData, onChangePage, onSearch } = useQueryState();
@@ -45,7 +46,7 @@ function PurchaseHistoryPage() {
       <div className={"mt-4"}>
         <div className={"relative max-w-sm"}>
           <Input
-            placeholder={"Search product ..."}
+            placeholder={"Search purchased products ..."}
             className={""}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -54,7 +55,7 @@ function PurchaseHistoryPage() {
           <MagnifyingGlassIcon className={"size-5 absolute top-2 right-2"} />
         </div>
       </div>
-      <div className={"mt-4"}>
+      <div className={"mt-4 bg-white rounded"}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -64,6 +65,7 @@ function PurchaseHistoryPage() {
               <TableHead className={"text-center"}>Unit price</TableHead>
               <TableHead className="text-center">Quantity</TableHead>
               <TableHead className="text-right">Total</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -92,6 +94,14 @@ function PurchaseHistoryPage() {
                     {new Intl.NumberFormat().format(
                       item.productVariant.product!.price * item.quantity,
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      size={"sm"}
+                      className={"bg-amber-600 hover:bg-amber-500"}
+                    >
+                      Review
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

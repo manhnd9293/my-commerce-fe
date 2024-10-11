@@ -70,8 +70,8 @@ function AdminOrderPage() {
     return "Loading orders ...";
   }
 
-  function onChangeSearchInput(e) {
-    if (event.key !== "Enter") {
+  function onChangeSearchInput(e: any) {
+    if (e.key !== "Enter") {
       return;
     }
     const updateQuery = Object.assign(queryData, {

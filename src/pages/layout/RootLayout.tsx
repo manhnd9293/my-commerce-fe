@@ -28,7 +28,7 @@ function RootLayout() {
   }
 
   return (
-    <div>
+    <div className={"bg-gray-50 min-h-screen"}>
       <Header />
       <div className={"max-w-screen-2xl px-4 mx-auto py-4"}>
         <Outlet />
