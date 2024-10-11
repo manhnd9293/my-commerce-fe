@@ -7,6 +7,7 @@ export enum QueryKey {
   Orders = "orders",
   Order = "order",
   SimilarProducts = "similar-products",
+  MyPurchase = "my-purchase",
 }
 
 const DEFAULT_SIZE = "default_size";

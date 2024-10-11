@@ -70,7 +70,10 @@ function AdminOrderPage() {
     return "Loading orders ...";
   }
 
-  function onChangeSearchInput() {
+  function onChangeSearchInput(e) {
+    if (event.key !== "Enter") {
+      return;
+    }
     const updateQuery = Object.assign(queryData, {
       search: searchInput,
       page: 1,
@@ -123,12 +126,7 @@ function AdminOrderPage() {
             onChange={(e) => {
               setSearchInput(e.target.value);
             }}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter") {
-                return;
-              }
-              onChangeSearchInput();
-            }}
+            onKeyDown={onChangeSearchInput}
           />
           <Search className="absolute right-0 top-0 m-2.5 h-4 w-4 text-muted-foreground" />
         </div>

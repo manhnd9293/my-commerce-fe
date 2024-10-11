@@ -1,7 +1,8 @@
-import { AxiosError } from 'axios';
-import Notification from '@/utils/notification.tsx';
-import { RoutePath } from '@/router/RoutePath.ts';
-import { router } from '@/router/router.tsx';
+import { AxiosError } from "axios";
+import Notification from "@/utils/notification.tsx";
+import { RoutePath } from "@/router/RoutePath.ts";
+import { router } from "@/router/router.tsx";
+import { BaseQueryDto } from "@/dto/query/base-query.dto.ts";
 
 const Utils = {
   getErrorMessage(error: Error) {
@@ -58,6 +59,18 @@ const Utils = {
 
   getMoneyNumber(n: number) {
     return new Intl.NumberFormat().format(n);
+  },
+
+  getQueryParams(query: BaseQueryDto) {
+    const { pageSize, page, search, order, sortBy } = query;
+    const queryArray = [];
+    search && queryArray.push(`search=${search}`);
+    page && queryArray.push(`page=${page}`);
+    pageSize && queryArray.push(`pageSize=${pageSize}`);
+    order && queryArray.push(`order=${order}`);
+    sortBy && queryArray.push(`sortBy=${sortBy}`);
+
+    return queryArray.join("&");
   },
 };
 

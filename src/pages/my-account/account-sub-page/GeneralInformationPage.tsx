@@ -69,9 +69,7 @@ function GeneralInformationPage() {
     <div className={"max-w-5xl"}>
       <PageTitle>General information</PageTitle>
       <div className={"mt-4 flex"}>
-        <div className={"flex-1"}>
-          <div>Data</div>
-        </div>
+        <div className={"flex-1"}></div>
         <div className={"relative"}>
           <div className={"text-lg font-semibold"}>Avatar</div>
           <Avatar className={"w-32 h-32 mt-4"}>

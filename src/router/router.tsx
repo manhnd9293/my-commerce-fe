@@ -20,6 +20,7 @@ import OrderDetail from "@/pages/admin/orders/OrderDetail.tsx";
 import MyAccountPage from "@/pages/my-account/MyAccountPage.tsx";
 import GeneralInformationPage from "@/pages/my-account/account-sub-page/GeneralInformationPage.tsx";
 import MyOrderPage from "@/pages/my-account/account-sub-page/MyOrderPage.tsx";
+import PurchaseHistoryPage from "@/pages/my-account/account-sub-page/PurchaseHistoryPage.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -118,6 +119,10 @@ export const router = createBrowserRouter([
           {
             path: "my-order",
             element: <MyOrderPage />,
+          },
+          {
+            path: "purchase-history",
+            element: <PurchaseHistoryPage />,
           },
         ],
       },

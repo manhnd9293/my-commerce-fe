@@ -19,15 +19,15 @@ const menuItems = [
   },
 
   {
-    label: "Reviews",
-    path: "reviews",
+    label: "Purchase history",
+    path: "purchase-history",
   },
 ];
 
 function MyAccountPage() {
   return (
     <div>
-      <div className={"flex mt-4 gap-4"}>
+      <div className={"flex mt-4 gap-4  items-start"}>
         <div className={"flex flex-col gap-2 w-56 border-[1px] rounded"}>
           {menuItems.map((item, index) => {
             return (
