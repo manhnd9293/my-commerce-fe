@@ -18,9 +18,10 @@ import {
 } from "@/store/user/userSlice.ts";
 import { useNavigate } from "react-router-dom";
 import { CartCheckOutUpdateDto } from "@/dto/cart/cart-check-out-update.dto.ts";
+import { RootState } from "@/store";
 
 function CartPage() {
-  const currentUser: UserDto = useSelector((state) => state.user);
+  const currentUser: UserDto = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mutate: removeItemMutate } = useMutation({
@@ -31,12 +32,7 @@ function CartPage() {
     },
   });
 
-  const {
-    mutate: mutateCartItemCheckOut,
-    isError,
-    isPending: isPendingCartItemCheckOut,
-    error,
-  } = useMutation({
+  const { mutate: mutateCartItemCheckOut } = useMutation({
     mutationFn: CartService.updateCartItemCheckOut,
     onSuccess: (data) => {
       dispatch(updateCartItemCheckOut(data));
@@ -74,7 +70,7 @@ function CartPage() {
                     <CardTitle
                       className={"font-semibold text-lg truncate max-w-[500px]"}
                     >
-                      {item.productVariant.product.name}
+                      {item.productVariant.product?.name}
                     </CardTitle>
                   </CardHeader>
 
@@ -85,7 +81,7 @@ function CartPage() {
                           <span>Price:</span>
                           <span>
                             {new Intl.NumberFormat().format(
-                              item.productVariant.product.price,
+                              item.productVariant.product?.price || 0,
                             )}
                           </span>
                         </div>
@@ -97,7 +93,8 @@ function CartPage() {
                           <span>Total:</span>
                           <span>
                             {new Intl.NumberFormat().format(
-                              item.productVariant.product.price * item.quantity,
+                              (item.productVariant.product?.price || 0) *
+                                item.quantity,
                             )}
                           </span>
                         </div>
@@ -115,7 +112,7 @@ function CartPage() {
                       </div>
                       <img
                         className={"size-32"}
-                        src={item.productVariant.product.thumbnailUrl}
+                        src={item.productVariant.product?.thumbnailUrl}
                       />
                     </div>
                   </CardContent>
