@@ -133,7 +133,7 @@ function AdminOrderPage() {
       </div>
 
       <div className={"mt-4 max-w-4xl"}>
-        <Table>
+        <Table className={"rounded bg-white border"}>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">ID</TableHead>

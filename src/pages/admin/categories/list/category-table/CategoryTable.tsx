@@ -37,6 +37,7 @@ export function CategoryTable({ data }: { data: Category[] }) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const queryClient = useQueryClient();
+
   const { mutate } = useMutation({
     mutationFn: (ids: number[]) => categoriesService.delete(ids),
     onSuccess: () => {
@@ -120,7 +121,7 @@ export function CategoryTable({ data }: { data: Category[] }) {
         />
         <Search className="absolute right-0 top-0 m-2.5 h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="rounded-md border mt-4">
+      <div className="rounded-md border mt-4 bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

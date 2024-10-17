@@ -133,7 +133,7 @@ export function ProductTable() {
         />
         <Search className="absolute right-0 top-0 m-2.5 h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="rounded-md border mt-4">
+      <div className="rounded-md border mt-4 bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
