@@ -1,26 +1,38 @@
 import { NavLink, Outlet } from "react-router-dom";
+import {
+  CircleUser,
+  CreditCard,
+  History,
+  MapPin,
+  ShoppingCart,
+} from "lucide-react";
 
 const menuItems = [
   {
     label: "General information",
     path: "",
+    icon: <CircleUser />,
   },
   {
     label: "Address",
-    path: "address",
+    path: "my-address",
+    icon: <MapPin />,
   },
   {
     label: "Payments",
-    path: "payments",
+    path: "my-payments",
+    icon: <CreditCard />,
   },
   {
     label: "Orders",
-    path: "my-order",
+    path: "my-orders",
+    icon: <ShoppingCart />,
   },
 
   {
     label: "Purchase history",
     path: "purchase-history",
+    icon: <History />,
   },
 ];
 
@@ -28,7 +40,9 @@ function MyAccountPage() {
   return (
     <div>
       <div className={"flex mt-4 gap-4  items-start"}>
-        <div className={"flex flex-col gap-2 w-56 border-[1px] rounded"}>
+        <div
+          className={"flex flex-col gap-2 w-64 border-[1px] rounded bg-white"}
+        >
           {menuItems.map((item, index) => {
             return (
               <NavLink
@@ -36,12 +50,15 @@ function MyAccountPage() {
                 to={item.path}
                 end
                 className={({ isActive }) =>
-                  isActive
-                    ? "bg-gray-300 px-2 py-1 transition"
-                    : " px-2 py-1 transition"
+                  isActive ? "bg-gray-300 transition" : "transition"
                 }
               >
-                {item.label}
+                <div
+                  className={"flex items-center gap-4 py-4 px-4 justify-start"}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </div>
               </NavLink>
             );
           })}

@@ -21,6 +21,8 @@ import MyAccountPage from "@/pages/my-account/MyAccountPage.tsx";
 import GeneralInformationPage from "@/pages/my-account/account-sub-page/GeneralInformationPage.tsx";
 import MyOrderPage from "@/pages/my-account/account-sub-page/MyOrderPage.tsx";
 import PurchaseHistoryPage from "@/pages/my-account/account-sub-page/PurchaseHistoryPage.tsx";
+import AddressPage from "@/pages/my-account/account-sub-page/AddressPage.tsx";
+import UserPaymentPage from "@/pages/my-account/account-sub-page/UserPaymentPage.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -117,7 +119,15 @@ export const router = createBrowserRouter([
             index: true,
           },
           {
-            path: "my-order",
+            path: "my-address",
+            element: <AddressPage />,
+          },
+          {
+            path: "my-payments",
+            element: <UserPaymentPage />,
+          },
+          {
+            path: "my-orders",
             element: <MyOrderPage />,
           },
           {

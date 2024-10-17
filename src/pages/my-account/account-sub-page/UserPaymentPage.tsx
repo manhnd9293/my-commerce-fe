@@ -1,12 +1,12 @@
 import PageTitle from "@/pages/common/PageTitle.tsx";
 
-function MyOrderPage() {
+function UserPaymentPage() {
   return (
     <div>
-      <PageTitle>My Orders</PageTitle>
+      <PageTitle>My Payments</PageTitle>
       <div className={"mt-4"}>Coming soon</div>
     </div>
   );
 }
 
-export default MyOrderPage;
+export default UserPaymentPage;
