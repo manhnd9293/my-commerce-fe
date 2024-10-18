@@ -39,10 +39,8 @@ const menuItems = [
 function MyAccountPage() {
   return (
     <div>
-      <div className={"flex mt-4 gap-4  items-start"}>
-        <div
-          className={"flex flex-col gap-2 w-64 border-[1px] rounded bg-white"}
-        >
+      <div className={"flex mt-4 gap-4 items-start"}>
+        <div className={"flex flex-col w-64 border-[1px] rounded bg-white"}>
           {menuItems.map((item, index) => {
             return (
               <NavLink
@@ -54,7 +52,7 @@ function MyAccountPage() {
                 }
               >
                 <div
-                  className={"flex items-center gap-4 py-4 px-4 justify-start"}
+                  className={"flex items-center gap-4 py-3 px-4 justify-start"}
                 >
                   {item.icon}
                   <span>{item.label}</span>
