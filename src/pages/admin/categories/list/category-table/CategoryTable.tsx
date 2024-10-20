@@ -8,44 +8,51 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table"
-import { PlusIcon, Search, Trash2Icon } from "lucide-react"
+} from "@tanstack/react-table";
+import { PlusIcon, Search, Trash2Icon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
-import { categoryColumns } from '@/pages/admin/categories/list/category-table/CategoryColumns.tsx';
-import { Link, useNavigate } from 'react-router-dom';
-import { Category } from '@/dto/category.ts';
-import categoriesService from '@/services/categories.service.ts';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { QueryKey } from '@/constant/query-key.ts';
-import notification from '@/utils/notification.tsx';
-import ConfirmDeleteCategoryModal from '@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx';
-import {useState} from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { categoryColumns } from "@/pages/admin/categories/list/category-table/CategoryColumns.tsx";
+import { Link, useNavigate } from "react-router-dom";
+import { Category } from "@/dto/category.ts";
+import categoriesService from "@/services/categories.service.ts";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QueryKey } from "@/common/constant/query-key.ts";
+import notification from "@/utils/notification.tsx";
+import ConfirmDeleteCategoryModal from "@/pages/admin/categories/list/category-table/ConfirmDeleteCategoryModal.tsx";
+import { useState } from "react";
 
-export function CategoryTable({data}: { data: Category[] }) {
+export function CategoryTable({ data }: { data: Category[] }) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const queryClient = useQueryClient();
-  const {mutate} = useMutation({
+
+  const { mutate } = useMutation({
     mutationFn: (ids: number[]) => categoriesService.delete(ids),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKey.Categories]
-      }).then(() => {
-        table.toggleAllPageRowsSelected(false);
-        notification.success('Deleted categories success');
-      })
+      queryClient
+        .invalidateQueries({
+          queryKey: [QueryKey.Categories],
+        })
+        .then(() => {
+          table.toggleAllPageRowsSelected(false);
+          notification.success("Deleted categories success");
+        });
     },
-    onError: error => {
-      notification.error(`Fail to delete categories: ${error?.message}`)
-    }
+    onError: (error) => {
+      notification.error(`Fail to delete categories: ${error?.message}`);
+    },
   });
 
   const navigate = useNavigate();
@@ -73,29 +80,32 @@ export function CategoryTable({data}: { data: Category[] }) {
     },
     initialState: {
       columnVisibility: {
-        id: false
-      }
-    }
+        id: false,
+      },
+    },
   });
 
   async function handleDeleteSelectedRows() {
-    mutate(table.getSelectedRowModel().rows.map(r => r.original.id as number));
+    mutate(
+      table.getSelectedRowModel().rows.map((r) => r.original.id as number),
+    );
   }
 
   return (
     <div className="w-full">
-      <div className={'flex gap-4 items-center'}>
-        <Link to={'create'}>
-          <Button className={'bg-amber-600 hover:bg-amber-500'}>
-            <PlusIcon className={'w-4 h-4 mr-2 font-bold'}/>
+      <div className={"flex gap-4 items-center"}>
+        <Link to={"create"}>
+          <Button className={"bg-amber-600 hover:bg-amber-500"}>
+            <PlusIcon className={"w-4 h-4 mr-2 font-bold"} />
             <span>New</span>
           </Button>
         </Link>
         <ConfirmDeleteCategoryModal onConfirm={handleDeleteSelectedRows}>
-          <Button variant={'outline'}
-                  disabled={table.getSelectedRowModel().rows.length === 0}
+          <Button
+            variant={"outline"}
+            disabled={table.getSelectedRowModel().rows.length === 0}
           >
-            <Trash2Icon className={'w-4 h-4 mr-2'}/>
+            <Trash2Icon className={"w-4 h-4 mr-2"} />
             <span>Delete</span>
           </Button>
         </ConfirmDeleteCategoryModal>
@@ -109,9 +119,9 @@ export function CategoryTable({data}: { data: Category[] }) {
           }
           className="max-w-sm pr-9"
         />
-        <Search className="absolute right-0 top-0 m-2.5 h-4 w-4 text-muted-foreground"/>
+        <Search className="absolute right-0 top-0 m-2.5 h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="rounded-md border mt-4">
+      <div className="rounded-md border mt-4 bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -122,11 +132,11 @@ export function CategoryTable({data}: { data: Category[] }) {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -142,7 +152,7 @@ export function CategoryTable({data}: { data: Category[] }) {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -186,5 +196,5 @@ export function CategoryTable({data}: { data: Category[] }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,7 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { DEFAULT_COLOR, DEFAULT_SIZE, QueryKey } from "@/constant/query-key.ts";
+import {
+  DEFAULT_COLOR,
+  DEFAULT_SIZE,
+  QueryKey,
+} from "@/common/constant/query-key.ts";
 import ProductsService from "@/services/products.service.ts";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import PageTitle from "@/pages/common/PageTitle.tsx";
 import {
   Carousel,
@@ -14,8 +18,6 @@ import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button.tsx";
 import {
-  Loader2Icon,
-  LoaderCircle,
   LoaderIcon,
   MinusIcon,
   PlusIcon,
@@ -25,7 +27,46 @@ import { Input } from "@/components/ui/input.tsx";
 import { cn } from "@/lib/utils.ts";
 import CartService from "@/services/cart.service.ts";
 import { useDispatch } from "react-redux";
-import { addCartItem } from "@/store/user/userSlice.ts";
+import { addCartItem, updateInstantBuy } from "@/store/user/userSlice.ts";
+import { Product } from "@/dto/product/product.ts";
+import { ProductVariant } from "@/dto/product/product-variant.ts";
+import { Card } from "@/components/ui/card.tsx";
+import { RoutePath } from "@/router/RoutePath.ts";
+
+function ProductDescription(props: { product: Product }) {
+  const [collapse, setCollapse] = useState(true);
+
+  return (
+    <div>
+      <div className={"mt-8 font-semibold text-lg"}>Description</div>
+      <div
+        className={cn(
+          {
+            "h-[300px]": collapse,
+          },
+          "overflow-hidden",
+        )}
+      >
+        <div
+          className={cn("prose prose-a:text-blue-600 max-w-none mt-4")}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(props.product.description),
+          }}
+        />
+      </div>
+
+      <div className={"text-center mt-4"}>
+        <Button
+          size={"sm"}
+          variant={"outline"}
+          onClick={() => setCollapse((value) => !value)}
+        >
+          {collapse ? `Show more` : "Show less"}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function ProductDetailPage() {
   const params = useParams();
@@ -37,6 +78,7 @@ function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(searchParams.get("color"));
   const [selectedSize, setSelectedSize] = useState(searchParams.get("size"));
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const {
     data: product,
@@ -46,6 +88,11 @@ function ProductDetailPage() {
   } = useQuery({
     queryKey: [QueryKey.Product, { id: Number(params.id) }],
     queryFn: () => ProductsService.get(params.id!),
+  });
+
+  const { data: similarProductPage, isLoading: isLoadingSimilar } = useQuery({
+    queryKey: [QueryKey.SimilarProducts, { id: params.id }],
+    queryFn: () => ProductsService.getSimilarProducts(Number(params.id!), {}),
   });
 
   const {
@@ -61,9 +108,8 @@ function ProductDetailPage() {
     },
   });
 
-  function handleAddItemToCart() {
+  function getSelectProductVariant(): ProductVariant | undefined {
     if (!product) return;
-
     const productSize = product.productSizes?.find(
       (size) => size.name === selectedSize,
     );
@@ -72,9 +118,15 @@ function ProductDetailPage() {
     );
     const productVariant = product.productVariants?.find(
       (pv) =>
-        pv.productSizeId === productSize?.id &&
-        pv.productColorId === productColor?.id,
+        pv.productSizeId === (productSize?.id || null) &&
+        pv.productColorId === (productColor?.id || null),
     );
+
+    return productVariant;
+  }
+
+  function handleAddItemToCart() {
+    const productVariant = getSelectProductVariant();
     productVariant &&
       mutateAddCartItem({
         productVariantId: productVariant.id!,
@@ -118,26 +170,34 @@ function ProductDetailPage() {
       validQuantity = Math.min(quantity, 100);
     }
     setOrderQuantity(validQuantity);
-    setSearchParams({
-      ...Object.fromEntries(searchParams),
-      quantity: String(validQuantity),
-    });
   }
 
   function changeOrderQuantityBy(amount: number) {
     const updateQuantity = orderQuantity + amount;
     const validQuantity = Math.max(Math.min(updateQuantity, 100), 0);
     setOrderQuantity(validQuantity);
-    setSearchParams({
-      ...Object.fromEntries(searchParams),
-      quantity: String(validQuantity),
-    });
   }
 
   function handleOrderQuantityKeyDown(e) {
     if (isNaN(parseInt(e.key))) {
       return;
     }
+  }
+
+  function handleBuyNow() {
+    const productVariant = getSelectProductVariant();
+    if (!productVariant) return;
+    console.log({ product });
+    productVariant.product = structuredClone(product);
+    dispatch(
+      updateInstantBuy({
+        productVariantId: productVariant.id!,
+        productVariant,
+        quantity: orderQuantity,
+        isCheckedOut: true,
+      }),
+    );
+    navigate("/check-out?instant-buy=true");
   }
 
   return (
@@ -147,7 +207,6 @@ function ProductDetailPage() {
           <div className={"grid grid-cols-6 gap-16"}>
             <div className={"col-span-2"}>
               <img src={currentImageUrl} className={"w-full aspect-[1/1]"} />
-
               <Carousel
                 opts={{
                   align: "center",
@@ -195,9 +254,9 @@ function ProductDetailPage() {
                       {product.productSizes.map((size) => (
                         <div
                           className={cn(
-                            "flex gap-2 items-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer justify-center",
+                            "flex gap-2 items-center border-[1px] border-gray-200 rounded-md py-1 px-2 cursor-pointer justify-center min-w-12",
                             { "border-orange-400": selectedSize === size.name },
-                            { "border-[2px]": selectedColor === size.name },
+                            { "border-[2px]": selectedSize === size.name },
                           )}
                           key={size.id}
                           onClick={() => {
@@ -223,7 +282,7 @@ function ProductDetailPage() {
                       {product.productColors.map((color) => (
                         <div
                           className={cn(
-                            "flex gap-2 items-center justify-center border-[1px] border-gray-200 rounded-md p-2 cursor-pointer box-border",
+                            "flex gap-2 items-center justify-center border-[1px] border-gray-200 rounded-md py-1 px-2 cursor-pointer box-border",
                             {
                               "border-orange-400": selectedColor === color.code,
                             },
@@ -295,19 +354,41 @@ function ProductDetailPage() {
                 <Button
                   className={"bg-amber-600 hover:bg-amber-500"}
                   size={"lg"}
+                  onClick={handleBuyNow}
                 >
                   <span>Buy now</span>
                 </Button>
               </div>
             </div>
           </div>
-          <div className={"mt-4 font-semibold text-lg"}>Description</div>
-          <div
-            className={"prose prose-a:text-blue-600 max-w-none mt-4"}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(product.description),
-            }}
-          ></div>
+          <ProductDescription product={product} />
+
+          <div>
+            <div className={"text-lg font-semibold"}>Similar Products</div>
+            <div className={"grid grid-cols-4 lg:grid-cols-5 gap-4 mt-4"}>
+              {similarProductPage?.data &&
+                similarProductPage?.data.map((product) => (
+                  <Card
+                    className={"p-2 cursor-pointer flex flex-col space-y-3"}
+                    onClick={() =>
+                      navigate(`${RoutePath.ProductDetail}/${product.id}`)
+                    }
+                  >
+                    <div className={"truncate font-semibold"}>
+                      {product.name}
+                    </div>
+                    <div>
+                      <img src={product.thumbnailUrl} />
+                    </div>
+                    <div className={"text-center"}>
+                      {product.price
+                        ? new Intl.NumberFormat().format(product.price)
+                        : "No Information"}
+                    </div>
+                  </Card>
+                ))}
+            </div>
+          </div>
         </div>
       )}
     </>

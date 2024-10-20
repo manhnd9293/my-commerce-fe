@@ -1,13 +1,13 @@
-import { BaseDto } from '@/dto/base.dto.ts';
-import { ProductColor } from '@/dto/product/product-color.ts';
-import { ProductSize } from '@/dto/product/product-size.ts';
-import { Product } from '@/dto/product/product.ts';
-import { ProductVariantImage } from '@/dto/product/product-variant-image.ts';
+import { BaseDto } from "@/dto/base.dto.ts";
+import { ProductColor } from "@/dto/product/product-color.ts";
+import { ProductSize } from "@/dto/product/product-size.ts";
+import { Product } from "@/dto/product/product.ts";
+import { ProductVariantImage } from "@/dto/product/product-variant-image.ts";
 
 export interface ProductVariant extends BaseDto {
   productId: number;
 
-  product: Product;
+  product?: Product | null | undefined;
 
   productSizeId: number;
 

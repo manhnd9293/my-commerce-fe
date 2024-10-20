@@ -5,12 +5,16 @@ export interface UserState {
   id: number | null;
   email: string;
   cart: CartItemDto[];
+  instantBuy: CartItemDto | null;
+  avatarUrl: string | null;
 }
 
 const initialState: UserState = {
   id: null,
   email: "",
   cart: [],
+  instantBuy: null,
+  avatarUrl: "",
 };
 
 const userSlice = createSlice({
@@ -22,6 +26,7 @@ const userSlice = createSlice({
       state.id = payload.id;
       state.email = payload.email;
       state.cart = payload.cart;
+      state.avatarUrl = payload.avatarUrl;
     },
     signOut: () => {
       localStorage.removeItem("accessToken");
@@ -58,6 +63,20 @@ const userSlice = createSlice({
       const updateCart: CartItemDto[] = action.payload;
       state.cart = updateCart;
     },
+
+    updateInstantBuy: (state, action: { payload: CartItemDto }) => {
+      const instantBuy: CartItemDto = action.payload;
+      state.instantBuy = instantBuy;
+      return state;
+    },
+    updateAvatar: (
+      state,
+      action: { payload: { avatarUrl: string | null } },
+    ) => {
+      const { avatarUrl } = action.payload;
+      state.avatarUrl = avatarUrl;
+      return state;
+    },
   },
 });
 
@@ -67,5 +86,7 @@ export const {
   addCartItem,
   removeCartItem,
   updateCartItemCheckOut,
+  updateInstantBuy,
+  updateAvatar,
 } = userSlice.actions;
 export default userSlice.reducer;
