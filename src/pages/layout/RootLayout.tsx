@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import AuthService from "@/services/auth.service.ts";
 import { useDispatch } from "react-redux";
-import Utils from "@/utils/utils.ts";
 import AppLoading from "@/components/layout/AppLoading.tsx";
 import { signIn } from "@/store/user/userSlice.ts";
 
@@ -12,12 +11,9 @@ function RootLayout() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [QueryKey.Me],
     queryFn: AuthService.me,
+    retry: false,
   });
   const dispatch = useDispatch();
-
-  if (isError) {
-    Utils.handleError(error);
-  }
 
   if (isLoading) {
     return <AppLoading />;

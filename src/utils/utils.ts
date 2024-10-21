@@ -15,7 +15,6 @@ const Utils = {
 
   handleError(error: Error) {
     if (error instanceof AxiosError) {
-      console.log({ error });
       if (error.response?.status === 401 || error.response?.status === 403) {
         router.navigate(RoutePath.SignIn);
       }

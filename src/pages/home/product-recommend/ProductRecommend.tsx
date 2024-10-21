@@ -65,7 +65,7 @@ function ProductRecommend() {
         {productList &&
           productList.map((product) => (
             <Card
-              className={"p-2 cursor-pointer flex flex-col space-y-3"}
+              className={"p-2 cursor-pointer flex flex-col space-y-3 shadow-sm"}
               onClick={() =>
                 navigate(`${RoutePath.ProductDetail}/${product.id}`)
               }

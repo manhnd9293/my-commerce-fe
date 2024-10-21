@@ -29,6 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
+import Utils from "@/utils/utils.ts";
 
 function CartPage() {
   const currentUser: UserDto = useSelector((state: RootState) => state.user);
@@ -53,98 +54,116 @@ function CartPage() {
     removeItemMutate(id);
   }
 
+  const totalCheckOut = Utils.getMoneyNumber(
+    currentUser.cart
+      .filter((item) => item.isCheckedOut)
+      .reduce(
+        (total, item) =>
+          total + (item.productVariant?.product?.price || 0) * item.quantity,
+        0,
+      ),
+  );
   return (
     <div>
       <PageTitle>My Cart</PageTitle>
-      <div className={"mt-8 flex gap-4 items-start"}>
-        <Table className={"bg-white rounded"}>
-          <TableHeader>
-            <TableRow>
-              <TableHead></TableHead>
-              <TableHead className={"w-[450px] font-bold"}>Item</TableHead>
-              <TableHead className={"font-bold"}>Quantity</TableHead>
-              <TableHead className={"font-bold"}>Price</TableHead>
-              <TableHead className={"font-bold"}>Total</TableHead>
-              <TableHead className={"font-bold"}>Delete</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentUser.cart &&
-              currentUser.cart.length > 0 &&
-              currentUser.cart.map((item) => {
-                return (
-                  <TableRow>
-                    <TableCell className="font-medium">
-                      <Checkbox
-                        checked={item.isCheckedOut}
-                        onCheckedChange={(checked) => {
-                          const updateData: CartCheckOutUpdateDto = {
-                            cartItemId: item.id!,
-                            isCheckedOut: !!checked,
-                          };
-                          mutateCartItemCheckOut(updateData);
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div className={"flex items-center gap-4"}>
-                        <img
-                          src={item.productVariant.product?.thumbnailUrl}
-                          className={"size-20 shadow-md rounded"}
+      <div className={"mt-8 flex gap-4 items-start justify-between"}>
+        {currentUser.cart.length === 0 && (
+          <div
+            className={"text-xl font-semibold bg-white flex-1 shadow-sm p-10"}
+          >
+            <span>Your cart is currently empty</span>
+          </div>
+        )}
+        {currentUser.cart.length > 0 && (
+          <Table className={"bg-white rounded shadow-md border-[1px]"}>
+            <TableHeader>
+              <TableRow>
+                <TableHead></TableHead>
+                <TableHead className={"w-[450px] font-bold"}>Item</TableHead>
+                <TableHead className={"font-bold"} align={"center"}>
+                  Quantity
+                </TableHead>
+                <TableHead className={"font-bold"}>Price</TableHead>
+                <TableHead className={"font-bold"}>Total</TableHead>
+                <TableHead className={"font-bold"} align={"center"}>
+                  Delete
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentUser.cart &&
+                currentUser.cart.length > 0 &&
+                currentUser.cart.map((item) => {
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">
+                        <Checkbox
+                          checked={item.isCheckedOut}
+                          onCheckedChange={(checked) => {
+                            const updateData: CartCheckOutUpdateDto = {
+                              cartItemId: item.id!,
+                              isCheckedOut: !!checked,
+                            };
+                            mutateCartItemCheckOut(updateData);
+                          }}
                         />
-                        <div>{item.productVariant.product?.name}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div>{item.quantity}</div>
-                    </TableCell>
-                    <TableCell>
-                      {new Intl.NumberFormat().format(
-                        item.productVariant.product?.price || 0,
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {new Intl.NumberFormat().format(
-                        (item.productVariant.product?.price || 0) *
-                          item.quantity,
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        onClick={() => onDeleteCartItem(item.id!)}
-                        variant={"ghost"}
-                        size={"icon"}
-                      >
-                        <Trash2Icon size={"20"} />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        <div className={"flex items-center gap-4"}>
+                          <img
+                            src={item.productVariant.product?.thumbnailUrl}
+                            className={"size-20 shadow-md rounded"}
+                          />
+                          <div>{item.productVariant.product?.name}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium" align={"center"}>
+                        <div>{item.quantity}</div>
+                      </TableCell>
+                      <TableCell>
+                        {new Intl.NumberFormat().format(
+                          item.productVariant.product?.price || 0,
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {new Intl.NumberFormat().format(
+                          (item.productVariant.product?.price || 0) *
+                            item.quantity,
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center" align={"center"}>
+                        <Button
+                          onClick={() => onDeleteCartItem(item.id!)}
+                          variant={"ghost"}
+                          size={"icon"}
+                        >
+                          <Trash2Icon size={"20"} />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        )}
 
-        <div className={"w-[500px]"}>
+        <div className={"w-[450px] shadow-sm"}>
           <Card>
             <CardHeader>
               <CardTitle className={"text-2xl font-semibold"}>
                 Summary
               </CardTitle>
             </CardHeader>
-            <Separator orientation={"horizontal"} className={"my-4"} />
+            <Separator orientation={"horizontal"} />
             <CardContent>
               <div className={"flex flex-col space-y-2 mt-4"}>
                 <div className={"flex justify-between"}>
                   <div>Subtotal</div>
-                  <div>$1000</div>
+                  <div>{totalCheckOut}</div>
                 </div>
                 <div className={"flex justify-between"}>
                   <div>Shipping fee</div>
-                  <div>$1000</div>
-                </div>
-                <div className={"flex justify-between"}>
-                  <div>Taxes</div>
-                  <div>$1000</div>
+                  <div>0</div>
                 </div>
               </div>
             </CardContent>
@@ -153,7 +172,7 @@ function CartPage() {
             <CardFooter>
               <div className={"flex justify-between w-full font-semibold"}>
                 <div>Total</div>
-                <div className={"text-xl"}>$1000</div>
+                <div className={"text-xl"}>{totalCheckOut}</div>
               </div>
             </CardFooter>
           </Card>

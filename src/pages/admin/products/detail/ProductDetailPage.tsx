@@ -32,53 +32,23 @@ import { Product } from "@/dto/product/product.ts";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
 import { Card } from "@/components/ui/card.tsx";
 import { RoutePath } from "@/router/RoutePath.ts";
-
-function ProductDescription(props: { product: Product }) {
-  const [collapse, setCollapse] = useState(true);
-
-  return (
-    <div>
-      <div className={"mt-8 font-semibold text-lg"}>Description</div>
-      <div
-        className={cn(
-          {
-            "h-[300px]": collapse,
-          },
-          "overflow-hidden",
-        )}
-      >
-        <div
-          className={cn("prose prose-a:text-blue-600 max-w-none mt-4")}
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(props.product.description),
-          }}
-        />
-      </div>
-
-      <div className={"text-center mt-4"}>
-        <Button
-          size={"sm"}
-          variant={"outline"}
-          onClick={() => setCollapse((value) => !value)}
-        >
-          {collapse ? `Show more` : "Show less"}
-        </Button>
-      </div>
-    </div>
-  );
-}
+import utils from "@/utils/utils.ts";
+import { useAppSelector } from "@/hooks";
+import { SignInModal } from "@/components/common/SignInModal.tsx";
+import { toast } from "sonner";
 
 function ProductDetailPage() {
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentImageUrl, setCurrentImageUrl] = useState<string>("");
-  const [orderQuantity, setOrderQuantity] = useState(
-    searchParams.get("quantity") ? parseInt(searchParams.get("quantity")!) : 1,
-  );
-  const [selectedColor, setSelectedColor] = useState(searchParams.get("color"));
-  const [selectedSize, setSelectedSize] = useState(searchParams.get("size"));
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useAppSelector((state) => state.user);
+
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>("");
+  const [orderQuantity, setOrderQuantity] = useState<number>(1);
+  const [selectedColor, setSelectedColor] = useState(searchParams.get("color"));
+  const [selectedSize, setSelectedSize] = useState(searchParams.get("size"));
+  const [showSignInModal, setShowSignInModal] = useState(false);
 
   const {
     data: product,
@@ -88,6 +58,7 @@ function ProductDetailPage() {
   } = useQuery({
     queryKey: [QueryKey.Product, { id: Number(params.id) }],
     queryFn: () => ProductsService.get(params.id!),
+    retry: false,
   });
 
   const { data: similarProductPage, isLoading: isLoadingSimilar } = useQuery({
@@ -105,8 +76,20 @@ function ProductDetailPage() {
     mutationFn: CartService.addCartItem,
     onSuccess: (data) => {
       dispatch(addCartItem(data));
+      toast("Add item to cart success", {
+        description: "Your item have been added to cart",
+        action: {
+          label: "Go to cart",
+          onClick: () => navigate("/cart"),
+        },
+        closeButton: true,
+      });
     },
   });
+
+  if (isError) {
+    utils.handleError(error);
+  }
 
   function getSelectProductVariant(): ProductVariant | undefined {
     if (!product) return;
@@ -126,6 +109,10 @@ function ProductDetailPage() {
   }
 
   function handleAddItemToCart() {
+    if (!user.id) {
+      setShowSignInModal(true);
+      return;
+    }
     const productVariant = getSelectProductVariant();
     productVariant &&
       mutateAddCartItem({
@@ -204,8 +191,8 @@ function ProductDetailPage() {
     <>
       {product && (
         <div>
-          <div className={"grid grid-cols-6 gap-16"}>
-            <div className={"col-span-2"}>
+          <div className={"flex gap-16 items-start"}>
+            <div className={"w-[450px]"}>
               <img src={currentImageUrl} className={"w-full aspect-[1/1]"} />
               <Carousel
                 opts={{
@@ -234,7 +221,7 @@ function ProductDetailPage() {
                 <CarouselNext className={"right-3"} />
               </Carousel>
             </div>
-            <div className={"col-span-4"}>
+            <div className={"bg-white p-4 rounded-2xl shadow-sm w-[600px]"}>
               <PageTitle>
                 {product ? product.name : `Loading product ..`}
               </PageTitle>
@@ -318,7 +305,6 @@ function ProductDetailPage() {
                     <MinusIcon className={"size-4"}></MinusIcon>
                   </Button>
                   <Input
-                    defaultValue={1}
                     className={"w-24 text-center"}
                     value={orderQuantity}
                     onKeyDown={handleOrderQuantityKeyDown}
@@ -346,9 +332,11 @@ function ProductDetailPage() {
                   disabled={orderQuantity === 0 || pendingAddCartItem}
                   onClick={handleAddItemToCart}
                 >
-                  <ShoppingCartIcon className={"size-4"} />
+                  {pendingAddCartItem && <LoaderIcon className={"size-4"} />}
+                  {!pendingAddCartItem && (
+                    <ShoppingCartIcon className={"size-4"} />
+                  )}
                   <span>Add to card</span>
-                  {pendingAddCartItem && <LoaderIcon />}
                 </Button>
 
                 <Button
@@ -361,9 +349,11 @@ function ProductDetailPage() {
               </div>
             </div>
           </div>
-          <ProductDescription product={product} />
+          <div className={"mt-4"}>
+            <ProductDescription product={product} />
+          </div>
 
-          <div>
+          <div className={"mt-4"}>
             <div className={"text-lg font-semibold"}>Similar Products</div>
             <div className={"grid grid-cols-4 lg:grid-cols-5 gap-4 mt-4"}>
               {similarProductPage?.data &&
@@ -373,6 +363,7 @@ function ProductDetailPage() {
                     onClick={() =>
                       navigate(`${RoutePath.ProductDetail}/${product.id}`)
                     }
+                    key={product.id}
                   >
                     <div className={"truncate font-semibold"}>
                       {product.name}
@@ -391,7 +382,43 @@ function ProductDetailPage() {
           </div>
         </div>
       )}
+      <SignInModal open={showSignInModal} onOpenChange={setShowSignInModal} />
     </>
+  );
+}
+
+function ProductDescription(props: { product: Product }) {
+  const [collapse, setCollapse] = useState(true);
+
+  return (
+    <div className={"bg-white rounded-2xl shadow-sm p-4"}>
+      <div className={"font-semibold text-lg"}>Description</div>
+      <div
+        className={cn(
+          {
+            "h-[300px]": collapse,
+          },
+          "overflow-hidden",
+        )}
+      >
+        <div
+          className={cn("prose prose-a:text-blue-600 max-w-none mt-4")}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(props.product.description),
+          }}
+        />
+      </div>
+
+      <div className={"text-center mt-4"}>
+        <Button
+          size={"sm"}
+          variant={"outline"}
+          onClick={() => setCollapse((value) => !value)}
+        >
+          {collapse ? `Show more` : "Show less"}
+        </Button>
+      </div>
+    </div>
   );
 }
 
