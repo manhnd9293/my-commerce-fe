@@ -79,8 +79,12 @@ function ProductDetailPage() {
       toast("Add item to cart success", {
         description: "Your item have been added to cart",
         action: {
-          label: "Go to cart",
+          label: "Go to Cart",
           onClick: () => navigate("/cart"),
+        },
+        actionButtonStyle: {
+          backgroundColor: "#d87606",
+          fontWeight: "bold",
         },
         closeButton: true,
       });

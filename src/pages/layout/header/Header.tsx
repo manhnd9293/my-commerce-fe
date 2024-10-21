@@ -44,14 +44,19 @@ function Header() {
             </div>
           </div>
           <div className={"flex items-center gap-4 cursor-pointer"}>
-            <div className={"relative"}>
+            <div className={"relative"} onClick={handleClickCartButton}>
               {user.id && user.cart?.length > 0 && (
                 <div
                   className={
-                    "absolute right-[-1px] top-[-5px] text-white text-xs rounded-2xl p-1 bg-red-500 font-semibold"
+                    "absolute right-[-1px] top-0 text-white text-[12px] rounded-[20px] p-2 bg-red-500 font-bold flex items-center justify-center size-5 "
                   }
                 >
-                  {user.cart.reduce((total, item) => total + item.quantity, 0)}
+                  <span>
+                    {user.cart.reduce(
+                      (total, item) => total + item.quantity,
+                      0,
+                    )}
+                  </span>
                 </div>
               )}
               <Button
@@ -60,7 +65,6 @@ function Header() {
                 className={
                   "bg-transparent text-white rounded-full hover:bg-transparent hover:text-white "
                 }
-                onClick={handleClickCartButton}
               >
                 <ShoppingCartIcon />
               </Button>
