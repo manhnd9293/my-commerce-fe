@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Header from "@/pages/layout/header/Header.tsx";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import AuthService from "@/services/auth.service.ts";
 import { useDispatch } from "react-redux";
@@ -11,7 +11,8 @@ function RootLayout() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [QueryKey.Me],
     queryFn: AuthService.me,
-    retry: false,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
   });
   const dispatch = useDispatch();
 

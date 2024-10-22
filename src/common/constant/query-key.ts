@@ -1,13 +1,17 @@
 export enum QueryKey {
+  Me = "me",
+  MyPurchase = "my-purchase",
+  UserAddress = "user-address",
+
   Categories = "categories",
   Category = "category",
-  Me = "me",
+
   Products = "products",
   Product = "product",
+  SimilarProducts = "similar-products",
+
   Orders = "orders",
   Order = "order",
-  SimilarProducts = "similar-products",
-  MyPurchase = "my-purchase",
 }
 
 const DEFAULT_SIZE = "default_size";

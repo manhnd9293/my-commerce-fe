@@ -2,9 +2,11 @@ import { SignInDto } from "@/dto/auth/sign-in.dto.ts";
 import httpClient from "@/http-client/http-client.ts";
 import { PageData } from "@/dto/page-data/page-data.ts";
 import { OrderItem } from "@/dto/orders/order-item.ts";
-import { OrderQueryDto } from "@/dto/query/order-query.dto.ts";
 import { BaseQueryDto } from "@/dto/query/base-query.dto.ts";
 import Utils from "@/utils/utils.ts";
+import { UserAddressDto } from "@/dto/user/address/user-address.dto.ts";
+import { CreateUserAddressDto } from "@/dto/user/address/create-user-address.dto.ts";
+import { UpdateUserAddressDto } from "@/dto/user/address/update-user-address.dto.ts";
 
 class UsersService {
   signUp(signInDto: SignInDto) {
@@ -32,6 +34,25 @@ class UsersService {
   getPurchaseHistory(queryData: BaseQueryDto): Promise<PageData<OrderItem>> {
     const queryParamsString = Utils.getQueryParams(queryData);
     return httpClient.get(`/users/my-purchase?${queryParamsString}`);
+  }
+
+  addUserAddress(data: CreateUserAddressDto): Promise<UserAddressDto> {
+    return httpClient.post(`/users/address`, data);
+  }
+
+  updateUserAddress(
+    addressId: number,
+    data: UpdateUserAddressDto,
+  ): Promise<UserAddressDto> {
+    return httpClient.put(`/users/address/${addressId}`, data);
+  }
+
+  deleteUserAddress(addressId: number) {
+    return httpClient.delete(`/users/address/${addressId}`);
+  }
+
+  getUserAddresses(): Promise<UserAddressDto[]> {
+    return httpClient.get("/users/address");
   }
 }
 
