@@ -7,13 +7,15 @@ import Utils from "@/utils/utils.ts";
 import { UserAddressDto } from "@/dto/user/address/user-address.dto.ts";
 import { CreateUserAddressDto } from "@/dto/user/address/create-user-address.dto.ts";
 import { UpdateUserAddressDto } from "@/dto/user/address/update-user-address.dto.ts";
+import { UpdateUserGeneralInfoDto } from "@/dto/user/update-user-general-info.dto.ts";
+import { UserDto } from "@/dto/user/user.dto.ts";
 
 class UsersService {
   signUp(signInDto: SignInDto) {
     return httpClient.post("/users", signInDto);
   }
 
-  me() {
+  me(): Promise<Partial<UserDto>> {
     return httpClient.get("/users/me");
   }
 
@@ -53,6 +55,10 @@ class UsersService {
 
   getUserAddresses(): Promise<UserAddressDto[]> {
     return httpClient.get("/users/address");
+  }
+
+  updateGeneralInfo(data: UpdateUserGeneralInfoDto): Promise<UserDto> {
+    return httpClient.patch("/users/general-info", data);
   }
 }
 

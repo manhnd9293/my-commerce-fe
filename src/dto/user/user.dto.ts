@@ -7,4 +7,7 @@ export interface UserDto extends BaseDto {
   avatarUrl: string | null;
   cart: CartItemDto[];
   addresses?: UserAddressDto[] | null;
+  fullName?: string;
+  phone?: string;
+  dob?: string;
 }

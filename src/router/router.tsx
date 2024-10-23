@@ -18,7 +18,7 @@ import CheckOutPage from "@/pages/checkOut/CheckOutPage.tsx";
 import AdminOrderPage from "@/pages/admin/orders/AdminOrderPage.tsx";
 import OrderDetail from "@/pages/admin/orders/OrderDetail.tsx";
 import MyAccountPage from "@/pages/my-account/MyAccountPage.tsx";
-import GeneralInformationPage from "@/pages/my-account/account-sub-page/GeneralInformationPage.tsx";
+import GeneralInformationPage from "@/pages/my-account/account-sub-page/general-info/GeneralInformationPage.tsx";
 import MyOrderPage from "@/pages/my-account/account-sub-page/MyOrderPage.tsx";
 import PurchaseHistoryPage from "@/pages/my-account/account-sub-page/PurchaseHistoryPage.tsx";
 import AddressPage from "@/pages/my-account/account-sub-page/address/AddressPage.tsx";
