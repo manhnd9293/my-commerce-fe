@@ -38,6 +38,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog.tsx";
 import { toast } from "sonner";
+import { AddressCard } from "@/pages/my-account/account-sub-page/address/AddressCard.tsx";
 
 function AddressPage() {
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -83,49 +84,19 @@ function AddressPage() {
         <div className={"mt-4"}>
           {data.map((address) => {
             return (
-              <Card key={address.id} className={"shadow-md max-w-lg mt-2"}>
-                <CardHeader>
-                  <CardTitle
-                    className={
-                      "text-lg font-semibold flex items-center justify-between"
-                    }
-                  >
-                    <span>{address.name}</span>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <Ellipsis className={"size-5"} />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align={"center"}>
-                        <DropdownMenuItem
-                          className={"flex items-center gap-2"}
-                          onClick={() => {
-                            setShowAddressModal(true);
-                            setIsUpdate(true);
-                            setUpdateAddress(structuredClone(address));
-                          }}
-                        >
-                          <Pencil className={"size-4"} />
-                          <span>Edit</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className={"flex items-center gap-2 text-red-500"}
-                          onClick={() => {
-                            setDeleteAddressId(address.id!);
-                            setShowConfirmDelete(true);
-                          }}
-                        >
-                          <Trash2Icon className={"size-4"} />
-                          <span> Delete</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>{`${address.noAndStreet}, ${address.commune}, ${address.district}, ${address.province}`}</p>
-                </CardContent>
-              </Card>
+              <AddressCard
+                key={address.id}
+                address={address}
+                onSelectUpdate={() => {
+                  setShowAddressModal(true);
+                  setIsUpdate(true);
+                  setUpdateAddress(structuredClone(address));
+                }}
+                onSelectDelete={() => {
+                  setDeleteAddressId(address.id!);
+                  setShowConfirmDelete(true);
+                }}
+              />
             );
           })}
         </div>
