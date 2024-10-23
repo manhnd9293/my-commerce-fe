@@ -125,11 +125,8 @@ function GeneralInfoForm() {
                       ).toJSDate()}
                       onSelect={(value) => {
                         if (!value) return;
-                        console.log({ value });
-                        const dateString =
-                          DateTime.fromJSDate(value).toISODate();
-                        console.log({ dateString });
-                        field.onChange(dateString);
+                        const isoDate = DateTime.fromJSDate(value).toISODate();
+                        field.onChange(isoDate);
                       }}
                       disabled={(date) =>
                         date > new Date() || date < new Date("1900-01-01")
