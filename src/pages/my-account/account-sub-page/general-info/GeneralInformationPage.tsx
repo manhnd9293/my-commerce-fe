@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import usersService from "@/services/users.service.ts";
 import { RootState } from "@/store";
+import GeneralInfoForm from "@/pages/my-account/account-sub-page/general-info/GeneralInfoForm.tsx";
 
 function GeneralInformationPage() {
   const currentUser: UserState = useSelector((state: RootState) => state.user);
@@ -66,10 +67,14 @@ function GeneralInformationPage() {
   }
 
   return (
-    <div className={"max-w-5xl"}>
+    <div className={""}>
       <PageTitle>General information</PageTitle>
-      <div className={"mt-4 flex"}>
-        <div className={"flex-1"}></div>
+      <div className={"mt-4 flex gap-4 bg-white p-4 rounded-xl"}>
+        <div className={"flex-1"}>
+          <div className={"max-w-lg "}>
+            <GeneralInfoForm />
+          </div>
+        </div>
         <div className={"relative"}>
           <div className={"text-lg font-semibold"}>Avatar</div>
           <Avatar className={"w-32 h-32 mt-4"}>

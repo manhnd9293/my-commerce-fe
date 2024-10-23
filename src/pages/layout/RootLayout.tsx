@@ -11,6 +11,7 @@ function RootLayout() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [QueryKey.Me],
     queryFn: AuthService.me,
+    retry: false,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
   });

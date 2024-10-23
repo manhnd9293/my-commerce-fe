@@ -1,12 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { CartItemDto } from "@/dto/cart/cart-item.dto.ts";
+import { UserDto } from "@/dto/user/user.dto.ts";
 
-export interface UserState {
-  id: number | null;
-  email: string;
-  cart: CartItemDto[];
-  instantBuy: CartItemDto | null;
-  avatarUrl: string | null;
+export interface UserState extends UserDto {
+  instantBuy?: CartItemDto | null;
 }
 
 const initialState: UserState = {
@@ -22,11 +19,9 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     signIn: (state, action) => {
-      const payload: UserState = action.payload;
-      state.id = payload.id;
-      state.email = payload.email;
-      state.cart = payload.cart;
-      state.avatarUrl = payload.avatarUrl;
+      const payload: UserDto = action.payload;
+      state = structuredClone(payload);
+      return state;
     },
     signOut: () => {
       localStorage.removeItem("accessToken");
@@ -77,6 +72,15 @@ const userSlice = createSlice({
       state.avatarUrl = avatarUrl;
       return state;
     },
+
+    updateGeneralInfo(state, action) {
+      const payload: UserDto = action.payload;
+      state.fullName = payload.fullName;
+      state.phone = payload.phone;
+      state.dob = payload.dob;
+
+      return state;
+    },
   },
 });
 
@@ -88,5 +92,6 @@ export const {
   updateCartItemCheckOut,
   updateInstantBuy,
   updateAvatar,
+  updateGeneralInfo,
 } = userSlice.actions;
 export default userSlice.reducer;
