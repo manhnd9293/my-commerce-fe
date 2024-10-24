@@ -4,7 +4,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-docker-image:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,3 +17,21 @@ jobs:
       run: docker login -u manhnd9293 -p "$PASSWORD"
     - name: Push to dockerhub
       run: docker push manhnd9293/my-commerce-fe
+
+  deploy:
+    needs: build-and-push
+    name: deploy image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: install ssh keys
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+      - name: connect and pull
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && bash deploy.sh" 
+
+      - name: cleanup
+        run: rm -rf ~/.ssh
