@@ -105,6 +105,12 @@ function CheckOutPage() {
         };
         return createOrderItemDto;
       }),
+      customerName: deliveryAddress.customerName,
+      phone: deliveryAddress.phone,
+      province: deliveryAddress.province,
+      district: deliveryAddress.district,
+      commune: deliveryAddress.commune,
+      noAndStreet: deliveryAddress.noAndStreet,
     });
   }
 
@@ -115,7 +121,7 @@ function CheckOutPage() {
         <div className={"flex-1"}>
           <div className={"bg-white p-4 rounded-xl border"}>
             <div className={"flex gap-4 items-center"}>
-              <span className={"text-lg font-semibold"}>Deliver Address</span>
+              <span className={"text-lg font-semibold"}>Delivery Address</span>
               {currentUser.id && (
                 <Button variant={"outline"} size={"sm"}>
                   Change
