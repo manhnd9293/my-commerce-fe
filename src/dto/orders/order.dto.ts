@@ -10,4 +10,16 @@ export interface OrderDto extends BaseDto {
   total: number;
 
   orderItems: OrderItem[];
+
+  customerName: string;
+
+  phone: string;
+
+  province: string;
+
+  district: string;
+
+  commune: string;
+
+  noAndStreet: string;
 }

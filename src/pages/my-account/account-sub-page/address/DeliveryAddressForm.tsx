@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 
 export const deliveryFormSchema = z.object({
-  name: z
+  customerName: z
     .string()
     .min(1, { message: "This field is required" })
     .max(500, { message: "This field is maximum 500 character" }),
@@ -44,7 +44,6 @@ interface AddressFormProps {
 
 export function DeliveryAddressForm({ form }: AddressFormProps) {
   function onSubmit(values: z.infer<typeof deliveryFormSchema>) {
-    console.log("Form");
     return values;
   }
 
@@ -54,7 +53,7 @@ export function DeliveryAddressForm({ form }: AddressFormProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
-            name="name"
+            name="customerName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Your Name</FormLabel>
