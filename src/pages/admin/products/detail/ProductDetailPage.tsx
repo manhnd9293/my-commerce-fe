@@ -188,7 +188,9 @@ function ProductDetailPage() {
         isCheckedOut: true,
       }),
     );
-    navigate("/check-out?instant-buy=true");
+    navigate(
+      `/check-out?instant-buy=true&productId=${product?.id}&productVariantId=${productVariant.id}`,
+    );
   }
 
   return (
@@ -211,7 +213,7 @@ function ProductDetailPage() {
                       className={"basis-1/5 cursor-pointer"}
                       key={image.id}
                       onClick={() =>
-                        setCurrentImageUrl(image.asset!.preSignUrl)
+                        setCurrentImageUrl(image.asset!.preSignUrl || "")
                       }
                     >
                       <img
