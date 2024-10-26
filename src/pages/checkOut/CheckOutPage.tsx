@@ -19,12 +19,20 @@ import { useState } from "react";
 import { LoaderIcon } from "lucide-react";
 import { removeCartItem, UserState } from "@/store/user/userSlice.ts";
 import { RootState } from "@/store";
+import {
+  DeliveryAddressForm,
+  deliveryFormSchema,
+} from "@/pages/my-account/account-sub-page/address/DeliveryAddressForm.tsx";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 function CheckOutPage() {
   const currentUser: UserState = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const instantBuy = searchParams.get("instant-buy") === "true";
 
   const [done, setDone] = useState<boolean>(false);
   const [selectAddress, setSelectAddress] = useState(
@@ -33,8 +41,18 @@ function CheckOutPage() {
       : null,
   );
 
-  const instantBuy =
-    searchParams.get("instant-buy") === "true" && currentUser.instantBuy;
+  const deliveryAddressForm = useForm<z.infer<typeof deliveryFormSchema>>({
+    resolver: zodResolver(deliveryFormSchema),
+    defaultValues: {
+      province: "",
+      phone: "",
+      district: "",
+      commune: "",
+      noAndStreet: "",
+      name: "",
+    },
+  });
+
   const {
     mutate: createOrder,
     isError: isCreateOrderError,
@@ -49,9 +67,8 @@ function CheckOutPage() {
       setDone(true);
     },
   });
-
   const checkOutItems: CartItemDto[] = instantBuy
-    ? [currentUser.instantBuy!]
+    ? [JSON.parse(localStorage.getItem("instantBuy")!)]
     : currentUser.cart.filter((item) => item.isCheckedOut);
 
   const totalCheckOut = checkOutItems.reduce((total, item) => {
@@ -71,6 +88,26 @@ function CheckOutPage() {
       </div>
     );
   }
+
+  async function handleCreateOrder() {
+    const validateDeliveryAddress = await deliveryAddressForm.trigger();
+    if (!validateDeliveryAddress) {
+      return;
+    }
+    const deliveryAddress = deliveryAddressForm.getValues();
+    createOrder({
+      orderItems: checkOutItems.map((item) => {
+        const createOrderItemDto: CreateOrderItemDto = {
+          cartItemId: item.id!,
+          quantity: item.quantity,
+          unitPrice: item.productVariant.product!.price,
+          productVariantId: item.productVariantId,
+        };
+        return createOrderItemDto;
+      }),
+    });
+  }
+
   return (
     <div>
       <PageTitle>Place order</PageTitle>
@@ -79,9 +116,11 @@ function CheckOutPage() {
           <div className={"bg-white p-4 rounded-xl border"}>
             <div className={"flex gap-4 items-center"}>
               <span className={"text-lg font-semibold"}>Deliver Address</span>
-              <Button variant={"outline"} size={"sm"}>
-                Change
-              </Button>
+              {currentUser.id && (
+                <Button variant={"outline"} size={"sm"}>
+                  Change
+                </Button>
+              )}
             </div>
             {selectAddress && (
               <div className={"mt-4"}>
@@ -91,17 +130,20 @@ function CheckOutPage() {
                 >{`${selectAddress.noAndStreet}, ${selectAddress.commune}, ${selectAddress.district}, ${selectAddress.province}`}</div>
               </div>
             )}
+            {!currentUser.id && (
+              <div className={"mt-4"}>
+                <DeliveryAddressForm form={deliveryAddressForm} />
+              </div>
+            )}
           </div>
 
           <div className={"bg-white mt-4 p-4 rounded-xl border"}>
             <div className={"flex gap-4 items-center"}>
               <span className={"text-lg font-semibold"}>Payment method</span>
             </div>
-            {selectAddress && (
-              <div className={"mt-4"}>
-                <div className={"mt-2"}>Cash on delivery</div>
-              </div>
-            )}
+            <div className={"mt-4"}>
+              <div className={"mt-2"}>Cash on delivery</div>
+            </div>
           </div>
         </div>
         <div className={"max-w-4xl bg-white p-2 border rounded-xl"}>
@@ -117,7 +159,7 @@ function CheckOutPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {checkOutItems.map((item, index) => (
+              {checkOutItems.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>
                     <img
@@ -165,19 +207,7 @@ function CheckOutPage() {
               className={
                 "bg-amber-600 hover:bg-amber-500 flex items-center gap-2"
               }
-              onClick={() =>
-                createOrder({
-                  orderItems: checkOutItems.map((item) => {
-                    const createOrderItemDto: CreateOrderItemDto = {
-                      cartItemId: item.id!,
-                      quantity: item.quantity,
-                      unitPrice: item.productVariant.product!.price,
-                      productVariantId: item.productVariantId,
-                    };
-                    return createOrderItemDto;
-                  }),
-                })
-              }
+              onClick={handleCreateOrder}
               disabled={isPending}
             >
               <span>Place the order</span>

@@ -2,15 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 import { CartItemDto } from "@/dto/cart/cart-item.dto.ts";
 import { UserDto } from "@/dto/user/user.dto.ts";
 
-export interface UserState extends UserDto {
-  instantBuy?: CartItemDto | null;
-}
+export interface UserState extends UserDto {}
 
 const initialState: UserState = {
   id: null,
   email: "",
   cart: [],
-  instantBuy: null,
   avatarUrl: "",
 };
 
@@ -61,7 +58,7 @@ const userSlice = createSlice({
 
     updateInstantBuy: (state, action: { payload: CartItemDto }) => {
       const instantBuy: CartItemDto = action.payload;
-      state.instantBuy = instantBuy;
+      localStorage.setItem("instantBuy", JSON.stringify(instantBuy));
       return state;
     },
     updateAvatar: (
@@ -94,4 +91,5 @@ export const {
   updateAvatar,
   updateGeneralInfo,
 } = userSlice.actions;
+
 export default userSlice.reducer;

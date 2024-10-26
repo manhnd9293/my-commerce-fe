@@ -1,10 +1,5 @@
-import { UserAddressDto } from "@/dto/user/address/user-address.dto.ts";
-import { useMutation } from "@tanstack/react-query";
-import UsersService from "@/services/users.service.ts";
-import { UpdateUserAddressDto } from "@/dto/user/address/update-user-address.dto.ts";
-import { useForm } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -14,14 +9,17 @@ import {
   FormMessage,
 } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { toast } from "sonner";
 
-const formSchema = z.object({
+export const deliveryFormSchema = z.object({
   name: z
     .string()
     .min(1, { message: "This field is required" })
     .max(500, { message: "This field is maximum 500 character" }),
+  phone: z
+    .string()
+    .regex(/\d+/, { message: "Invalid phone number" })
+    .min(10, { message: "Minimum 10 digits" })
+    .max(11, { message: "Maximum 11 digits" }),
   province: z
     .string()
     .min(1, { message: "This field is required" })
@@ -41,59 +39,13 @@ const formSchema = z.object({
 });
 
 interface AddressFormProps {
-  onSuccess?: () => void;
-  onCancel?: () => void;
-  isUpdate: boolean;
-  initialValues?: UserAddressDto;
+  form: UseFormReturn<z.infer<typeof deliveryFormSchema>>;
 }
 
-export function AddressForm({
-  onSuccess,
-  onCancel,
-  isUpdate,
-  initialValues,
-  withActions,
-}: AddressFormProps) {
-  const { mutate: addUserAddress, isPending: isPendingAddAddress } =
-    useMutation({
-      mutationFn: UsersService.addUserAddress,
-      onSuccess: async () => {
-        toast("Add address success", {
-          description: "Your address is added successfully",
-          closeButton: true,
-        });
-        onSuccess && onSuccess();
-      },
-    });
-
-  const { mutate: updateUserAddress, isPending: isPendingUpdateAddress } =
-    useMutation({
-      mutationFn: ({ id, data }: { id: number; data: UpdateUserAddressDto }) =>
-        UsersService.updateUserAddress(id, data),
-      onSuccess: async () => {
-        toast("Update address success", {
-          description: "Your address is update successfully",
-          closeButton: true,
-        });
-        onSuccess && onSuccess();
-      },
-    });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: initialValues || {
-      province: "",
-      district: "",
-      commune: "",
-      noAndStreet: "",
-      name: "",
-    },
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    isUpdate
-      ? updateUserAddress({ id: initialValues!.id!, data: values })
-      : addUserAddress(values);
+export function DeliveryAddressForm({ form }: AddressFormProps) {
+  function onSubmit(values: z.infer<typeof deliveryFormSchema>) {
+    console.log("Form");
+    return values;
   }
 
   return (
@@ -105,9 +57,24 @@ export function AddressForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Your Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your home or company ...?" {...field} />
+                  <Input placeholder="Your full name" {...field} />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact</FormLabel>
+                <FormControl>
+                  <Input placeholder="Your Phone" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -129,6 +96,7 @@ export function AddressForm({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="district"
@@ -143,6 +111,7 @@ export function AddressForm({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="commune"
@@ -156,6 +125,7 @@ export function AddressForm({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="noAndStreet"
@@ -172,20 +142,6 @@ export function AddressForm({
           />
         </form>
       </Form>
-
-      <div className={"flex items-center justify-center gap-4 mt-4"}>
-        <Button variant={"secondary"} onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          disabled={isPendingAddAddress || isPendingUpdateAddress}
-          className={"bg-amber-600 hover:bg-amber-500"}
-          onClick={form.handleSubmit(onSubmit)}
-        >
-          {isUpdate ? `Update` : `Add`}
-        </Button>
-      </div>
     </div>
   );
 }
