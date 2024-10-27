@@ -7,7 +7,7 @@ export interface CartItemDto extends BaseDto {
 
   user?: UserDto | null;
 
-  productVariantId: number;
+  productVariantId: number | string;
 
   productVariant: ProductVariant;
 

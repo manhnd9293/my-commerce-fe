@@ -1,5 +1,5 @@
 export interface CartCheckOutUpdateDto {
-  cartItemId: number;
+  cartItemId: number | string;
 
   isCheckedOut: boolean;
 }

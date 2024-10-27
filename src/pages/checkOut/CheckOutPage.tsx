@@ -35,7 +35,7 @@ function CheckOutPage() {
   const instantBuy = searchParams.get("instant-buy") === "true";
 
   const [done, setDone] = useState<boolean>(false);
-  const [selectAddress, setSelectAddress] = useState(
+  const [selectAddress, _] = useState(
     currentUser.addresses && currentUser.addresses.length > 0
       ? currentUser.addresses[0]
       : null,
@@ -49,7 +49,7 @@ function CheckOutPage() {
       district: "",
       commune: "",
       noAndStreet: "",
-      name: "",
+      customerName: "",
     },
   });
 

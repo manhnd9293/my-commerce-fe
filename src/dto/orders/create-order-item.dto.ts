@@ -1,6 +1,6 @@
 export interface CreateOrderItemDto {
-  productVariantId: number;
+  productVariantId: number | string;
   quantity: number;
   unitPrice: number;
-  cartItemId: number;
+  cartItemId: number | string;
 }
