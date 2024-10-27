@@ -50,8 +50,12 @@ function CartPage() {
     },
   });
 
-  async function onDeleteCartItem(id: number) {
-    removeItemMutate(id);
+  async function onDeleteCartItem(id: number | string) {
+    if (!currentUser.id) {
+      dispatch(removeCartItem(id));
+      return;
+    }
+    removeItemMutate(id as number);
   }
 
   const totalCheckOut = Utils.getMoneyNumber(

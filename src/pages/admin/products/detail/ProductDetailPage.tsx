@@ -36,6 +36,7 @@ import utils from "@/utils/utils.ts";
 import { useAppSelector } from "@/hooks";
 import { SignInModal } from "@/components/common/SignInModal.tsx";
 import { toast } from "sonner";
+import { CartItemDto } from "@/dto/cart/cart-item.dto.ts";
 
 function ProductDetailPage() {
   const params = useParams();
@@ -48,7 +49,6 @@ function ProductDetailPage() {
   const [orderQuantity, setOrderQuantity] = useState<number>(1);
   const [selectedColor, setSelectedColor] = useState(searchParams.get("color"));
   const [selectedSize, setSelectedSize] = useState(searchParams.get("size"));
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   const {
     data: product,
@@ -61,10 +61,26 @@ function ProductDetailPage() {
     retry: false,
   });
 
-  const { data: similarProductPage, isLoading: isLoadingSimilar } = useQuery({
+  const { data: similarProductPage } = useQuery({
     queryKey: [QueryKey.SimilarProducts, { id: params.id }],
     queryFn: () => ProductsService.getSimilarProducts(Number(params.id!), {}),
   });
+
+  function onSuccessAddCartItem(data: CartItemDto) {
+    dispatch(addCartItem(data));
+    toast("Add item to cart success", {
+      description: "Your item have been added to cart",
+      action: {
+        label: "Go to Cart",
+        onClick: () => navigate("/cart"),
+      },
+      actionButtonStyle: {
+        backgroundColor: "#d87606",
+        fontWeight: "bold",
+      },
+      closeButton: true,
+    });
+  }
 
   const {
     mutate: mutateAddCartItem,
@@ -74,21 +90,7 @@ function ProductDetailPage() {
     error: errorAddCartItem,
   } = useMutation({
     mutationFn: CartService.addCartItem,
-    onSuccess: (data) => {
-      dispatch(addCartItem(data));
-      toast("Add item to cart success", {
-        description: "Your item have been added to cart",
-        action: {
-          label: "Go to Cart",
-          onClick: () => navigate("/cart"),
-        },
-        actionButtonStyle: {
-          backgroundColor: "#d87606",
-          fontWeight: "bold",
-        },
-        closeButton: true,
-      });
-    },
+    onSuccess: onSuccessAddCartItem,
   });
 
   if (isError) {
@@ -113,16 +115,27 @@ function ProductDetailPage() {
   }
 
   function handleAddItemToCart() {
-    if (!user.id) {
-      setShowSignInModal(true);
+    const productVariant = getSelectProductVariant();
+    if (!productVariant) {
       return;
     }
-    const productVariant = getSelectProductVariant();
-    productVariant &&
-      mutateAddCartItem({
+    if (!user.id) {
+      productVariant.product = structuredClone(product);
+      const data: CartItemDto = {
+        id: `ci_${productVariant.id}`,
         productVariantId: productVariant.id!,
+        productVariant: structuredClone(productVariant),
         quantity: orderQuantity,
-      });
+        isCheckedOut: true,
+      };
+      onSuccessAddCartItem(data);
+      return;
+    }
+
+    mutateAddCartItem({
+      productVariantId: productVariant.id! as number,
+      quantity: orderQuantity,
+    });
   }
 
   useEffect(() => {
@@ -388,7 +401,6 @@ function ProductDetailPage() {
           </div>
         </div>
       )}
-      <SignInModal open={showSignInModal} onOpenChange={setShowSignInModal} />
     </>
   );
 }

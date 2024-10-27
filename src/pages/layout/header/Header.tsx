@@ -5,21 +5,15 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useAppSelector } from "@/hooks";
-import { useState } from "react";
 import { SignInModal } from "@/components/common/SignInModal.tsx";
 
 function Header() {
   const location = useLocation();
   const user = useAppSelector((state) => state.user);
   const navigate = useNavigate();
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   function handleClickCartButton() {
-    if (user.id) {
-      navigate("/cart");
-    } else {
-      setShowSignInModal(true);
-    }
+    navigate("/cart");
   }
 
   return (
@@ -45,7 +39,7 @@ function Header() {
           </div>
           <div className={"flex items-center gap-4 cursor-pointer"}>
             <div className={"relative"} onClick={handleClickCartButton}>
-              {user.id && user.cart?.length > 0 && (
+              {user.cart?.length > 0 && (
                 <div
                   className={
                     "absolute right-[-1px] top-0 text-white text-[12px] rounded-[20px] p-2 bg-red-500 font-bold flex items-center justify-center size-5 "
@@ -78,7 +72,6 @@ function Header() {
           </div>
         </div>
       </div>
-      <SignInModal open={showSignInModal} onOpenChange={setShowSignInModal} />
     </>
   );
 }
