@@ -29,7 +29,7 @@ function RootLayout() {
   return (
     <div className={"bg-gray-50 min-h-screen flex flex-col"}>
       <Header />
-      <div className={"max-w-screen-2xl px-4 mx-auto py-4 w-full"}>
+      <div className={"max-w-screen-2xl px-4 mx-auto py-4 w-full flex-1"}>
         <Outlet />
       </div>
       <Footer />
