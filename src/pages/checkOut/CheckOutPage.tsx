@@ -167,10 +167,10 @@ function CheckOutPage() {
             <TableBody>
               {checkOutItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>
+                  <TableCell className={"w-40"}>
                     <img
                       src={item.productVariant.product!.thumbnailUrl}
-                      className={"size-20 shadow-md rounded-xl"}
+                      className={"w-20 h-20 shadow-md rounded-xl"}
                     />
                   </TableCell>
                   <TableCell className="font-medium">
