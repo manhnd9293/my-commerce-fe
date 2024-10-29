@@ -3,7 +3,6 @@ import { QueryKey } from "@/common/constant/query-key.ts";
 import categoriesService from "@/services/categories.service.ts";
 import { Link } from "react-router-dom";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { Copy } from "lucide-react";
 
 function Footer() {
   const { data: categoryList } = useQuery({
