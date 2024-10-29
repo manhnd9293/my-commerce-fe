@@ -358,11 +358,7 @@ function ProductDetailPage() {
                   <span>Add to card</span>
                 </Button>
 
-                <Button
-                  className={"bg-amber-600 hover:bg-amber-500"}
-                  size={"lg"}
-                  onClick={handleBuyNow}
-                >
+                <Button className={""} size={"lg"} onClick={handleBuyNow}>
                   <span>Buy now</span>
                 </Button>
               </div>

@@ -160,7 +160,7 @@ function GeneralInfoForm() {
       </Form>
       <div className={"mt-4"}>
         <Button
-          className={"bg-amber-600 hover:bg-amber-500"}
+          className={""}
           disabled={isPending}
           onClick={form.handleSubmit(onSubmit)}
         >

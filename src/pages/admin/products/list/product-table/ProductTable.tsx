@@ -107,7 +107,7 @@ export function ProductTable() {
     <div className="w-full">
       <div className={"flex gap-4 items-center"}>
         <Link to={"new"}>
-          <Button className={"bg-amber-600 hover:bg-amber-500"}>
+          <Button className={""}>
             <PlusIcon className={"w-4 h-4 mr-2 font-bold"} />
             <span>New</span>
           </Button>

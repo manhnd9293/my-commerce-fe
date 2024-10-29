@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useAppSelector } from "@/hooks";
-import { SignInModal } from "@/components/common/SignInModal.tsx";
 
 function Header() {
   const location = useLocation();

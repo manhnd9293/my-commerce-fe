@@ -89,11 +89,7 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
           )}
 
           <div className={"text-center"}>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className={"bg-amber-600 hover:bg-amber-500"}
-            >
+            <Button type="submit" disabled={isPending} className={""}>
               {isPending && (
                 <span className={"animate-spin mr-3"}>
                   <svg

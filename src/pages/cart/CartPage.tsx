@@ -185,7 +185,7 @@ function CartPage() {
             disabled={
               currentUser.cart.filter((item) => item.isCheckedOut).length === 0
             }
-            className={"mt-4 bg-amber-600 hover:bg-amber-500 w-full"}
+            className={"mt-4  w-full"}
             onClick={() => navigate("/check-out")}
           >
             Go to Check out

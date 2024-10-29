@@ -6,6 +6,7 @@ import AuthService from "@/services/auth.service.ts";
 import { useDispatch } from "react-redux";
 import AppLoading from "@/components/layout/AppLoading.tsx";
 import { signIn } from "@/store/user/userSlice.ts";
+import Footer from "@/pages/layout/footer/Footer.tsx";
 
 function RootLayout() {
   const { data, isLoading, isError, error } = useQuery({
@@ -26,11 +27,12 @@ function RootLayout() {
   }
 
   return (
-    <div className={"bg-gray-50 min-h-screen"}>
+    <div className={"bg-gray-50 min-h-screen flex flex-col"}>
       <Header />
-      <div className={"max-w-screen-2xl px-4 mx-auto py-4"}>
+      <div className={"max-w-screen-2xl px-4 mx-auto py-4 flex-1"}>
         <Outlet />
       </div>
+      <Footer />
     </div>
   );
 }

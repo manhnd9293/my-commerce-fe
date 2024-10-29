@@ -108,7 +108,7 @@ function AddressPage() {
             setIsUpdate(false);
             setShowAddressModal(true);
           }}
-          className={"bg-amber-600 hover:bg-amber-500"}
+          className={""}
         >
           <Plus />
           <span className={"ml-2"}>Add address</span>
