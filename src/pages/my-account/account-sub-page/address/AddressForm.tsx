@@ -180,7 +180,7 @@ export function AddressForm({
         <Button
           type="submit"
           disabled={isPendingAddAddress || isPendingUpdateAddress}
-          className={"bg-amber-600 hover:bg-amber-500"}
+          className={""}
           onClick={form.handleSubmit(onSubmit)}
         >
           {isUpdate ? `Update` : `Add`}

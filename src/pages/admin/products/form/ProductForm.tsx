@@ -457,11 +457,7 @@ function ProductForm(props: ProductFormProps) {
           />
 
           <div className={"flex gap-4"}>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className={"bg-amber-600 hover:bg-amber-500"}
-            >
+            <Button type="submit" disabled={isPending} className={""}>
               {isPending && (
                 <span className={"animate-spin mr-3"}>
                   <svg

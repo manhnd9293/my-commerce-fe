@@ -210,9 +210,7 @@ function CheckOutPage() {
               Cancel
             </Button>
             <Button
-              className={
-                "bg-amber-600 hover:bg-amber-500 flex items-center gap-2"
-              }
+              className={" flex items-center gap-2"}
               onClick={handleCreateOrder}
               disabled={isPending}
             >
