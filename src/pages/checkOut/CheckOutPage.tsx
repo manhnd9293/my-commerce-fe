@@ -117,7 +117,7 @@ function CheckOutPage() {
   return (
     <div>
       <PageTitle>Place order</PageTitle>
-      <div className={"flex items-start gap-4 mt-4"}>
+      <div className={"flex items-start gap-4 mt-4 justify-between"}>
         <div className={"flex-1"}>
           <div className={"bg-white p-4 rounded-xl border"}>
             <div className={"flex gap-4 items-center"}>
@@ -152,8 +152,8 @@ function CheckOutPage() {
             </div>
           </div>
         </div>
-        <div className={"max-w-4xl bg-white p-2 border rounded-xl"}>
-          <div className={"text-xl font-semibold"}>Order summary</div>
+        <div className={"w-1/2 bg-white p-2 border rounded-xl"}>
+          <div className={"text-xl font-semibold"}>Order Summary</div>
           <Table className={"rounded-xl p-2"}>
             <TableHeader>
               <TableRow>
