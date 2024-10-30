@@ -29,7 +29,11 @@ function Header() {
                 My Commerce
               </span>
             </Link>
-            <div className={"relative w-[500px] ml-24"}>
+            <div
+              className={
+                "hidden md:block md:relative md:w-[300px] lg:w-[500px] md:ml-24"
+              }
+            >
               <Input placeholder={"Search products ..."} />
               <MagnifyingGlassIcon
                 className={"size-5 absolute top-3  right-2"}

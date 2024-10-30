@@ -70,7 +70,11 @@ function CartPage() {
   return (
     <div>
       <PageTitle>My Cart</PageTitle>
-      <div className={"mt-8 flex gap-4 items-start justify-between"}>
+      <div
+        className={
+          "mt-8 flex flex-col gap-2 md:flex-row md:gap-4 md:items-start md:justify-between"
+        }
+      >
         {currentUser.cart.length === 0 && (
           <div
             className={"text-xl font-semibold bg-white flex-1 shadow-sm p-10"}
@@ -112,7 +116,7 @@ function CartPage() {
                           }}
                         />
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium min-w-[400px]">
                         <div className={"flex items-center gap-4"}>
                           <img
                             src={item.productVariant.product?.thumbnailUrl}
@@ -151,7 +155,7 @@ function CartPage() {
           </Table>
         )}
 
-        <div className={"w-[450px] shadow-sm"}>
+        <div className={"w-full md:w-[450px] shadow-sm"}>
           <Card>
             <CardHeader>
               <CardTitle className={"text-2xl font-semibold"}>

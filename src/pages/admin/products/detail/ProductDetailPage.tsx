@@ -34,7 +34,6 @@ import { Card } from "@/components/ui/card.tsx";
 import { RoutePath } from "@/router/RoutePath.ts";
 import utils from "@/utils/utils.ts";
 import { useAppSelector } from "@/hooks";
-import { SignInModal } from "@/components/common/SignInModal.tsx";
 import { toast } from "sonner";
 import { CartItemDto } from "@/dto/cart/cart-item.dto.ts";
 
@@ -191,7 +190,6 @@ function ProductDetailPage() {
   function handleBuyNow() {
     const productVariant = getSelectProductVariant();
     if (!productVariant) return;
-    console.log({ product });
     productVariant.product = structuredClone(product);
     dispatch(
       updateInstantBuy({
@@ -199,6 +197,7 @@ function ProductDetailPage() {
         productVariant,
         quantity: orderQuantity,
         isCheckedOut: true,
+        id: "1",
       }),
     );
     navigate(
@@ -210,8 +209,12 @@ function ProductDetailPage() {
     <>
       {product && (
         <div>
-          <div className={"flex gap-16 items-start"}>
-            <div className={"w-[450px]"}>
+          <div
+            className={
+              "flex flex-col gap-4 md:flex-row md:gap-16 md:items-start"
+            }
+          >
+            <div className={"w-full md:w-[450px]"}>
               <img src={currentImageUrl} className={"w-full aspect-[1/1]"} />
               <Carousel
                 opts={{
@@ -240,7 +243,11 @@ function ProductDetailPage() {
                 <CarouselNext className={"right-3"} />
               </Carousel>
             </div>
-            <div className={"bg-white p-4 rounded-2xl shadow-sm w-[600px]"}>
+            <div
+              className={
+                "bg-white p-4 rounded-2xl shadow-sm w-full md:w-[600px]"
+              }
+            >
               <PageTitle>
                 {product ? product.name : `Loading product ..`}
               </PageTitle>
@@ -370,7 +377,11 @@ function ProductDetailPage() {
 
           <div className={"mt-4"}>
             <div className={"text-lg font-semibold"}>Similar Products</div>
-            <div className={"grid grid-cols-4 lg:grid-cols-5 gap-4 mt-4"}>
+            <div
+              className={
+                "grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5 md:gap-4 mt-4"
+              }
+            >
               {similarProductPage?.data &&
                 similarProductPage?.data.map((product) => (
                   <Card

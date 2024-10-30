@@ -12,7 +12,9 @@ function Footer() {
   return (
     <div className={" border-t mt-4 p-10 bg-white"}>
       <div
-        className={"max-w-screen-2xl mx-auto flex items-start justify-between"}
+        className={
+          "max-w-screen-2xl mx-auto flex flex-col gap-2 md:flex-row md:items-start md:justify-between"
+        }
       >
         <div className={"text-xl font-semibold"}>My Commerce</div>
         <div className={"flex gap-24"}>
@@ -35,7 +37,9 @@ function Footer() {
         </div>
       </div>
       <div
-        className={"flex justify-between max-w-screen-2xl mx-auto mt-8 text-sm"}
+        className={
+          "flex flex-col md:flex-row justify-between max-w-screen-2xl mx-auto mt-8 text-sm"
+        }
       >
         <div>2024 - My commerce. All right reserved</div>
         <div>Power by NestJS & ReactJS</div>
