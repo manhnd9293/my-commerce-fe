@@ -47,7 +47,7 @@ function ProductRecommend() {
 
   return (
     <div className={"mt-4"}>
-      <div className={"grid grid-cols-5 gap-4 mt-4"}>
+      <div className={"grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-4 mt-4"}>
         {categoryList &&
           categoryList.map((category) => (
             <Card
@@ -61,7 +61,7 @@ function ProductRecommend() {
       </div>
 
       <div className={"text-lg font-bold "}>Recommend for you</div>
-      <div className={"grid grid-cols-4 lg:grid-cols-5 gap-4 mt-4"}>
+      <div className={"grid  grid-cols-2 md:grid-cols-5 gap-4 mt-4"}>
         {productList &&
           productList.map((product) => (
             <Card

@@ -117,8 +117,12 @@ function CheckOutPage() {
   return (
     <div>
       <PageTitle>Place order</PageTitle>
-      <div className={"flex items-start gap-4 mt-4 justify-between"}>
-        <div className={"flex-1"}>
+      <div
+        className={
+          "flex flex-col md:flex-row items-start gap-4 mt-4 justify-between"
+        }
+      >
+        <div className={"w-full md:flex-1"}>
           <div className={"bg-white p-4 rounded-xl border"}>
             <div className={"flex gap-4 items-center"}>
               <span className={"text-lg font-semibold"}>Delivery Address</span>
@@ -152,7 +156,7 @@ function CheckOutPage() {
             </div>
           </div>
         </div>
-        <div className={"w-1/2 bg-white p-2 border rounded-xl"}>
+        <div className={"w-full md:w-1/2 bg-white p-2 border rounded-xl"}>
           <div className={"text-xl font-semibold"}>Order Summary</div>
           <Table className={"rounded-xl p-2"}>
             <TableHeader>
@@ -167,13 +171,13 @@ function CheckOutPage() {
             <TableBody>
               {checkOutItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className={"w-40"}>
+                  <TableCell className={"min-w-[100px]"}>
                     <img
                       src={item.productVariant.product!.thumbnailUrl}
                       className={"w-20 h-20 shadow-md rounded-xl"}
                     />
                   </TableCell>
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium min-w-[200px]">
                     <span>{item.productVariant.product!.name}</span>
                   </TableCell>
 
@@ -193,18 +197,11 @@ function CheckOutPage() {
                 </TableRow>
               ))}
             </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={4} className={"text-right"}>
-                  Total
-                </TableCell>
-                <TableCell className="text-right">
-                  {new Intl.NumberFormat().format(totalCheckOut)}
-                </TableCell>
-              </TableRow>
-            </TableFooter>
           </Table>
 
+          <div className={"text-right font-semibold mt-2"}>
+            Total: {new Intl.NumberFormat().format(totalCheckOut)}
+          </div>
           <div className={"flex gap-4 mt-4 justify-end"}>
             <Button variant={"secondary"} onClick={() => navigate(-1)}>
               Cancel
