@@ -51,17 +51,22 @@ function ProductRecommend() {
         {categoryList &&
           categoryList.map((category) => (
             <Card
-              className={"text-center cursor-pointer p-1"}
+              className={"text-center cursor-pointer p-2"}
               onClick={() => setCategoryId(category.id!)}
               key={category.id!}
             >
-              <span className={"font-semibold"}>{category.name}</span>
+              <div
+                className={"flex flex-col items-center justify-center gap-1"}
+              >
+                <img src={category.imageFileUrl!} className={"size-10"} />
+                <span className={"font-semibold"}>{category.name}</span>
+              </div>
             </Card>
           ))}
       </div>
 
-      <div className={"text-lg font-bold "}>Recommend for you</div>
-      <div className={"grid  grid-cols-2 md:grid-cols-5 gap-4 mt-4"}>
+      <div className={"text-lg font-bold  mt-4"}>Recommend for you</div>
+      <div className={"grid  grid-cols-2 gap-2 md:grid-cols-5 md:gap-4 mt-4"}>
         {productList &&
           productList.map((product) => (
             <Card

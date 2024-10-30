@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { categoryColumns } from "@/pages/admin/categories/list/category-table/CategoryColumns.tsx";
 import { Link, useNavigate } from "react-router-dom";
-import { Category } from "@/dto/category.ts";
+import { Category } from "@/dto/category/category.ts";
 import categoriesService from "@/services/categories.service.ts";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKey } from "@/common/constant/query-key.ts";

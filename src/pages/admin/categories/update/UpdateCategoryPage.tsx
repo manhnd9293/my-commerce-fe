@@ -2,11 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CategoriesService from "@/services/categories.service.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import CategoryForm from "@/pages/admin/categories/components/CategoryForm.tsx";
-import { Category } from "@/dto/category.ts";
+import { Category } from "@/dto/category/category.ts";
 import PageTitle from "@/pages/common/PageTitle.tsx";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import notification from "@/utils/notification.tsx";
 import Utils from "@/utils/utils.ts";
+import { UpdateCategoryDto } from "@/dto/category/update-category.dto.ts";
 
 export function UpdateCategoryPage() {
   const params = useParams();
@@ -23,7 +24,7 @@ export function UpdateCategoryPage() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: Partial<Category>) =>
+    mutationFn: (data: UpdateCategoryDto) =>
       CategoriesService.update(Number(params.categoryId), data),
     onSuccess: () => {
       navigate("/admin/categories");

@@ -232,6 +232,8 @@ function ProductForm(props: ProductFormProps) {
     productForm.setValue("price", parseInt(targetValue));
   }
 
+  console.log("render product form");
+
   return (
     <div className={"mt-4 max-w-3xl"}>
       <FormProvider {...productForm}>

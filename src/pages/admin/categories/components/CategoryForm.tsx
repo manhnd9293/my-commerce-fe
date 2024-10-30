@@ -11,10 +11,22 @@ import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
-import { Category } from "@/dto/category.ts";
+import { Category } from "@/dto/category/category.ts";
+import { XIcon } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(1),
+  updateImage: z.instanceof(File).optional(),
+  currentImage: z
+    .object({
+      id: z.number(),
+      assetId: z.number(),
+      asset: z.object({
+        id: z.number(),
+        preSignUrl: z.string().optional(),
+      }),
+    })
+    .optional(),
   id: z.number().nullable(),
 });
 
@@ -44,6 +56,40 @@ function CategoryForm({
       <div className={"mt-6 max-w-lg"}>
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="updateImage"
+              render={({ field: { value, onChange, ...fieldProps } }) => (
+                <FormItem>
+                  <FormLabel>Image</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...fieldProps}
+                      placeholder="Category Images"
+                      className="w-64"
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => {
+                        const files = event.target.files;
+
+                        if (!files || files.length === 0) {
+                          return;
+                        }
+                        form.setValue("updateImage", files[0]);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <div className={"mt-4"}>
+                    <CategoryImage
+                      imageFile={form.getValues("updateImage")}
+                      imageUrl={initialData.imageFileUrl}
+                    />
+                  </div>
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="name"
@@ -88,6 +134,29 @@ function CategoryForm({
           </form>
         </FormProvider>
       </div>
+    </div>
+  );
+}
+
+function CategoryImage({
+  imageFile,
+  imageUrl,
+}: {
+  imageFile?: File | null;
+  imageUrl?: string | null;
+}) {
+  return (
+    <div className={"shadow-md relative"}>
+      <XIcon className={"size-4 right-1 top-1 absolute hover:cursor-pointer"} />
+      {imageFile && (
+        <img
+          className={"h-52 w-full rounded-sm"}
+          src={URL.createObjectURL(new Blob([imageFile!]))}
+        />
+      )}
+      {imageUrl && !imageFile && (
+        <img className={"h-52 w-full rounded-sm"} src={imageUrl} />
+      )}
     </div>
   );
 }
