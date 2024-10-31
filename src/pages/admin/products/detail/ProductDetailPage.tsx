@@ -36,6 +36,7 @@ import utils from "@/utils/utils.ts";
 import { useAppSelector } from "@/hooks";
 import { toast } from "sonner";
 import { CartItemDto } from "@/dto/cart/cart-item.dto.ts";
+import ProductCard from "@/pages/common/ProductCard.tsx";
 
 function ProductDetailPage() {
   const params = useParams();
@@ -214,8 +215,11 @@ function ProductDetailPage() {
               "flex flex-col gap-4 md:flex-row md:gap-16 md:items-start"
             }
           >
-            <div className={"w-full md:w-[450px]"}>
-              <img src={currentImageUrl} className={"w-full aspect-[1/1]"} />
+            <div className={"w-full md:w-[420px]"}>
+              <img
+                src={currentImageUrl}
+                className={"aspect-[1/1] object-cover object-center"}
+              />
               <Carousel
                 opts={{
                   align: "center",
@@ -384,25 +388,13 @@ function ProductDetailPage() {
             >
               {similarProductPage?.data &&
                 similarProductPage?.data.map((product) => (
-                  <Card
-                    className={"p-2 cursor-pointer flex flex-col space-y-3"}
+                  <ProductCard
+                    key={product.id}
                     onClick={() =>
                       navigate(`${RoutePath.ProductDetail}/${product.id}`)
                     }
-                    key={product.id}
-                  >
-                    <div className={"truncate font-semibold"}>
-                      {product.name}
-                    </div>
-                    <div>
-                      <img src={product.thumbnailUrl} />
-                    </div>
-                    <div className={"text-center"}>
-                      {product.price
-                        ? new Intl.NumberFormat().format(product.price)
-                        : "No Information"}
-                    </div>
-                  </Card>
+                    product={product}
+                  />
                 ))}
             </div>
           </div>

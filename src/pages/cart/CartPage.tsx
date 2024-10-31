@@ -120,7 +120,9 @@ function CartPage() {
                         <div className={"flex items-center gap-4"}>
                           <img
                             src={item.productVariant.product?.thumbnailUrl}
-                            className={"size-20 shadow-md rounded"}
+                            className={
+                              "size-20 shadow-md rounded object-cover object-center"
+                            }
                           />
                           <div>{item.productVariant.product?.name}</div>
                         </div>

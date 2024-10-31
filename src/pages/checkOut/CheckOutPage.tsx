@@ -174,7 +174,9 @@ function CheckOutPage() {
                   <TableCell className={"min-w-[100px]"}>
                     <img
                       src={item.productVariant.product!.thumbnailUrl}
-                      className={"w-20 h-20 shadow-md rounded-xl"}
+                      className={
+                        "w-20 h-20 shadow-md rounded-xl object-center object-cover"
+                      }
                     />
                   </TableCell>
                   <TableCell className="font-medium min-w-[200px]">

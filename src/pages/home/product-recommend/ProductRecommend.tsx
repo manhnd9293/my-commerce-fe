@@ -8,6 +8,8 @@ import { RoutePath } from "@/router/RoutePath.ts";
 import categoriesService from "@/services/categories.service.ts";
 import { useState } from "react";
 import { ProductQueryDto } from "@/dto/product/product-query.dto.ts";
+import { Product } from "@/dto/product/product.ts";
+import ProductCard from "@/pages/common/ProductCard.tsx";
 
 function ProductRecommend() {
   const [categoryId, setCategoryId] = useState<number>();
@@ -69,23 +71,13 @@ function ProductRecommend() {
       <div className={"grid  grid-cols-2 gap-2 md:grid-cols-5 md:gap-4 mt-4"}>
         {productList &&
           productList.map((product) => (
-            <Card
-              className={"p-2 cursor-pointer flex flex-col space-y-3 shadow-sm"}
+            <ProductCard
+              key={product.id!}
               onClick={() =>
                 navigate(`${RoutePath.ProductDetail}/${product.id}`)
               }
-              key={product.id!}
-            >
-              <div className={"truncate font-semibold"}>{product.name}</div>
-              <div>
-                <img src={product.thumbnailUrl} />
-              </div>
-              <div className={"text-center"}>
-                {product.price
-                  ? new Intl.NumberFormat().format(product.price)
-                  : "No Information"}
-              </div>
-            </Card>
+              product={product}
+            />
           ))}
       </div>
     </div>
