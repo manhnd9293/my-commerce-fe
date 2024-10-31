@@ -79,6 +79,7 @@ export const productFormSchema = z.object({
     .object({
       name: z.string(),
       index: z.number().optional(),
+      id: z.number().optional().nullable(),
     })
     .array()
     .optional(),
@@ -231,8 +232,6 @@ function ProductForm(props: ProductFormProps) {
     }
     productForm.setValue("price", parseInt(targetValue));
   }
-
-  console.log("render product form");
 
   return (
     <div className={"mt-4 max-w-3xl"}>

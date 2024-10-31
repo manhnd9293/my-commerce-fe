@@ -7,16 +7,19 @@ import {
 } from "@/components/ui/carousel.tsx";
 import Autoplay from "embla-carousel-autoplay";
 import ProductRecommend from "@/pages/home/product-recommend/ProductRecommend.tsx";
+import { useEffect } from "react";
 
 const carouselImages = [
-  "https://cf.shopee.vn/file/sg-11134258-7rdxo-m0csxosccbni1a_xxhdpi",
-  "https://cf.shopee.vn/file/sg-11134258-7rdwn-m0csxquf93dx40_xxhdpi",
-  "https://cf.shopee.vn/file/vn-11134258-7r98o-lygfmvwtyvtta1_xxhdpi",
-  "https://cf.shopee.vn/file/sg-11134258-7rdx9-m0csxkauv8906d_xxhdpi",
-  "https://cf.shopee.vn/file/sg-11134258-7rdwo-m0csxlaxd1j2c2_xxhdpi",
+  "https://cf.shopee.vn/file/vn-11134258-7ras8-m1zex3slvicb3e_xxhdpi",
+  "https://cf.shopee.vn/file/sg-11134258-7reob-m20gzx7ko2d39c_xxhdpi",
+  "https://cf.shopee.vn/file/sg-11134258-7reor-m1xtdaqjrfjq17_xxhdpi",
+  "https://cf.shopee.vn/file/sg-11134258-7reqp-m1xtdd8649xb41_xxhdpi",
 ];
 
 function Home() {
+  useEffect(() => {
+    document.title = "My commerce";
+  }, []);
   return (
     <div>
       <Carousel

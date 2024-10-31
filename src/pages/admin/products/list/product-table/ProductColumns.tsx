@@ -51,7 +51,12 @@ export const productColumns: ColumnDef<Product>[] = [
     id: "image",
     header: "Image",
     cell: ({ row }) => (
-      <img src={row.original.thumbnailUrl} className={"size-16"} />
+      <div className={"size-20 shadow-md rounded-xl"}>
+        <img
+          src={row.original.thumbnailUrl}
+          className={"w-full h-full object-cover object-center"}
+        />
+      </div>
     ),
   },
   {
