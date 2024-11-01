@@ -18,7 +18,7 @@ function ProductRecommend() {
   };
 
   const {
-    data: productList,
+    data: pageProduct,
     isLoading: isLoading,
     isError,
     error,
@@ -69,8 +69,8 @@ function ProductRecommend() {
 
       <div className={"text-lg font-bold  mt-4"}>Recommend for you</div>
       <div className={"grid  grid-cols-2 gap-2 md:grid-cols-5 md:gap-4 mt-4"}>
-        {productList &&
-          productList.map((product) => (
+        {pageProduct &&
+          pageProduct.data.map((product) => (
             <ProductCard
               key={product.id!}
               onClick={() =>
