@@ -2,9 +2,8 @@ import UserDropdown from "@/pages/layout/header/UserDropdown.tsx";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCartIcon } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useAppSelector } from "@/hooks";
+import { HeaderSearch } from "@/pages/layout/header/HeaderSearch.tsx";
 
 function Header() {
   const location = useLocation();
@@ -29,16 +28,7 @@ function Header() {
                 My Commerce
               </span>
             </Link>
-            <div
-              className={
-                "hidden md:block md:relative md:w-[300px] lg:w-[500px] md:ml-24"
-              }
-            >
-              <Input placeholder={"Search products ..."} />
-              <MagnifyingGlassIcon
-                className={"size-5 absolute top-3  right-2"}
-              />
-            </div>
+            <HeaderSearch />
           </div>
           <div className={"flex items-center gap-4 cursor-pointer"}>
             <div className={"relative"} onClick={handleClickCartButton}>

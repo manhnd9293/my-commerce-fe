@@ -23,10 +23,11 @@ class ProductsService {
     });
   }
 
-  getAll(productQueryDto: ProductQueryDto): Promise<Product[]> {
+  getAll(productQueryDto: ProductQueryDto): Promise<PageData<Product>> {
     let queryString = "";
-    const { categoryId } = productQueryDto;
+    const { categoryId, search } = productQueryDto;
     if (categoryId) queryString += `categoryId=${categoryId}`;
+    if (search) queryString += `search=${search}`;
     return httpClient.get(`/products?${queryString}`);
   }
 
