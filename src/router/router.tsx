@@ -3,7 +3,7 @@ import SignIn from "@/pages/sign-in/SignIn.tsx";
 import RootLayout from "@/pages/layout/RootLayout.tsx";
 import Home from "@/pages/home/Home.tsx";
 import CategoryCreatePage from "@/pages/admin/categories/create/CategoryCreatePage.tsx";
-import AdminLayout from "@/pages/admin/AdminLayout.tsx";
+import AdminLayout from "@/pages/admin/layout/AdminLayout.tsx";
 import CategoriesList from "@/pages/admin/categories/list/CategoriesList.tsx";
 import TestPage from "@/pages/test/TestPage.tsx";
 import { UpdateCategoryPage } from "@/pages/admin/categories/update/UpdateCategoryPage.tsx";
