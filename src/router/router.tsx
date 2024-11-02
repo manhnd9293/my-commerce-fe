@@ -23,6 +23,7 @@ import MyOrderPage from "@/pages/my-account/account-sub-page/MyOrderPage.tsx";
 import PurchaseHistoryPage from "@/pages/my-account/account-sub-page/PurchaseHistoryPage.tsx";
 import AddressPage from "@/pages/my-account/account-sub-page/address/AddressPage.tsx";
 import UserPaymentPage from "@/pages/my-account/account-sub-page/UserPaymentPage.tsx";
+import AdminDashboard from "@/pages/admin/AdminDashboard.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayout />,
     children: [
+      {
+        element: <AdminDashboard />,
+        index: true,
+      },
       {
         path: "products",
         children: [
