@@ -6,7 +6,12 @@ import Utils from "@/utils/utils.ts";
 import { useDispatch } from "react-redux";
 import { signIn } from "@/store/user/userSlice.ts";
 import AppLoading from "@/components/layout/AppLoading.tsx";
-import { Gauge, Package, Shapes, ShoppingCartIcon } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  Shapes,
+  ShoppingCartIcon,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -24,9 +29,9 @@ import AdminUserDropdown from "@/pages/layout/header/AdminUserDropdown.tsx";
 
 const paths = [
   {
-    to: "dashboard",
+    to: "",
     name: "Dashboard",
-    icon: <Gauge />,
+    icon: <LayoutDashboard />,
   },
   {
     to: "categories",
@@ -108,7 +113,7 @@ function AdminLayout() {
           </SidebarFooter>
         </Sidebar>
 
-        <main className={"ml-4 p-4"}>
+        <main className={"ml-4 p-4 w-full"}>
           {/*<SidebarTrigger />*/}
           <Outlet />
         </main>

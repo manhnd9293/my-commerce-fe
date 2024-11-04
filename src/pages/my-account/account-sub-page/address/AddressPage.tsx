@@ -5,12 +5,6 @@ import UsersService from "@/services/users.service.ts";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import { Button } from "@/components/ui/button.tsx";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card.tsx";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -18,13 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { useState } from "react";
-import { Ellipsis, Loader2Icon, Pencil, Plus, Trash2Icon } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu.tsx";
+import { Loader2Icon, Plus } from "lucide-react";
 import { AddressForm } from "@/pages/my-account/account-sub-page/address/AddressForm.tsx";
 import { UserAddressDto } from "@/dto/user/address/user-address.dto.ts";
 import {
