@@ -113,7 +113,7 @@ function AdminLayout() {
           </SidebarFooter>
         </Sidebar>
 
-        <main className={"ml-4 p-4"}>
+        <main className={"ml-4 p-4 w-full"}>
           {/*<SidebarTrigger />*/}
           <Outlet />
         </main>

@@ -80,7 +80,7 @@ function CategoryForm({
                     />
                   </FormControl>
                   <FormMessage />
-                  <div className={"mt-4"}>
+                  <div className={"mt-4 w-[250px]"}>
                     <CategoryImage
                       imageFile={form.getValues("updateImage")}
                       imageUrl={initialData.imageFileUrl}

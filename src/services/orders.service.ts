@@ -4,9 +4,14 @@ import httpClient from "@/http-client/http-client.ts";
 import { OrderQueryDto } from "@/dto/query/order-query.dto.ts";
 import { PageData } from "@/dto/page-data/page-data.ts";
 
+export interface OrderCreateParams {
+  data: CreateOrderDto;
+  authUser: boolean;
+}
+
 class OrdersService {
-  create(data: CreateOrderDto): Promise<OrderDto> {
-    return httpClient.post("/orders", data);
+  create({ data, authUser }: OrderCreateParams): Promise<OrderDto> {
+    return httpClient.post(`/orders${!authUser ? "/no-auth" : ""}`, data);
   }
 
   getOrders(data: OrderQueryDto): Promise<PageData<OrderDto>> {

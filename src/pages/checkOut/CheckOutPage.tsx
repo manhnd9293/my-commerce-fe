@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import OrdersService from "@/services/orders.service.ts";
+import OrdersService, { OrderCreateParams } from "@/services/orders.service.ts";
 import { CreateOrderItemDto } from "@/dto/orders/create-order-item.dto.ts";
 import { useState } from "react";
 import { LoaderIcon } from "lucide-react";
@@ -59,7 +59,8 @@ function CheckOutPage() {
     error: createOrderError,
     isPending,
   } = useMutation({
-    mutationFn: OrdersService.create,
+    mutationFn: ({ data, authUser }: OrderCreateParams) =>
+      OrdersService.create({ data, authUser: authUser }),
     onSuccess: () => {
       checkOutItems.forEach(({ id }) => {
         dispatch(removeCartItem(id));
@@ -90,27 +91,48 @@ function CheckOutPage() {
   }
 
   async function handleCreateOrder() {
-    const validateDeliveryAddress = await deliveryAddressForm.trigger();
-    if (!validateDeliveryAddress) {
-      return;
+    let deliveryInfo = null;
+    if (!currentUser.id || !selectAddress) {
+      const validateDeliveryAddress = await deliveryAddressForm.trigger();
+      if (!validateDeliveryAddress) {
+        return;
+      }
+      const deliveryAddress = deliveryAddressForm.getValues();
+      deliveryInfo = {
+        customerName: deliveryAddress.customerName,
+        phone: deliveryAddress.phone,
+        province: deliveryAddress.province,
+        district: deliveryAddress.district,
+        commune: deliveryAddress.commune,
+        noAndStreet: deliveryAddress.noAndStreet,
+      };
+    } else {
+      deliveryInfo = {
+        customerName: currentUser.fullName || "",
+        phone: currentUser.phone || "",
+        province: selectAddress.province || "",
+        district: selectAddress.district || "",
+        commune: selectAddress.commune || "",
+        noAndStreet: selectAddress.noAndStreet || "",
+      };
     }
-    const deliveryAddress = deliveryAddressForm.getValues();
+
+    const orderItems = checkOutItems.map((item) => {
+      const createOrderItemDto: CreateOrderItemDto = {
+        cartItemId: instantBuy ? null : item.id!,
+        quantity: item.quantity,
+        unitPrice: item.productVariant.product!.price,
+        productVariantId: item.productVariantId,
+      };
+      return createOrderItemDto;
+    });
+
     createOrder({
-      orderItems: checkOutItems.map((item) => {
-        const createOrderItemDto: CreateOrderItemDto = {
-          cartItemId: item.id!,
-          quantity: item.quantity,
-          unitPrice: item.productVariant.product!.price,
-          productVariantId: item.productVariantId,
-        };
-        return createOrderItemDto;
-      }),
-      customerName: deliveryAddress.customerName,
-      phone: deliveryAddress.phone,
-      province: deliveryAddress.province,
-      district: deliveryAddress.district,
-      commune: deliveryAddress.commune,
-      noAndStreet: deliveryAddress.noAndStreet,
+      data: {
+        orderItems,
+        ...deliveryInfo,
+      },
+      authUser: !!currentUser.id,
     });
   }
 
