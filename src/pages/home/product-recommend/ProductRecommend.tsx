@@ -24,7 +24,7 @@ function ProductRecommend() {
     error,
   } = useQuery({
     queryKey: [QueryKey.Products, categoryId],
-    queryFn: () => productsService.getAll(productQueryDto),
+    queryFn: () => productsService.getPage(productQueryDto),
   });
 
   const {

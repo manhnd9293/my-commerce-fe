@@ -20,7 +20,7 @@ function RevenueChart({ data }: { data: DataPoint[] }) {
   return (
     <div>
       <div className={"font-medium"}>Revenue</div>
-      <ChartContainer className={"w-full h-[300px] mt-2"} config={chartConfig}>
+      <ChartContainer className={"w-full mt-2"} config={chartConfig}>
         <LineChart data={data}>
           <Line dataKey="yValue" />
           <CartesianGrid vertical={false} />

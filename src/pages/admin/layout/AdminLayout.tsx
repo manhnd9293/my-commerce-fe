@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { matchPath, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import AuthService from "@/services/auth.service.ts";
@@ -56,6 +56,7 @@ function AdminLayout() {
     queryFn: AuthService.me,
   });
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
 
   if (isError) {
     Utils.handleError(error);
@@ -89,15 +90,25 @@ function AdminLayout() {
                 <SidebarMenu>
                   {paths.map((item) => (
                     <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton asChild>
-                        <NavLink
-                          to={item.to}
-                          className={"flex items-center gap-1"}
+                      <NavLink to={item.to}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={
+                            !!matchPath(
+                              {
+                                path: `admin/${item.to}`,
+                                end: true,
+                              },
+                              pathname,
+                            )
+                          }
                         >
-                          {item.icon}
-                          <span className={"text-sm"}>{item.name}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
+                          <div className={"flex items-center gap-1"}>
+                            {item.icon}
+                            <span className={"text-sm"}>{item.name}</span>
+                          </div>
+                        </SidebarMenuButton>
+                      </NavLink>
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>

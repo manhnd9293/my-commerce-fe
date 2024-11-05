@@ -33,7 +33,7 @@ export function HeaderSearch() {
   async function getSuggestions(search: string) {
     const inputValue = search.trim().toLowerCase();
 
-    const productPage = await ProductsService.getAll({ search: inputValue });
+    const productPage = await ProductsService.getPage({ search: inputValue });
     return productPage.data;
   }
 

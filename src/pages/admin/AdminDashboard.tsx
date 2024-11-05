@@ -89,31 +89,29 @@ function AdminDashboard() {
           </div>
 
           <div className={"mt-4 grid grid-cols-3 gap-2 items-start"}>
-            <div className={"bg-card p-4 rounded-xl shadow-md"}>
+            <div className={"bg-card p-4 rounded-xl shadow-md aspect-[3/2]"}>
               <RevenueChart key={"xValue"} data={dashBoardData.revenueChart} />
             </div>
 
-            <div className={"bg-card p-4 rounded-xl shadow-md"}>
+            <div className={"bg-card p-4 rounded-xl shadow-md aspect-[3/2]"}>
               <OrderChart data={dashBoardData.orderChart} />
             </div>
 
             <div
-              className={
-                "bg-card p-4 rounded-xl shadow-md flex flex-col gap-2 truncate"
-              }
+              className={"bg-card p-4 rounded-xl shadow-md flex flex-col gap-2"}
             >
-              <div className={"font-medium"}>Top selling products</div>
+              <div className={"font-medium mb-2"}>Top selling products</div>
               {dashBoardData.topSellProduct.map((p) => {
                 return (
                   <div key={p.productVariant.id} className={"flex gap-2"}>
                     <img
                       className={
-                        "size-10 object-cover object-center rounded shadow-md"
+                        "size-12 object-cover object-center rounded shadow-md"
                       }
                       src={p.productVariant.product?.thumbnailUrl}
                       alt={`product-${p.productVariant.product?.name}`}
                     />
-                    <div>
+                    <div className={"flex-1 truncate"}>
                       <div>{p.saleQuantity}</div>
                       <div className={"text-sm mt-1"}>
                         {p.productVariant.product?.name}
