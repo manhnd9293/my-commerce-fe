@@ -39,7 +39,6 @@ function AdminOrderPage() {
 
   useEffect(() => {
     const { page, search, order, sortBy, pageSize } = queryData;
-    console.log({ queryData });
     const queryObject = {};
     search && Object.assign(queryObject, { search });
     order && Object.assign(queryObject, { order });

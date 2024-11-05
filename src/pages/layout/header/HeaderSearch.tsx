@@ -33,7 +33,7 @@ export function HeaderSearch() {
   async function getSuggestions(search: string) {
     const inputValue = search.trim().toLowerCase();
 
-    const productPage = await ProductsService.getAll({ search: inputValue });
+    const productPage = await ProductsService.getPage({ search: inputValue });
     return productPage.data;
   }
 
@@ -97,7 +97,17 @@ export function HeaderSearch() {
               }
               key={"suggestion-container"}
             >
-              {children}
+              {loading && (
+                <div
+                  className={
+                    "hover:bg-sky-500 hover:text-white cursor-pointer truncate h-10 flex items-center gap-2 p-2"
+                  }
+                >
+                  <MagnifyingGlassIcon className={"size-5"} />
+                  <span>Searching for "{value}"</span>
+                </div>
+              )}
+              {!loading && children}
               {!clearRequest && suggestions.length === 0 && (
                 <div className={"truncate h-10 flex items-center gap-2 p-2"}>
                   No result match !
