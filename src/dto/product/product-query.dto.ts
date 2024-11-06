@@ -1,5 +1,5 @@
-export interface ProductQueryDto {
-  categoryId?: number;
+import { BaseQueryDto } from "@/dto/query/base-query.dto.ts";
 
-  search?: string;
+export class ProductQueryDto extends BaseQueryDto {
+  categoryId?: number;
 }
