@@ -22,7 +22,7 @@ function RevenueChart({ data }: { data: DataPoint[] }) {
       <div className={"font-medium"}>Revenue</div>
       <ChartContainer className={"w-full mt-2"} config={chartConfig}>
         <LineChart data={data}>
-          <Line dataKey="yValue" />
+          <Line type={"monotone"} stroke="#8884d8" dataKey="yValue" />
           <CartesianGrid vertical={false} />
           <XAxis tickLine={false} />
           <YAxis></YAxis>

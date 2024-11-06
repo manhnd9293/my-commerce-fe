@@ -8,13 +8,13 @@ import { RoutePath } from "@/router/RoutePath.ts";
 import categoriesService from "@/services/categories.service.ts";
 import { useState } from "react";
 import { ProductQueryDto } from "@/dto/product/product-query.dto.ts";
-import { Product } from "@/dto/product/product.ts";
 import ProductCard from "@/pages/common/ProductCard.tsx";
 
 function ProductRecommend() {
   const [categoryId, setCategoryId] = useState<number>();
   const productQueryDto: ProductQueryDto = {
     categoryId,
+    pageSize: 20,
   };
 
   const {

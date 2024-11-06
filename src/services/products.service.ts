@@ -25,9 +25,11 @@ class ProductsService {
 
   getPage(productQueryDto: ProductQueryDto): Promise<PageData<Product>> {
     let queryString = "";
-    const { categoryId, search } = productQueryDto;
+    const { categoryId, search, page, pageSize } = productQueryDto;
     if (categoryId) queryString += `categoryId=${categoryId}`;
     if (search) queryString += `search=${search}`;
+    if (page) queryString += `page=${page}`;
+    if (pageSize) queryString += `pageSize=${pageSize}`;
     return httpClient.get(`/products?${queryString}`);
   }
 

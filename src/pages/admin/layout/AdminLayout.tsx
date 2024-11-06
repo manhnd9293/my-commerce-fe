@@ -97,7 +97,7 @@ function AdminLayout() {
                             !!matchPath(
                               {
                                 path: `admin/${item.to}`,
-                                end: true,
+                                end: !item.to,
                               },
                               pathname,
                             )
