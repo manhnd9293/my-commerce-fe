@@ -2,16 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import productsService from "@/services/products.service.ts";
 import Utils from "@/utils/utils.ts";
-import { Card } from "@/components/ui/card.tsx";
 import { useNavigate } from "react-router-dom";
 import { RoutePath } from "@/router/RoutePath.ts";
-import categoriesService from "@/services/categories.service.ts";
-import { useState } from "react";
 import { ProductQueryDto } from "@/dto/product/product-query.dto.ts";
 import ProductCard from "@/pages/common/ProductCard.tsx";
 
-function ProductRecommend() {
-  const [categoryId, setCategoryId] = useState<number>();
+interface ProductRecommendProps {
+  categoryId: number | string | undefined;
+}
+
+function ProductRecommend({ categoryId }: ProductRecommendProps) {
   const productQueryDto: ProductQueryDto = {
     categoryId,
     pageSize: 20,
@@ -27,16 +27,6 @@ function ProductRecommend() {
     queryFn: () => productsService.getPage(productQueryDto),
   });
 
-  const {
-    data: categoryList,
-    isLoading: isLoadingCategory,
-    isError: isErrorCategory,
-    error: errorCategory,
-  } = useQuery({
-    queryKey: [QueryKey.Categories],
-    queryFn: categoriesService.getAll,
-  });
-
   const navigate = useNavigate();
 
   if (isError) {
@@ -49,24 +39,6 @@ function ProductRecommend() {
 
   return (
     <div className={"mt-4"}>
-      <div className={"grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-4 mt-4"}>
-        {categoryList &&
-          categoryList.map((category) => (
-            <Card
-              className={"text-center cursor-pointer p-2"}
-              onClick={() => setCategoryId(category.id!)}
-              key={category.id!}
-            >
-              <div
-                className={"flex flex-col items-center justify-center gap-1"}
-              >
-                <img src={category.imageFileUrl!} className={"size-10"} />
-                <span className={"font-semibold"}>{category.name}</span>
-              </div>
-            </Card>
-          ))}
-      </div>
-
       <div className={"text-lg font-bold  mt-4"}>Recommend for you</div>
       <div className={"grid  grid-cols-2 gap-2 md:grid-cols-5 md:gap-4 mt-4"}>
         {pageProduct &&

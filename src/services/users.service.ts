@@ -34,7 +34,7 @@ class UsersService {
   }
 
   getPurchaseHistory(queryData: BaseQueryDto): Promise<PageData<OrderItem>> {
-    const queryParamsString = Utils.getQueryParams(queryData);
+    const queryParamsString = Utils.getQueryString(queryData);
     return httpClient.get(`/users/my-purchase?${queryParamsString}`);
   }
 

@@ -7,7 +7,8 @@ import {
 } from "@/components/ui/carousel.tsx";
 import Autoplay from "embla-carousel-autoplay";
 import ProductRecommend from "@/pages/home/product-recommend/ProductRecommend.tsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import CategoryListHome from "@/pages/home/CategoryListHome.tsx";
 
 const carouselImages = [
   "https://cf.shopee.vn/file/vn-11134258-7ras8-m1zex3slvicb3e_xxhdpi",
@@ -17,6 +18,8 @@ const carouselImages = [
 ];
 
 function Home() {
+  const [categoryId, setCategoryId] = useState<number | string>();
+
   useEffect(() => {
     document.title = "My commerce";
   }, []);
@@ -46,8 +49,8 @@ function Home() {
       </Carousel>
 
       <div className={"text-lg font-bold mt-4"}>Categories</div>
-
-      <ProductRecommend />
+      <CategoryListHome onSelectCategory={setCategoryId} />
+      <ProductRecommend categoryId={categoryId} />
     </div>
   );
 }
