@@ -60,15 +60,13 @@ const Utils = {
     return new Intl.NumberFormat().format(n);
   },
 
-  getQueryParams(query: BaseQueryDto) {
-    const { pageSize, page, search, order, sortBy } = query;
+  getQueryString(query: BaseQueryDto) {
     const queryArray = [];
-    search && queryArray.push(`search=${search}`);
-    page && queryArray.push(`page=${page}`);
-    pageSize && queryArray.push(`pageSize=${pageSize}`);
-    order && queryArray.push(`order=${order}`);
-    sortBy && queryArray.push(`sortBy=${sortBy}`);
-
+    for (const key of Object.keys(query)) {
+      // @ts-ignore
+      const queryValue = query[key];
+      queryValue && queryArray.push(`${key}=${queryValue}`);
+    }
     return queryArray.join("&");
   },
 };
