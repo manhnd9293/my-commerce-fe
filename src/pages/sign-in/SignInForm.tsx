@@ -17,6 +17,7 @@ import { useDispatch } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
 import AuthService from "@/services/auth.service.ts";
 import { signIn } from "@/store/user/userSlice.ts";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   email: z.string().min(1),
@@ -48,10 +49,35 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
     },
   });
 
+  useEffect(() => {
+    if ((window as any).google) {
+      (window as any).google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        callback: async (res: any) => {
+          const data = await AuthService.googleSignIn(res.credential);
+          // @ts-ignore
+          const accessToken = data["accessToken"] as string;
+          localStorage.setItem("accessToken", accessToken);
+          dispatch(signIn(data));
+          onSuccess && onSuccess();
+        },
+      });
+
+      const parent = document.getElementById("google_btn");
+
+      (window as any).google.accounts.id.renderButton(parent, {
+        theme: "outline",
+        text: "Login with google",
+        size: "large",
+      });
+    }
+  }, []);
+
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     mutate(values);
   }
+
   return (
     <>
       <FormProvider {...form}>
@@ -113,6 +139,16 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
           </div>
         </form>
       </FormProvider>
+      <div className={"mt-4 flex items-center gap-4"}>
+        <div className={"h-[1px] flex-1 bg-gray-200"} />
+        <div className={" text-sm"}>
+          <span>OR CONTINUE WITH</span>
+        </div>
+        <div className={"h-[1px] flex-1 bg-gray-200"} />
+      </div>
+      <div className={"mt-4"}>
+        <div id="google_btn" />
+      </div>
       <Separator className={"my-4"} />
       <div className={"text-center"}>
         <div>
