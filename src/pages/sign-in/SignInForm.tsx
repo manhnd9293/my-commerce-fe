@@ -146,7 +146,7 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
         </div>
         <div className={"h-[1px] flex-1 bg-gray-200"} />
       </div>
-      <div className={"mt-4"}>
+      <div className={"mt-4 flex justify-center"}>
         <div id="google_btn" />
       </div>
       <Separator className={"my-4"} />
