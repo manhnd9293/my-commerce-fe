@@ -7,6 +7,10 @@ class AuthService {
     return httpClient.post("/auth/sign-in", signInDto);
   }
 
+  googleSignIn(googleToken: string): Promise<UserDto> {
+    return httpClient.post("/auth/google-sign-in", { googleToken });
+  }
+
   signUp(signInDto: SignInDto) {
     return httpClient.post("/users", signInDto);
   }
