@@ -6,13 +6,27 @@ import AnalyticsService from "@/services/analytics.service.ts";
 import Utils from "@/utils/utils.ts";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import RevenueChart from "@/pages/admin/dashboard/RevenueChart.tsx";
+import { Label } from "@/components/ui/label.tsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select.tsx";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs.tsx";
 import OrderChart from "@/pages/admin/dashboard/OrderChart.tsx";
 
 function AdminDashboard() {
   const [period, setPeriod] = useState<DashboardPeriod>(DashboardPeriod.Day);
 
   const { data: dashBoardData, isLoading } = useQuery({
-    queryKey: ["Dashboard"],
+    queryKey: ["Dashboard", { period }],
     queryFn: () => AnalyticsService.getDashboardData({ period }),
   });
 
@@ -24,9 +38,26 @@ function AdminDashboard() {
       <PageTitle>Dashboard</PageTitle>
       {dashBoardData && (
         <div className={"mt-4"}>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="period">Period</Label>
+            <Select
+              value={period}
+              onValueChange={(v) => setPeriod(v)}
+              defaultValue={"day"}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Today</SelectItem>
+                <SelectItem value="month">Current Month</SelectItem>
+                <SelectItem value="year">Current Year</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div
             className={
-              "grid grid-cols-4 w-full gap-4 items-center justify-center"
+              "mt-4 grid grid-cols-4 w-full gap-4 items-center justify-center"
             }
           >
             <div className={"shadow-md p-4 rounded-xl bg-card"}>
@@ -41,7 +72,7 @@ function AdminDashboard() {
                   )}
                 </div>
               </div>
-              <div className={"mt-8"}>
+              <div className={"mt-8 font-bold text-lg"}>
                 {Utils.getMoneyNumber(dashBoardData.totalRevenue)}
               </div>
               <div>
@@ -62,7 +93,9 @@ function AdminDashboard() {
                   )}
                 </div>
               </div>
-              <div className={"mt-8"}>{dashBoardData.totalOrder}</div>
+              <div className={"mt-8 font-bold text-lg"}>
+                {dashBoardData.totalOrder}
+              </div>
               <div>
                 <span>Change: </span>
                 {dashBoardData.orderChange}
@@ -70,8 +103,20 @@ function AdminDashboard() {
             </div>
 
             <div className={"shadow-md p-4 rounded-xl bg-card"}>
-              <div className={"font-semibold"}>New Customers</div>
-              <div className={"mt-8"}>{dashBoardData.newCustomer}</div>
+              <div className={"flex justify-between"}>
+                <div className={"font-semibold"}>New Customers</div>
+                <div>
+                  {dashBoardData.customerChange > 0 && (
+                    <ArrowUp className={"text-green-500"} />
+                  )}
+                  {dashBoardData.customerChange < 0 && (
+                    <ArrowDown className={"text-red-500"} />
+                  )}
+                </div>
+              </div>
+              <div className={"mt-8 font-bold text-lg"}>
+                {dashBoardData.newCustomer}
+              </div>
               <div>
                 <span>Change: </span>
                 {dashBoardData.customerChange}
@@ -79,8 +124,20 @@ function AdminDashboard() {
             </div>
 
             <div className={"shadow-md p-4 rounded-xl bg-card card"}>
-              <div className={"font-semibold"}>Product Sold</div>
-              <div className={"mt-8"}>{dashBoardData.productSold}</div>
+              <div className={"flex justify-between"}>
+                <div className={"font-semibold"}>Product Sold</div>
+                <div>
+                  {dashBoardData.productSoldChange > 0 && (
+                    <ArrowUp className={"text-green-500"} />
+                  )}
+                  {dashBoardData.productSoldChange < 0 && (
+                    <ArrowDown className={"text-red-500"} />
+                  )}
+                </div>
+              </div>
+              <div className={"mt-8 font-bold text-lg"}>
+                {dashBoardData.productSold}
+              </div>
               <div>
                 <span>Change: </span>
                 {dashBoardData.productSoldChange}
@@ -89,12 +146,22 @@ function AdminDashboard() {
           </div>
 
           <div className={"mt-4 grid grid-cols-3 gap-2 items-start"}>
-            <div className={"bg-card p-4 rounded-xl shadow-md aspect-[3/2]"}>
-              <RevenueChart key={"xValue"} data={dashBoardData.revenueChart} />
-            </div>
-
-            <div className={"bg-card p-4 rounded-xl shadow-md aspect-[3/2]"}>
-              <OrderChart data={dashBoardData.orderChart} />
+            <div className={"bg-card col-span-2 p-4 rounded-xl shadow-md "}>
+              <Tabs defaultValue="revenue">
+                <TabsList>
+                  <TabsTrigger value="revenue">Revenue</TabsTrigger>
+                  <TabsTrigger value="order">Order</TabsTrigger>
+                </TabsList>
+                <TabsContent value="revenue">
+                  <RevenueChart
+                    period={period}
+                    data={dashBoardData.revenueChart}
+                  />
+                </TabsContent>
+                <TabsContent value="order">
+                  <OrderChart data={dashBoardData.orderChart} />
+                </TabsContent>
+              </Tabs>
             </div>
 
             <div

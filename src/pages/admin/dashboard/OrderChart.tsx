@@ -24,8 +24,12 @@ function OrderChart({ data }: { data: DataPoint[] }) {
         <LineChart data={data}>
           <Line dataKey="yValue" />
           <CartesianGrid vertical={false} />
-          <XAxis tickLine={false} />
-          <YAxis></YAxis>
+          <XAxis tickLine={false} dataKey={"xValue"} />
+          <YAxis
+            allowDataOverflow={false}
+            domain={[0, Math.max(...data.map((d) => d?.yValue))]}
+            name={"No Orders"}
+          />
           <ChartTooltip content={<ChartTooltipContent />} />
           <ChartLegend content={<ChartLegendContent />} />
         </LineChart>
