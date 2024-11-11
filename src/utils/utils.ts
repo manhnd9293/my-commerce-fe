@@ -3,6 +3,10 @@ import Notification from "@/utils/notification.tsx";
 import { RoutePath } from "@/router/RoutePath.ts";
 import { router } from "@/router/router.tsx";
 import { BaseQueryDto } from "@/dto/query/base-query.dto.ts";
+import {
+  DashboardPeriod,
+  DetailPeriod,
+} from "@/dto/analytic/dashboard/dashboard-query.dto.ts";
 
 const Utils = {
   getErrorMessage(error: Error) {
@@ -68,6 +72,17 @@ const Utils = {
       queryValue && queryArray.push(`${key}=${queryValue}`);
     }
     return queryArray.join("&");
+  },
+
+  getDetailPeriod(period: DashboardPeriod): DetailPeriod {
+    const record: Record<DashboardPeriod, DetailPeriod> = {
+      [DashboardPeriod.Month]: "DAY",
+      [DashboardPeriod.Year]: "MONTH",
+      [DashboardPeriod.Day]: "HOUR",
+      [DashboardPeriod.Week]: "DAY OF WEEK",
+    };
+
+    return record[period];
   },
 };
 
