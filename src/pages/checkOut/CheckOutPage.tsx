@@ -148,11 +148,13 @@ function CheckOutPage() {
           <div className={"bg-white p-4 rounded-xl border"}>
             <div className={"flex gap-4 items-center"}>
               <span className={"text-lg font-semibold"}>Delivery Address</span>
-              {currentUser.id && (
-                <Button variant={"outline"} size={"sm"}>
-                  Change
-                </Button>
-              )}
+              {currentUser.id &&
+                currentUser.addresses &&
+                currentUser.addresses.length > 1 && (
+                  <Button variant={"outline"} size={"sm"}>
+                    Change
+                  </Button>
+                )}
             </div>
             {selectAddress && (
               <div className={"mt-4"}>
@@ -162,7 +164,7 @@ function CheckOutPage() {
                 >{`${selectAddress.noAndStreet}, ${selectAddress.commune}, ${selectAddress.district}, ${selectAddress.province}`}</div>
               </div>
             )}
-            {!currentUser.id && (
+            {(!currentUser.id || currentUser.addresses?.length === 0) && (
               <div className={"mt-4"}>
                 <DeliveryAddressForm form={deliveryAddressForm} />
               </div>
