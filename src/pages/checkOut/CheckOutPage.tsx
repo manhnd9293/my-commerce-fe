@@ -11,12 +11,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button.tsx";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import OrdersService, { OrderCreateParams } from "@/services/orders.service.ts";
 import { CreateOrderItemDto } from "@/dto/orders/create-order-item.dto.ts";
 import { useState } from "react";
-import { LoaderIcon } from "lucide-react";
+import {
+  CheckIcon,
+  CircleCheck,
+  CircleCheckBig,
+  LoaderIcon,
+} from "lucide-react";
 import { removeCartItem, UserState } from "@/store/user/userSlice.ts";
 import { RootState } from "@/store";
 import {
@@ -26,6 +31,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import confetti from "@/common/assets/cf.jpg";
 
 function CheckOutPage() {
   const currentUser: UserState = useSelector((state: RootState) => state.user);
@@ -78,7 +84,31 @@ function CheckOutPage() {
   }, 0);
 
   if (done) {
-    return <div>Your order have been created</div>;
+    return (
+      <div className={"bg-card shadow-md p-4 rounded w-1/2 mx-auto"}>
+        <div className={`flex justify-center items-center bg-white relative`}>
+          <img src={confetti} className={"w-2/3 object-center object-cover"} />
+          <CheckIcon
+            className={
+              "bg-green-600 text-white size-12 rounded-full absolute top-1/3 "
+            }
+          />
+        </div>
+        <div className={"font-bold text-xl text-center mt-4"}>
+          Thank you for ordering!
+        </div>
+        <div className={"text-center mt-4 text-gray-500"}>
+          Your order has been created successfully
+        </div>
+        <div className={"mt-4 text-center"}>
+          <Link to={"/"}>
+            <Button className={"bg-amber-600 hover:bg-amber-500"}>
+              Continue Shopping
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if (isCreateOrderError) {
