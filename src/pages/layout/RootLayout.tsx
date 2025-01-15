@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import AppLoading from "@/components/layout/AppLoading.tsx";
 import { signIn } from "@/store/user/userSlice.ts";
 import Footer from "@/pages/layout/footer/Footer.tsx";
+import ChatWidget from "@/pages/layout/components/ChatWidget.tsx";
 
 function RootLayout() {
   const { data, isLoading, isError, error } = useQuery({
@@ -35,6 +36,7 @@ function RootLayout() {
         }
       >
         <Outlet />
+        <ChatWidget />
       </div>
       <Footer />
     </div>
