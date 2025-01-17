@@ -2,16 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Paperclip, SendHorizonal, XIcon } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
 import { io } from "socket.io-client";
+import { useSelector } from "react-redux";
+import { UserState } from "@/store/user/userSlice.ts";
+import { RootState } from "@/store";
 
 function ChatWidget() {
   const [showChatBox, setShowChatBox] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const chatInputRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState([]);
+  const currentUser: UserState = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     const serverUrl = import.meta.env.VITE_SERVER_URL;
-    const socket = io(serverUrl, { autoConnect: false });
+    const accessToken = localStorage.getItem("accessToken");
+    const socket = io(serverUrl, {
+      autoConnect: false,
+      withCredentials: true,
+      auth: {
+        Authorization: accessToken,
+      },
+    });
     if (showChatBox) {
       socket.connect();
       socket.on("connect", () => {
@@ -41,7 +52,7 @@ function ChatWidget() {
     return (
       <div
         className={
-          "bg-amber-500 w-[50px] h-[50px] rounded-full fixed bottom-5 right-12 flex justify-center items-center text-white cursor-pointer animate-wiggle"
+          "bg-amber-600 hover:bg-amber-500 w-[50px] h-[50px] rounded-full fixed bottom-5 right-12 flex justify-center items-center text-white cursor-pointer animate-wiggle shadow-md"
         }
         onClick={() => setShowChatBox(true)}
       >
