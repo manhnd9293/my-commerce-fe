@@ -14,6 +14,4 @@ export interface OrderItem extends BaseDto {
   orderId: number;
 
   order: OrderDto;
-
-  state:
 }

@@ -24,6 +24,7 @@ import PurchaseHistoryPage from "@/pages/my-account/account-sub-page/PurchaseHis
 import AddressPage from "@/pages/my-account/account-sub-page/address/AddressPage.tsx";
 import UserPaymentPage from "@/pages/my-account/account-sub-page/UserPaymentPage.tsx";
 import AdminDashboard from "@/pages/admin/AdminDashboard.tsx";
+import CustomerSupportChat from "@/pages/admin/admin-chat/CustomerSupportChat.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -86,6 +87,15 @@ export const router = createBrowserRouter([
           {
             path: ":id",
             element: <OrderDetail />,
+          },
+        ],
+      },
+      {
+        path: "chat",
+        children: [
+          {
+            index: true,
+            element: <CustomerSupportChat />,
           },
         ],
       },
