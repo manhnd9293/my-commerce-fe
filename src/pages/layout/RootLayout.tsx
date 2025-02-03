@@ -7,23 +7,59 @@ import { useDispatch } from "react-redux";
 import AppLoading from "@/components/layout/AppLoading.tsx";
 import { signIn } from "@/store/user/userSlice.ts";
 import Footer from "@/pages/layout/footer/Footer.tsx";
+import ChatWidget from "@/pages/layout/components/chat-widget/ChatWidget.tsx";
+import { io } from "socket.io-client";
+import { useEffect } from "react";
+
+console.debug(
+  `create socket connection, access token = ${localStorage.getItem("accessToken")}`,
+);
+export const socket = io(import.meta.env.VITE_SOCKET_URL, {
+  autoConnect: false,
+  withCredentials: true,
+  auth: {
+    Authorization: localStorage.getItem("accessToken"),
+  },
+});
 
 function RootLayout() {
-  const { data, isLoading, isError, error } = useQuery({
+  const dispatch = useDispatch();
+
+  const { data: currentUserData, isLoading } = useQuery({
     queryKey: [QueryKey.Me],
     queryFn: AuthService.me,
     retry: false,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
   });
-  const dispatch = useDispatch();
+  const isAuth = !!currentUserData?.id;
+
+  useEffect(() => {
+    console.debug({ isAuth });
+    if (!isAuth) {
+      return;
+    }
+    socket.auth = {
+      Authorization: localStorage.getItem("accessToken"),
+    };
+    socket.connect();
+    console.debug("connect socket");
+
+    return () => {
+      if (!isAuth) {
+        return;
+      }
+      console.debug("disconnect socket");
+      socket.disconnect();
+    };
+  }, [isAuth]);
 
   if (isLoading) {
     return <AppLoading />;
   }
 
-  if (data) {
-    dispatch(signIn(data));
+  if (currentUserData) {
+    dispatch(signIn(currentUserData));
   }
 
   return (
@@ -35,6 +71,7 @@ function RootLayout() {
         }
       >
         <Outlet />
+        {currentUserData && <ChatWidget />}
       </div>
       <Footer />
     </div>

@@ -8,6 +8,7 @@ import { signIn } from "@/store/user/userSlice.ts";
 import AppLoading from "@/components/layout/AppLoading.tsx";
 import {
   LayoutDashboard,
+  MessageCircle,
   Package,
   Shapes,
   ShoppingCartIcon,
@@ -26,6 +27,8 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar.tsx";
 import AdminUserDropdown from "@/pages/layout/header/AdminUserDropdown.tsx";
+import { io } from "socket.io-client";
+import { useEffect } from "react";
 
 const paths = [
   {
@@ -48,7 +51,20 @@ const paths = [
     name: "Orders",
     icon: <ShoppingCartIcon />,
   },
+  {
+    to: "chat",
+    name: "Chat",
+    icon: <MessageCircle />,
+  },
 ];
+
+export const adminSocket = io(import.meta.env.VITE_SOCKET_URL, {
+  autoConnect: false,
+  withCredentials: true,
+  auth: {
+    Authorization: localStorage.getItem("accessToken"),
+  },
+});
 
 function AdminLayout() {
   const { data, isLoading, isError, error } = useQuery({
@@ -57,6 +73,18 @@ function AdminLayout() {
   });
   const dispatch = useDispatch();
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    adminSocket.auth = {
+      Authorization: localStorage.getItem("accessToken"),
+    };
+    adminSocket.connect();
+    console.debug("connect adminSocket");
+    return () => {
+      adminSocket.disconnect();
+      console.debug("disconnect adminSocket");
+    };
+  }, []);
 
   if (isError) {
     Utils.handleError(error);

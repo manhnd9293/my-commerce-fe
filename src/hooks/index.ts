@@ -16,29 +16,31 @@ export function useQueryState(initialValue?: BaseQueryDto) {
       search: searchParams.get("search"),
       order: searchParams.get("order"),
       sortBy: searchParams.get("sortBy"),
-      page: Number(searchParams.get("page") || 1),
-      pageSize: Number(searchParams.get("pageSize")) || 10,
+      page: Number(searchParams.get("page")),
+      pageSize: Number(searchParams.get("pageSize")),
     },
   );
 
   useEffect(() => {
+    //synchronize query data state with query params
     const { page, search, order, sortBy, pageSize } = queryData;
     const queryObject = {};
     search && Object.assign(queryObject, { search });
     order && Object.assign(queryObject, { order });
     sortBy && Object.assign(queryObject, { sortBy });
-    page && Object.assign(queryObject, { page: String(page) });
-    pageSize !== undefined &&
-      Object.assign(queryObject, { pageSize: String(pageSize) });
+    Object.assign(queryObject, { page: String(page || 1) });
+    Object.assign(queryObject, { pageSize: String(pageSize || 10) });
     setSearchParams(queryObject);
   }, [queryData]);
 
   useEffect(() => {
+    //synchronize query params with query state
+
     const queryObject = {
       search: searchParams.get("search"),
       order: searchParams.get("order"),
       sortBy: searchParams.get("sortBy"),
-      page: Number(searchParams.get("page") || 1),
+      page: Number(searchParams.get("page")) || 1,
       pageSize: Number(searchParams.get("pageSize")) || 10,
     };
 
@@ -56,13 +58,5 @@ export function useQueryState(initialValue?: BaseQueryDto) {
     setQueryData(structuredClone(assign));
   }
 
-  function onSearch(searchKey: string) {
-    const updateQuery = Object.assign(queryData, {
-      search: searchKey,
-      page: 1,
-    });
-    setQueryData(structuredClone(updateQuery));
-  }
-
-  return { queryData, setQueryData, onChangePage, onSearch };
+  return { queryData, setQueryData, onChangePage };
 }

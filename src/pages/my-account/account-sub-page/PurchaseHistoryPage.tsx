@@ -17,10 +17,7 @@ import { useState } from "react";
 import { PaginationGroup } from "@/components/common/PaginationGroup.tsx";
 
 function PurchaseHistoryPage() {
-  const { queryData, setQueryData, onChangePage, onSearch } = useQueryState();
-  const [searchInput, setSearchInput] = useState<string>(
-    queryData.search || "",
-  );
+  const { queryData, onChangePage, setQueryData } = useQueryState();
 
   const { data: orderItemPage, isLoading } = useQuery({
     queryKey: [QueryKey.MyPurchase, queryData],
@@ -28,15 +25,23 @@ function PurchaseHistoryPage() {
     placeholderData: keepPreviousData,
   });
 
-  if (isLoading) {
-    return "Loading purchase history ...";
-  }
+  const [searchInput, setSearchInput] = useState<string>(
+    queryData.search || "",
+  );
 
-  function handleSearchPurchase(e) {
-    if (e.key !== "Enter") {
+  function handleSearchPurchase(event) {
+    if (event.key !== "Enter") {
       return;
     }
-    onSearch(searchInput);
+    const updateQuery = Object.assign(queryData, {
+      search: searchInput,
+      page: 1,
+    });
+    setQueryData(structuredClone(updateQuery));
+  }
+
+  if (isLoading) {
+    return "Loading purchase history ...";
   }
 
   return (
@@ -101,7 +106,7 @@ function PurchaseHistoryPage() {
 
       <div className={"mt-4"}>
         <PaginationGroup
-          currentPage={queryData.page}
+          currentPage={queryData.page || 1}
           onChangePage={onChangePage}
           pageData={orderItemPage}
         />

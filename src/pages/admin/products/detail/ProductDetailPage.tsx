@@ -30,7 +30,6 @@ import { useDispatch } from "react-redux";
 import { addCartItem, updateInstantBuy } from "@/store/user/userSlice.ts";
 import { Product } from "@/dto/product/product.ts";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
-import { Card } from "@/components/ui/card.tsx";
 import { RoutePath } from "@/router/RoutePath.ts";
 import utils from "@/utils/utils.ts";
 import { useAppSelector } from "@/hooks";
