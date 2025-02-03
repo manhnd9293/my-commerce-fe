@@ -58,7 +58,7 @@ const paths = [
   },
 ];
 
-export const adminSocket = io(import.meta.env.VITE_SERVER_URL, {
+export const adminSocket = io(import.meta.env.VITE_SOCKET_URL, {
   autoConnect: false,
   withCredentials: true,
   auth: {

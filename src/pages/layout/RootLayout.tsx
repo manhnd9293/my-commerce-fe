@@ -14,7 +14,7 @@ import { useEffect } from "react";
 console.debug(
   `create socket connection, access token = ${localStorage.getItem("accessToken")}`,
 );
-export const socket = io(import.meta.env.VITE_SERVER_URL, {
+export const socket = io(import.meta.env.VITE_SOCKET_URL, {
   autoConnect: false,
   withCredentials: true,
   auth: {
