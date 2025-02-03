@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CategoriesService from "@/services/categories.service.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import CategoryForm from "@/pages/admin/categories/components/CategoryForm.tsx";
-import { Category } from "@/dto/category/category.ts";
 import PageTitle from "@/pages/common/PageTitle.tsx";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import notification from "@/utils/notification.tsx";
@@ -55,7 +54,7 @@ export function UpdateCategoryPage() {
       {data && (
         <CategoryForm
           initialData={data}
-          mutate={mutate}
+          onSubmit={mutate}
           isPending={isPending}
         />
       )}
