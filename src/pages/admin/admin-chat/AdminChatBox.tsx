@@ -75,6 +75,7 @@ export function AdminChatBox({
     const lastMessageDomNode: ChildNode | null | undefined =
       messageContainerDomNode?.lastChild;
     lastMessageDomNode &&
+      // @ts-ignore
       lastMessageDomNode.scrollIntoView({
         block: "start",
       });
@@ -95,6 +96,7 @@ export function AdminChatBox({
           setRealTimeMessages((messages) => [...messages, data]);
         });
 
+        // @ts-ignore
         messageContainerRef.current!.lastChild!.scrollIntoView({
           block: "start",
         });
@@ -196,7 +198,9 @@ export function AdminChatBox({
           className={
             "size-10 bg-amber-500 text-white font-semibold rounded-full flex justify-center items-center disabled:bg-gray-200"
           }
-          disabled={status !== ConversationStatus.OnGoing}
+          disabled={
+            status !== ConversationStatus.OnGoing || chatInput.length === 0
+          }
         >
           <SendHorizonal className={"size-5 rounded-full"} />
         </button>

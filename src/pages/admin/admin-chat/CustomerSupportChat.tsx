@@ -38,7 +38,7 @@ function CustomerSupportChat() {
   );
   const queryClient = useQueryClient();
 
-  const { data: conversations } = useQuery({
+  const { data: conversations, isLoading } = useQuery({
     queryKey: ["conversations", currentStateFilter],
     queryFn: () =>
       conversationsService.getConversations({ status: currentStateFilter }),
@@ -109,7 +109,14 @@ function CustomerSupportChat() {
               "bg-white flex flex-col w-full max-h-full overflow-y-auto"
             }
           >
+            {isLoading && (
+              <div className={"p-4"}>Loading conversations ...</div>
+            )}
+            {conversations && conversations.length === 0 && (
+              <div className={"p-4"}>Conversations is currently empty</div>
+            )}
             {conversations &&
+              conversations.length > 0 &&
               conversations.map((con) => {
                 const latestMessages =
                   con.messages && con.messages.length > 0
@@ -132,8 +139,8 @@ function CustomerSupportChat() {
                   >
                     <div className={"size-10 rounded-full"}>
                       <Avatar>
-                        <AvatarImage src={clientAvatarUrl} />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarImage src={clientAvatarUrl || ""} />
+                        <AvatarFallback>A</AvatarFallback>
                       </Avatar>
                     </div>
                     <div className={"flex flex-col gap-2"}>

@@ -17,6 +17,7 @@ class ConversationsService {
 
   getConversations(query: QueryConversationDto): Promise<ConversationDto[]> {
     const queryString = Object.keys(query)
+      // @ts-ignore
       .map((key) => `${key}=${query[key]}`)
       .join("&");
     return httpClient.get(`/conversations?${queryString}`);
@@ -35,6 +36,13 @@ class ConversationsService {
     data: UpdateConversationStatusDto,
   ): Promise<ConversationDto> {
     return httpClient.patch(`/conversations/${id}/status`, data);
+  }
+
+  createConversation(data: { subject: string; message: string }) {
+    return httpClient.post("/conversations", {
+      subject: data.subject,
+      message: data.message,
+    });
   }
 }
 
