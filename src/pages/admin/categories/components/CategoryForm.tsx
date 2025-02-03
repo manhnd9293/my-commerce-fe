@@ -14,42 +14,35 @@ import { Link } from "react-router-dom";
 import { Category } from "@/dto/category/category.ts";
 import { XIcon } from "lucide-react";
 
-const formSchema = z.object({
-  name: z.string().min(1),
-  updateImage: z.instanceof(File).optional(),
-  currentImage: z
-    .object({
-      id: z.number(),
-      assetId: z.number(),
-      asset: z.object({
-        id: z.number(),
-        preSignUrl: z.string().optional(),
-      }),
-    })
-    .optional(),
-  id: z.number().nullable(),
-});
+export const categoryFormSchema = z
+  .object({
+    name: z.string().min(1),
+    updateImage: z.instanceof(File).optional(),
+    currentImageUrl: z.string().nullable().optional(),
+    id: z.number().or(z.string()).nullable().optional(),
+  })
+  .refine((val) => val.currentImageUrl || val.updateImage, {
+    message: "Category image is required",
+    path: ["updateImage"],
+  });
 
 function CategoryForm({
   initialData,
-  mutate,
+  onSubmit,
   isPending,
 }: {
-  initialData: Category;
-  mutate: any;
+  initialData?: Category;
+  onSubmit: (values: z.infer<typeof categoryFormSchema>) => void;
   isPending: boolean;
 }) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof categoryFormSchema>>({
+    resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: initialData ? initialData.name : "",
+      currentImageUrl: initialData ? initialData.imageFileUrl : null,
       id: initialData ? initialData.id : null,
     },
   });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    mutate(values);
-  }
 
   return (
     <div>
@@ -83,7 +76,10 @@ function CategoryForm({
                   <div className={"mt-4 w-[250px]"}>
                     <CategoryImage
                       imageFile={form.getValues("updateImage")}
-                      imageUrl={initialData.imageFileUrl}
+                      imageUrl={initialData?.imageFileUrl || ""}
+                      onRemove={() => {
+                        form.setValue("updateImage", undefined);
+                      }}
                     />
                   </div>
                 </FormItem>
@@ -141,22 +137,26 @@ function CategoryForm({
 function CategoryImage({
   imageFile,
   imageUrl,
+  onRemove,
 }: {
   imageFile?: File | null;
   imageUrl?: string | null;
+  onRemove: () => void;
 }) {
+  const displayUrl = imageFile
+    ? URL.createObjectURL(new Blob([imageFile!]))
+    : imageUrl;
+
+  if (!displayUrl) return null;
+
   return (
     <div className={"shadow-md relative"}>
-      <XIcon className={"size-4 right-1 top-1 absolute hover:cursor-pointer"} />
-      {imageFile && (
-        <img
-          className={"h-52 w-full rounded-sm"}
-          src={URL.createObjectURL(new Blob([imageFile!]))}
-        />
-      )}
-      {imageUrl && !imageFile && (
-        <img className={"h-52 w-full rounded-sm"} src={imageUrl} />
-      )}
+      <XIcon
+        className={"size-4 right-[-1px] top-1 absolute hover:cursor-pointer"}
+        onClick={onRemove}
+      />
+
+      <img className={"h-52 w-full rounded-sm"} src={displayUrl} />
     </div>
   );
 }

@@ -3,9 +3,14 @@ import { Category } from "@/dto/category/category.ts";
 import { UpdateCategoryDto } from "@/dto/category/update-category.dto.ts";
 
 class CategoriesService {
-  create(name: string): Promise<Category> {
-    return httpClient.post("/categories", {
-      name,
+  create(name: string, image: File): Promise<Category> {
+    const formData = new FormData();
+    formData.set("name", name);
+    formData.set("image", image);
+    return httpClient.post("/categories", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
   }
 
@@ -18,7 +23,7 @@ class CategoriesService {
     }
     const formData = new FormData();
     formData.set("name", category.name);
-    formData.set("updateImage", category.updateImage);
+    category.updateImage && formData.set("updateImage", category.updateImage);
     return httpClient.put(`/categories/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
