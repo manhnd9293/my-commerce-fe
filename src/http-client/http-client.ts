@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const httpClient = axios.create({
-  baseURL: `${import.meta.env.VITE_SERVER_URL}/api/v1`,
+  baseURL: `${import.meta.env.VITE_SERVER_URL}`,
 });
 
 httpClient.interceptors.request.use(
