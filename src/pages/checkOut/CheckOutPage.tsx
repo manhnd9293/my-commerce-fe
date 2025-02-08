@@ -5,7 +5,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -16,12 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 import OrdersService, { OrderCreateParams } from "@/services/orders.service.ts";
 import { CreateOrderItemDto } from "@/dto/orders/create-order-item.dto.ts";
 import { useState } from "react";
-import {
-  CheckIcon,
-  CircleCheck,
-  CircleCheckBig,
-  LoaderIcon,
-} from "lucide-react";
+import { CheckIcon, LoaderIcon } from "lucide-react";
 import { removeCartItem, UserState } from "@/store/user/userSlice.ts";
 import { RootState } from "@/store";
 import {
@@ -41,7 +35,7 @@ function CheckOutPage() {
   const instantBuy = searchParams.get("instant-buy") === "true";
 
   const [done, setDone] = useState<boolean>(false);
-  const [selectAddress, _] = useState(
+  const [selectAddress] = useState(
     currentUser.addresses && currentUser.addresses.length > 0
       ? currentUser.addresses[0]
       : null,

@@ -110,3 +110,12 @@
     background-color: rgb(14 165 233);
     color: white;
 }
+
+.rr--box:focus-visible .rr--svg {
+    outline: none !important;
+}
+
+.rr--focus-reset {
+    outline: none !important ;
+}
+

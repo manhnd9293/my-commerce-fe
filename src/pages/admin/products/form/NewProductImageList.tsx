@@ -9,7 +9,6 @@ function NewProductImageList({
   onDelete,
   imageFiles,
 }: NewProductImageListProps) {
-  console.log("render NewProductImageList");
   return (
     imageFiles &&
     Array.from(imageFiles).map((imageFile, index) => (

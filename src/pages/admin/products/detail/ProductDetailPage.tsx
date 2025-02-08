@@ -36,6 +36,7 @@ import { useAppSelector } from "@/hooks";
 import { toast } from "sonner";
 import { CartItemDto } from "@/dto/cart/cart-item.dto.ts";
 import ProductCard from "@/pages/common/ProductCard.tsx";
+import ProductReview from "@/pages/admin/products/detail/ProductReview.tsx";
 
 function ProductDetailPage() {
   const params = useParams();
@@ -376,6 +377,10 @@ function ProductDetailPage() {
           </div>
           <div className={"mt-4"}>
             <ProductDescription product={product} />
+          </div>
+
+          <div className={"mt-4"}>
+            <ProductReview productId={Number(product.id!)} />
           </div>
 
           <div className={"mt-4"}>

@@ -5,6 +5,7 @@ import {
   History,
   MapPin,
   ShoppingCart,
+  Star,
 } from "lucide-react";
 
 const menuItems = [
@@ -18,21 +19,26 @@ const menuItems = [
     path: "my-address",
     icon: <MapPin />,
   },
-  {
-    label: "Payments",
-    path: "my-payments",
-    icon: <CreditCard />,
-  },
-  {
-    label: "Orders",
-    path: "my-orders",
-    icon: <ShoppingCart />,
-  },
+  // {
+  //   label: "Payments",
+  //   path: "my-payments",
+  //   icon: <CreditCard />,
+  // },
+  // {
+  //   label: "Orders",
+  //   path: "my-orders",
+  //   icon: <ShoppingCart />,
+  // },
 
   {
     label: "Purchase history",
     path: "purchase-history",
     icon: <History />,
+  },
+  {
+    label: "Rating",
+    path: "product-rating",
+    icon: <Star />,
   },
 ];
 

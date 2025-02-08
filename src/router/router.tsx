@@ -25,6 +25,7 @@ import AddressPage from "@/pages/my-account/account-sub-page/address/AddressPage
 import UserPaymentPage from "@/pages/my-account/account-sub-page/UserPaymentPage.tsx";
 import AdminDashboard from "@/pages/admin/AdminDashboard.tsx";
 import CustomerSupportChat from "@/pages/admin/admin-chat/CustomerSupportChat.tsx";
+import ProductRatingPage from "@/pages/my-account/account-sub-page/product-rating/ProductRatingPage.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -148,6 +149,10 @@ export const router = createBrowserRouter([
           {
             path: "purchase-history",
             element: <PurchaseHistoryPage />,
+          },
+          {
+            path: "product-rating",
+            element: <ProductRatingPage />,
           },
         ],
       },

@@ -12,6 +12,9 @@ export enum QueryKey {
 
   Orders = "orders",
   Order = "order",
+
+  RatingPending = "rating-pending",
+  RatingList = "rating-list",
 }
 
 const DEFAULT_SIZE = "default_size";
