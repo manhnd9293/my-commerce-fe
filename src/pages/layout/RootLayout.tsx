@@ -11,9 +11,6 @@ import ChatWidget from "@/pages/layout/components/chat-widget/ChatWidget.tsx";
 import { io } from "socket.io-client";
 import { useEffect } from "react";
 
-console.debug(
-  `create socket connection, access token = ${localStorage.getItem("accessToken")}`,
-);
 export const socket = io(import.meta.env.VITE_SOCKET_URL, {
   autoConnect: false,
   withCredentials: true,
@@ -35,7 +32,6 @@ function RootLayout() {
   const isAuth = !!currentUserData?.id;
 
   useEffect(() => {
-    console.debug({ isAuth });
     if (!isAuth) {
       return;
     }
@@ -43,13 +39,11 @@ function RootLayout() {
       Authorization: localStorage.getItem("accessToken"),
     };
     socket.connect();
-    console.debug("connect socket");
 
     return () => {
       if (!isAuth) {
         return;
       }
-      console.debug("disconnect socket");
       socket.disconnect();
     };
   }, [isAuth]);
