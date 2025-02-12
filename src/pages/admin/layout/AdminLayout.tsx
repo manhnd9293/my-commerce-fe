@@ -79,10 +79,8 @@ function AdminLayout() {
       Authorization: localStorage.getItem("accessToken"),
     };
     adminSocket.connect();
-    console.debug("connect adminSocket");
     return () => {
       adminSocket.disconnect();
-      console.debug("disconnect adminSocket");
     };
   }, []);
 
