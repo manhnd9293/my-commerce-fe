@@ -2,8 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "@/common/constant/query-key.ts";
 import productsService from "@/services/products.service.ts";
 import Utils from "@/utils/utils.ts";
-import { useNavigate } from "react-router-dom";
-import { RoutePath } from "@/router/RoutePath.ts";
 import { ProductQueryDto } from "@/dto/product/product-query.dto.ts";
 import ProductCard from "@/pages/common/ProductCard.tsx";
 
@@ -27,8 +25,6 @@ function ProductRecommend({ categoryId }: ProductRecommendProps) {
     queryFn: () => productsService.getPage(productQueryDto),
   });
 
-  const navigate = useNavigate();
-
   if (isError) {
     Utils.handleError(error);
   }
@@ -43,13 +39,7 @@ function ProductRecommend({ categoryId }: ProductRecommendProps) {
       <div className={"grid  grid-cols-2 gap-2 md:grid-cols-5 md:gap-4 mt-4"}>
         {pageProduct &&
           pageProduct.data.map((product) => (
-            <ProductCard
-              key={product.id!}
-              onClick={() =>
-                navigate(`${RoutePath.ProductDetail}/${product.id}`)
-              }
-              product={product}
-            />
+            <ProductCard key={product.id!} product={product} />
           ))}
       </div>
     </div>
