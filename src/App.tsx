@@ -12,7 +12,7 @@ function App() {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router}></RouterProvider>
+        <RouterProvider router={router} />
         <Toaster position={"top-right"} offset={64} />
       </QueryClientProvider>
     </Provider>

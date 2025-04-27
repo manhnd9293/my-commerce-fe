@@ -5,15 +5,15 @@ import { Product } from "@/dto/product/product.ts";
 import { ProductVariantImage } from "@/dto/product/product-variant-image.ts";
 
 export interface ProductVariant extends BaseDto {
-  productId: number;
+  productId: string;
 
   product?: Product | null | undefined;
 
-  productSizeId: number;
+  productSizeId: string;
 
   productSize: ProductSize;
 
-  productColorId: number;
+  productColorId: string;
 
   productColor: ProductColor;
 

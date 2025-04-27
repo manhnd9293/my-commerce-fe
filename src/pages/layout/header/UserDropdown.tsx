@@ -31,7 +31,10 @@ function UserDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar>
-          <AvatarImage src={currentUser.avatarUrl || ""} />
+          <AvatarImage
+            className={"object-cover object-center"}
+            src={currentUser.avatarUrl || ""}
+          />
           <AvatarFallback>{currentUser.email[0].toUpperCase()}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>

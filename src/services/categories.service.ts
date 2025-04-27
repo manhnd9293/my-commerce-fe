@@ -14,13 +14,7 @@ class CategoriesService {
     });
   }
 
-  update(
-    id: number | undefined,
-    category: UpdateCategoryDto,
-  ): Promise<Category> {
-    if (!id) {
-      throw Error("category id is required");
-    }
+  update(id: string, category: UpdateCategoryDto): Promise<Category> {
     const formData = new FormData();
     formData.set("name", category.name);
     category.updateImage && formData.set("updateImage", category.updateImage);
@@ -35,17 +29,11 @@ class CategoriesService {
     return httpClient.get("/categories");
   }
 
-  getById(id: number | undefined): Promise<Category> {
-    if (!id) {
-      throw Error("category id is required");
-    }
+  getById(id: string): Promise<Category> {
     return httpClient.get(`/categories/${id}`);
   }
 
-  delete(ids: number[] | undefined): Promise<Category> {
-    if (!ids) {
-      throw Error("delete category ids is required");
-    }
+  delete(ids: string[]): Promise<Category> {
     return httpClient.delete(`/categories/`, {
       data: { ids },
     });

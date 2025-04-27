@@ -37,7 +37,13 @@ class ProductsService {
     return httpClient.get(`/products/${id}`);
   }
 
-  async update(updateProduct: z.infer<typeof productFormSchema>) {
+  async update({
+    productId,
+    updateProduct,
+  }: {
+    productId: string;
+    updateProduct: z.infer<typeof productFormSchema>;
+  }) {
     await httpClient.put(`/products`, updateProduct);
 
     const images = updateProduct.newImages;
@@ -46,7 +52,7 @@ class ProductsService {
       Array.from(images).forEach((item) =>
         formData.append("productImages", item),
       );
-    return httpClient.patch(`/products/${updateProduct.id}/images`, formData, {
+    return httpClient.patch(`/products/${productId}/images`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -54,7 +60,7 @@ class ProductsService {
   }
 
   async getSimilarProducts(
-    productId: number,
+    productId: string,
     query: BaseQueryDto,
   ): Promise<PageData<Product>> {
     const queryString = Utils.getQueryString(query);

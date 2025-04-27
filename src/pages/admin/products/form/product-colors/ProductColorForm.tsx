@@ -51,7 +51,7 @@ const blankFormState = {
 };
 
 export const colorFormSchema = z.object({
-  id: z.number().optional().nullable(),
+  id: z.string().optional().nullable(),
   index: z.number().optional().nullable(),
   name: z
     .string({ message: "Please provide color name" })

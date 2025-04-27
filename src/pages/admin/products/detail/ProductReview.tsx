@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { PaginationGroup } from "@/components/common/PaginationGroup.tsx";
 
 export interface ProductReviewProps {
-  productId: number;
+  productId: string;
 }
 
 function ProductReview({ productId }: ProductReviewProps) {
@@ -43,36 +43,34 @@ function ProductReview({ productId }: ProductReviewProps) {
           ratingPage.data.length > 0 &&
           ratingPage.data.map((rating, index) => {
             return (
-              <div>
-                <div key={rating.id} className={"flex gap-4"}>
-                  <Avatar className={"size-10"}>
-                    <AvatarImage src={rating.user.avatarUrl!} />
-                    <AvatarFallback>A</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className={"mb-1"}>{rating.user.fullName}</div>
-                    <Rating
-                      value={rating.rate}
-                      style={{ maxWidth: 100 }}
-                      readOnly={true}
-                    />
-                    <div className={"text-sm text-gray-500 mt-1"}>
-                      {DateTime.fromISO(String(rating.createdAt)).toFormat(
-                        "yyyy-MM-dd-HH:mm",
-                      )}
-                    </div>
-                    <div className={"mt-2"}>{rating.textContent}</div>
-                    <div className={"mt-3"}>
-                      {rating.ratingMedia && rating.ratingMedia.length > 0 && (
-                        <div className={"flex justify-start gap-2"}>
-                          {rating.ratingMedia.map((media) => {
-                            return (
-                              <img className={"size-20"} src={media.mediaUrl} />
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
+              <div key={rating.id} className={"flex gap-4"}>
+                <Avatar className={"size-10"}>
+                  <AvatarImage src={rating.user.avatarUrl!} />
+                  <AvatarFallback>A</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className={"mb-1"}>{rating.user.fullName}</div>
+                  <Rating
+                    value={rating.rate}
+                    style={{ maxWidth: 100 }}
+                    readOnly={true}
+                  />
+                  <div className={"text-sm text-gray-500 mt-1"}>
+                    {DateTime.fromISO(String(rating.createdAt)).toFormat(
+                      "yyyy-MM-dd-HH:mm",
+                    )}
+                  </div>
+                  <div className={"mt-2"}>{rating.textContent}</div>
+                  <div className={"mt-3"}>
+                    {rating.ratingMedia && rating.ratingMedia.length > 0 && (
+                      <div className={"flex justify-start gap-2"}>
+                        {rating.ratingMedia.map((media) => {
+                          return (
+                            <img className={"size-20"} src={media.mediaUrl} />
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
                 {index !== ratingPage.data.length - 1 && (

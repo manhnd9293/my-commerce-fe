@@ -38,7 +38,6 @@ import ProductSizeForm, {
 const allowTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
 export const productFormSchema = z.object({
-  id: z.number().nullable().optional(),
   name: z
     .string()
     .min(1, {
@@ -47,10 +46,10 @@ export const productFormSchema = z.object({
     .max(255),
   productImages: z
     .object({
-      id: z.number(),
-      assetId: z.number(),
+      id: z.string(),
+      assetId: z.string(),
       asset: z.object({
-        id: z.number(),
+        id: z.string(),
         preSignUrl: z.string().optional(),
       }),
     })
@@ -79,7 +78,7 @@ export const productFormSchema = z.object({
     .object({
       name: z.string(),
       index: z.number().optional(),
-      id: z.number().optional().nullable(),
+      id: z.string().optional().nullable(),
     })
     .array()
     .optional(),
@@ -88,7 +87,7 @@ export const productFormSchema = z.object({
       name: z.string().min(1, { message: "Product color required" }),
       code: z.string(),
       index: z.number().optional(),
-      id: z.number().optional().nullable(),
+      id: z.string().optional().nullable(),
     })
     .array()
     .optional(),
@@ -137,17 +136,20 @@ function ProductForm(props: ProductFormProps) {
     defaultValues: initialData
       ? {
           ...initialData,
-          categoryId: String(initialData?.categoryId || ""),
+          categoryId: initialData.categoryId,
         }
       : {
-          id: null,
           name: "",
           categoryId: undefined,
         },
   });
 
   function onSubmit(values: z.infer<typeof productFormSchema>) {
-    mutate(values);
+    if (isUpdate) {
+      mutate({ productId: initialData?.id, updateProduct: values });
+    } else {
+      mutate(values);
+    }
   }
 
   if (isLoading) {
@@ -223,7 +225,7 @@ function ProductForm(props: ProductFormProps) {
   }
 
   function handleChangePrice(e: React.ChangeEvent<HTMLInputElement>) {
-    let targetValue = e.target.value;
+    const targetValue = e.target.value;
 
     if (isNaN(parseInt(targetValue))) {
       const oldPrice = productForm.getValues("price");

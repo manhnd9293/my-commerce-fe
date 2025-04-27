@@ -31,7 +31,7 @@ class ProductRatingService {
   }
 
   getRatingList(
-    productId: number,
+    productId: string,
     query: ProductRatingQueryDto,
   ): Promise<PageData<ProductRatingDto>> {
     const queryString = Utils.getQueryString(query);
