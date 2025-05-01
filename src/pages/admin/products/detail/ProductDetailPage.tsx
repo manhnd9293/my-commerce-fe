@@ -68,18 +68,18 @@ function ProductDetailPage() {
 
   function onSuccessAddCartItem(data: CartItemDto) {
     dispatch(addCartItem(data));
-    toast("Add item to cart success", {
-      description: "Your item have been added to cart",
-      action: {
-        label: "Go to Cart",
-        onClick: () => navigate("/cart"),
-      },
-      actionButtonStyle: {
-        backgroundColor: "#d87606",
-        fontWeight: "bold",
-      },
-      closeButton: true,
-    });
+    // toast("Add item to cart success", {
+    //   description: "Your item have been added to cart",
+    //   action: {
+    //     label: "Go to Cart",
+    //     onClick: () => navigate("/cart"),
+    //   },
+    //   actionButtonStyle: {
+    //     backgroundColor: "#d87606",
+    //     fontWeight: "bold",
+    //   },
+    //   closeButton: true,
+    // });
   }
 
   const {

@@ -9,19 +9,7 @@ import Utils from "@/utils/utils.ts";
 
 class ProductsService {
   async create(data: z.infer<typeof productFormSchema>) {
-    const product = (await httpClient.post("/products", data)) as Product;
-    const images = data.newImages;
-    const formData = new FormData();
-
-    images &&
-      Array.from(images).forEach((item) =>
-        formData.append("productImages", item),
-      );
-    return httpClient.patch(`/products/${product.id}/images`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    return httpClient.post("/products", data);
   }
 
   getPage(productQueryDto: ProductQueryDto): Promise<PageData<Product>> {
@@ -37,26 +25,12 @@ class ProductsService {
     return httpClient.get(`/products/${id}`);
   }
 
-  async update({
-    productId,
-    updateProduct,
-  }: {
-    productId: string;
-    updateProduct: z.infer<typeof productFormSchema>;
-  }) {
-    await httpClient.put(`/products`, updateProduct);
-
-    const images = updateProduct.newImages;
-    const formData = new FormData();
-    images &&
-      Array.from(images).forEach((item) =>
-        formData.append("productImages", item),
-      );
-    return httpClient.patch(`/products/${productId}/images`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+  async update(
+    productId: string,
+    updateProduct: z.infer<typeof productFormSchema>,
+  ) {
+    console.log({ productId });
+    return httpClient.put(`/products/${productId}`, updateProduct);
   }
 
   async getSimilarProducts(
@@ -65,6 +39,18 @@ class ProductsService {
   ): Promise<PageData<Product>> {
     const queryString = Utils.getQueryString(query);
     return httpClient.get(`/products/${productId}/similar?${queryString}`);
+  }
+
+  async updateProductMedia(productId: string, updateIds: string[]) {
+    return httpClient.patch(`/products/${productId}/media`, {
+      updateIds,
+    });
+  }
+
+  deleteProductMedia(productId: string, assetIds: string[]) {
+    return httpClient.delete(`/products/${productId}/media`, {
+      data: { assetIds },
+    });
   }
 }
 

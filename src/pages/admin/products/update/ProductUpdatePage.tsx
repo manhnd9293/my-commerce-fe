@@ -3,13 +3,12 @@ import { QueryKey } from "@/common/constant/query-key.ts";
 import { useParams } from "react-router-dom";
 import ProductsService from "@/services/products.service.ts";
 import Utils from "@/utils/utils.ts";
-import PageTitle from "@/pages/common/PageTitle.tsx";
 import ProductForm from "@/pages/admin/products/form/ProductForm.tsx";
 
 function ProductUpdatePage() {
   const params = useParams();
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: [QueryKey.Product, { id: Number(params.id) }],
+    queryKey: [QueryKey.Product, { id: params.id }],
     queryFn: () => ProductsService.get(params.id!),
   });
 
@@ -23,8 +22,8 @@ function ProductUpdatePage() {
   }
 
   return (
-    <div>
-      <PageTitle>Update Product</PageTitle>
+    <div className={"max-w-screen-xl mx-auto"}>
+      <div className={"text-2xl font-semibold"}>{data?.name}</div>
       {data && <ProductForm initialData={data} />}
     </div>
   );
