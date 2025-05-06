@@ -3,11 +3,11 @@ import { ProductRatingDto } from "@/dto/product-rating/product-rating.dto.ts";
 import { BaseDto } from "@/dto/base.dto.ts";
 
 export interface ProductRatingMediaDto extends BaseDto {
-  assetId: number;
+  assetId: string;
 
   asset: Asset;
 
-  productRatingId: number;
+  productRatingId: string;
 
   productRating: ProductRatingDto;
 

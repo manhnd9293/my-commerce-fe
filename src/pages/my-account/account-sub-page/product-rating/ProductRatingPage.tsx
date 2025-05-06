@@ -7,7 +7,7 @@ import ProductRatingService from "@/services/product-rating.service.ts";
 
 function ProductRatingPage() {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
 
@@ -36,7 +36,7 @@ function ProductRatingPage() {
                     "cursor-pointer shadow-md p-2 rounded-md hover:shadow-xl hover:scale-110 transition max-w-[240px] bg-white"
                   }
                   onClick={() => {
-                    setSelectedProductId(p.id as number);
+                    setSelectedProductId(p.id);
                     setShowRatingDialog(true);
                   }}
                 >
@@ -61,7 +61,7 @@ function ProductRatingPage() {
       </div>
       {showRatingDialog && (
         <RatingDialog
-          selectedProduct={selectedProduct}
+          selectedProduct={selectedProduct!}
           showRatingDialog={showRatingDialog}
           setShowRatingDialog={setShowRatingDialog}
         />

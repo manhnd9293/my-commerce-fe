@@ -13,7 +13,7 @@ class ProductRatingService {
   }
 
   rateProduct(
-    productId: number,
+    productId: string,
     ratingData: z.infer<typeof productRatingSchema>,
   ) {
     const formData = new FormData();

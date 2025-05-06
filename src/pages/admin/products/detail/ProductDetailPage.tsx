@@ -30,10 +30,8 @@ import { useDispatch } from "react-redux";
 import { addCartItem, updateInstantBuy } from "@/store/user/userSlice.ts";
 import { Product } from "@/dto/product/product.ts";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
-import { RoutePath } from "@/router/RoutePath.ts";
 import utils from "@/utils/utils.ts";
 import { useAppSelector } from "@/hooks";
-import { toast } from "sonner";
 import { CartItemDto } from "@/dto/cart/cart-item.dto.ts";
 import ProductCard from "@/pages/common/ProductCard.tsx";
 import ProductReview from "@/pages/admin/products/detail/ProductReview.tsx";
@@ -394,13 +392,7 @@ function ProductDetailPage() {
             >
               {similarProductPage?.data &&
                 similarProductPage?.data.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    onClick={() =>
-                      navigate(`${RoutePath.ProductDetail}/${product.id}`)
-                    }
-                    product={product}
-                  />
+                  <ProductCard key={product.id} product={product} />
                 ))}
             </div>
           </div>

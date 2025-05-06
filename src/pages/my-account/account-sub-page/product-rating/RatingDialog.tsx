@@ -31,7 +31,7 @@ import { QueryKey } from "@/common/constant/query-key.ts";
 const allowTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
 export interface RatingDialogProps {
-  setShowRatingDialog: (v: boolean | ((p: boolean) => void)) => void;
+  setShowRatingDialog: (v: boolean | ((p: boolean) => boolean)) => void;
   showRatingDialog: boolean;
   selectedProduct: Product;
 }
@@ -77,10 +77,7 @@ function RatingDialog({
   const { mutateAsync, isPending, isError, error } = useMutation({
     mutationKey: ["create-rating-product"],
     mutationFn: (variables: z.infer<typeof productRatingSchema>) => {
-      return ProductRatingService.rateProduct(
-        selectedProduct.id as number,
-        variables,
-      );
+      return ProductRatingService.rateProduct(selectedProduct.id, variables);
     },
   });
 

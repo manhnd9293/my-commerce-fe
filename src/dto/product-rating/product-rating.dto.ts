@@ -4,9 +4,9 @@ import { BaseDto } from "@/dto/base.dto.ts";
 import { ProductRatingMediaDto } from "@/dto/product-rating/product-rating-media.dto.ts";
 
 export interface ProductRatingDto extends BaseDto {
-  productId: number;
+  productId: string;
 
-  userId: number;
+  userId: string;
 
   user: UserDto;
 
