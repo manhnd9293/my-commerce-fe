@@ -6,6 +6,7 @@ import Utils from "@/utils/utils.ts";
 import { useDispatch } from "react-redux";
 import { signIn } from "@/store/user/userSlice.ts";
 import AppLoading from "@/components/layout/AppLoading.tsx";
+
 import {
   LayoutDashboard,
   MessageCircle,
@@ -150,7 +151,7 @@ function AdminLayout() {
           </SidebarFooter>
         </Sidebar>
 
-        <main className={"ml-4 p-4 w-full"}>
+        <main className={"p-4 w-full"}>
           {/*<SidebarTrigger />*/}
           <Outlet />
         </main>

@@ -56,30 +56,30 @@ function ProductDetailPage() {
     isError,
     error,
   } = useQuery({
-    queryKey: [QueryKey.Product, { id: Number(params.id) }],
+    queryKey: [QueryKey.Product, { id: params.id }],
     queryFn: () => ProductsService.get(params.id!),
     retry: false,
   });
 
   const { data: similarProductPage } = useQuery({
     queryKey: [QueryKey.SimilarProducts, { id: params.id }],
-    queryFn: () => ProductsService.getSimilarProducts(Number(params.id!), {}),
+    queryFn: () => ProductsService.getSimilarProducts(params.id!, {}),
   });
 
   function onSuccessAddCartItem(data: CartItemDto) {
     dispatch(addCartItem(data));
-    toast("Add item to cart success", {
-      description: "Your item have been added to cart",
-      action: {
-        label: "Go to Cart",
-        onClick: () => navigate("/cart"),
-      },
-      actionButtonStyle: {
-        backgroundColor: "#d87606",
-        fontWeight: "bold",
-      },
-      closeButton: true,
-    });
+    // toast("Add item to cart success", {
+    //   description: "Your item have been added to cart",
+    //   action: {
+    //     label: "Go to Cart",
+    //     onClick: () => navigate("/cart"),
+    //   },
+    //   actionButtonStyle: {
+    //     backgroundColor: "#d87606",
+    //     fontWeight: "bold",
+    //   },
+    //   closeButton: true,
+    // });
   }
 
   const {
@@ -238,7 +238,9 @@ function ProductDetailPage() {
                     >
                       <img
                         src={image.asset.preSignUrl}
-                        className={"w-full aspect-[1/1]"}
+                        className={
+                          "w-full aspect-[1/1] object-cover object-center"
+                        }
                       />
                     </CarouselItem>
                   ))}
@@ -380,7 +382,7 @@ function ProductDetailPage() {
           </div>
 
           <div className={"mt-4"}>
-            <ProductReview productId={Number(product.id!)} />
+            <ProductReview productId={product.id!} />
           </div>
 
           <div className={"mt-4"}>

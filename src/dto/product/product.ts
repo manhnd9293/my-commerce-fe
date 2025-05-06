@@ -16,7 +16,7 @@ export interface Product extends BaseDto {
 
   productVariants?: ProductVariant[];
 
-  categoryId: number;
+  categoryId: string;
 
   category?: Category;
 

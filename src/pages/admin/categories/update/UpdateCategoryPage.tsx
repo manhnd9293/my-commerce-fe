@@ -19,12 +19,12 @@ export function UpdateCategoryPage() {
     error: loadError,
   } = useQuery({
     queryKey: [QueryKey.Category, params.categoryId],
-    queryFn: () => CategoriesService.getById(Number(params.categoryId)),
+    queryFn: () => CategoriesService.getById(params.categoryId!),
   });
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: UpdateCategoryDto) =>
-      CategoriesService.update(Number(params.categoryId), data),
+      CategoriesService.update(params.categoryId, data),
     onSuccess: () => {
       navigate("/admin/categories");
       queryClient

@@ -78,7 +78,10 @@ function GeneralInformationPage() {
         <div className={"relative"}>
           <div className={"text-lg font-semibold"}>Avatar</div>
           <Avatar className={"w-32 h-32 mt-4"}>
-            <AvatarImage src={currentUser.avatarUrl || ""} />
+            <AvatarImage
+              className={"object-cover object-center"}
+              src={currentUser.avatarUrl || ""}
+            />
             <AvatarFallback className={"text-4xl"}>
               {currentUser.email[0].toUpperCase()}
             </AvatarFallback>

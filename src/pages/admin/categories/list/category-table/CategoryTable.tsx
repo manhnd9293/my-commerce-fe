@@ -39,7 +39,7 @@ export function CategoryTable({ data }: { data: Category[] }) {
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
-    mutationFn: (ids: number[]) => categoriesService.delete(ids),
+    mutationFn: (ids: string[]) => categoriesService.delete(ids),
     onSuccess: () => {
       queryClient
         .invalidateQueries({
@@ -87,7 +87,7 @@ export function CategoryTable({ data }: { data: Category[] }) {
 
   async function handleDeleteSelectedRows() {
     mutate(
-      table.getSelectedRowModel().rows.map((r) => r.original.id as number),
+      table.getSelectedRowModel().rows.map((r) => r.original.id as string),
     );
   }
 

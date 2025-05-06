@@ -26,8 +26,7 @@ import {
 import { Editor } from "@tinymce/tinymce-react";
 import React, { useRef } from "react";
 import notification from "@/utils/notification.tsx";
-import OldProductImageList from "@/pages/admin/products/form/OldProductImageList.tsx";
-import NewProductImageList from "@/pages/admin/products/form/NewProductImageList.tsx";
+import ProductImageList from "@/pages/admin/products/form/ProductImageList.tsx";
 import ProductColorForm, {
   colorFormSchema,
 } from "@/pages/admin/products/form/product-colors/ProductColorForm.tsx";
@@ -35,51 +34,24 @@ import ProductsService from "@/services/products.service.ts";
 import ProductSizeForm, {
   sizeFormSchema,
 } from "@/pages/admin/products/form/product-sizes/ProductSizeForm.tsx";
+
 const allowTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
 export const productFormSchema = z.object({
-  id: z.number().nullable().optional(),
   name: z
     .string()
     .min(1, {
       message: "Please provide product name",
     })
     .max(255),
-  productImages: z
-    .object({
-      id: z.number(),
-      assetId: z.number(),
-      asset: z.object({
-        id: z.number(),
-        preSignUrl: z.string().optional(),
-      }),
-    })
-    .array()
-    .optional(),
-  newImages: z
-    .instanceof(FileList, { message: "Please provide some product images" })
-    .refine(
-      (files) => Array.from(files).every((file) => file instanceof File),
-      {
-        message: "Expect a file",
-      },
-    )
-    .refine(
-      (files) =>
-        Array.from(files).every((file) => allowTypes.includes(file.type)),
-      {
-        message: `Only these file types are allowed: ${allowTypes.map((t) => t.replace("image", "."))}`,
-      },
-    )
-    .optional(),
+  productMedia: z.string().array().optional(),
   price: z.number().optional(),
   description: z.string().max(50000).optional(),
   categoryId: z.string({ message: "Please provide category information" }),
   productSizes: z
     .object({
       name: z.string(),
-      index: z.number().optional(),
-      id: z.number().optional().nullable(),
+      id: z.string().optional().nullable(),
     })
     .array()
     .optional(),
@@ -87,8 +59,7 @@ export const productFormSchema = z.object({
     .object({
       name: z.string().min(1, { message: "Product color required" }),
       code: z.string(),
-      index: z.number().optional(),
-      id: z.number().optional().nullable(),
+      id: z.string().optional().nullable(),
     })
     .array()
     .optional(),
@@ -102,7 +73,22 @@ function ProductForm(props: ProductFormProps) {
   const navigate = useNavigate();
   const { initialData } = props;
   const isUpdate = !!initialData;
+  const productId = initialData?.id;
+
   const queryClient = useQueryClient();
+  const editorRef = useRef(null);
+  const productForm = useForm<z.infer<typeof productFormSchema>>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          categoryId: initialData.categoryId,
+        }
+      : {
+          name: "",
+          categoryId: undefined,
+        },
+  });
 
   const {
     data: categories,
@@ -114,15 +100,14 @@ function ProductForm(props: ProductFormProps) {
     queryFn: CategoriesService.getAll,
   });
 
-  const { isPending, mutate } = useMutation({
-    mutationFn: isUpdate ? ProductsService.update : ProductsService.create,
+  const { isPending, mutateAsync: mutateUpdate } = useMutation({
+    mutationFn: (variables: z.infer<typeof productFormSchema>) =>
+      ProductsService.update(initialData!.id, variables),
     onSuccess: async () => {
-      notification.success(`${isUpdate ? "Update" : "Create"} product success`);
-      if (isUpdate) {
-        await queryClient.invalidateQueries({
-          queryKey: [QueryKey.Product, { id: initialData?.id }],
-        });
-      }
+      notification.success("Update product success");
+      await queryClient.invalidateQueries({
+        queryKey: [QueryKey.Product, { id: initialData?.id }],
+      });
       navigate("/admin/products");
     },
     onError: (error) => {
@@ -130,40 +115,52 @@ function ProductForm(props: ProductFormProps) {
     },
   });
 
-  const editorRef = useRef(null);
-
-  const productForm = useForm<z.infer<typeof productFormSchema>>({
-    resolver: zodResolver(productFormSchema),
-    defaultValues: initialData
-      ? {
-          ...initialData,
-          categoryId: String(initialData?.categoryId || ""),
-        }
-      : {
-          id: null,
-          name: "",
-          categoryId: undefined,
-        },
+  const { mutateAsync: mutateCreate } = useMutation({
+    mutationFn: ProductsService.create,
+    onSuccess: () => {
+      notification.success("Create product success");
+      navigate("/admin/products");
+    },
+    onError: (error) => {
+      Utils.handleError(error);
+    },
   });
 
-  function onSubmit(values: z.infer<typeof productFormSchema>) {
-    mutate(values);
-  }
+  const { mutateAsync: mutateProductMedia, isPending: updatingMedia } =
+    useMutation({
+      mutationFn: async (updateIds: string[]) => {
+        if (productId) {
+          await ProductsService.updateProductMedia(productId, updateIds);
+        } else {
+          console.log("Handle update new product");
+        }
+      },
+      onSuccess: async () => {
+        productId &&
+          (await queryClient.invalidateQueries({
+            queryKey: [QueryKey.Product, { id: productId }],
+          }));
+      },
+    });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const { mutateAsync: deleteMedia, isPending: deletingMedia } = useMutation({
+    mutationFn: (assetIds: string[]) =>
+      ProductsService.deleteProductMedia(productId!, assetIds),
+  });
 
-  if (isError) {
-    Utils.handleError(error);
-    return <div>Fail to load categories</div>;
+  async function onSubmit(values: z.infer<typeof productFormSchema>) {
+    if (isUpdate) {
+      await mutateUpdate(values);
+    } else {
+      await mutateCreate(values);
+    }
   }
 
   function handleAddSize(values: z.infer<typeof sizeFormSchema>) {
     const sizes = productForm.getValues("productSizes");
     productForm.setValue("productSizes", [
       ...(sizes || []),
-      { name: values.name, id: null },
+      { name: values.name },
     ]);
   }
 
@@ -194,7 +191,7 @@ function ProductForm(props: ProductFormProps) {
     const colors = productForm.getValues("productColors");
     productForm.setValue("productColors", [
       ...(colors || []),
-      { name: values.name, code: values.code, id: null },
+      { name: values.name, code: values.code },
     ]);
   }
 
@@ -223,7 +220,7 @@ function ProductForm(props: ProductFormProps) {
   }
 
   function handleChangePrice(e: React.ChangeEvent<HTMLInputElement>) {
-    let targetValue = e.target.value;
+    const targetValue = e.target.value;
 
     if (isNaN(parseInt(targetValue))) {
       const oldPrice = productForm.getValues("price");
@@ -233,6 +230,35 @@ function ProductForm(props: ProductFormProps) {
     productForm.setValue("price", parseInt(targetValue));
   }
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    Utils.handleError(error);
+    return <div>Fail to load categories</div>;
+  }
+
+  async function handleUpdateMedia(assetIds: string[]) {
+    if (productId) {
+      await mutateProductMedia(assetIds);
+    } else {
+      productForm.setValue("productMedia", assetIds);
+    }
+  }
+
+  async function handleDeleteMedia(assetIds: string[]) {
+    if (productId) {
+      await deleteMedia(assetIds);
+    } else {
+      const oldValues = productForm.getValues("productMedia") || [];
+      productForm.setValue(
+        "productMedia",
+        oldValues.filter((id) => !assetIds.includes(id)),
+      );
+    }
+  }
+
   return (
     <div className={"mt-4 max-w-3xl"}>
       <FormProvider {...productForm}>
@@ -240,146 +266,165 @@ function ProductForm(props: ProductFormProps) {
           onSubmit={productForm.handleSubmit(onSubmit)}
           className={"space-y-8"}
         >
-          <FormField
-            control={productForm.control}
-            name="categoryId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value?.toString()}
-                >
+          <div className={"bg-white rounded-md py-2 px-4 shadow-md space-y-4"}>
+            <FormField
+              control={productForm.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={"font-semibold"}>Title</FormLabel>
                   <FormControl>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
+                    <Input
+                      placeholder="Product name"
+                      {...field}
+                      className={"max-w-lg mt-1"}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {categories &&
-                      categories.map((category) => {
-                        return (
-                          <SelectItem
-                            key={category.id}
-                            value={String(category.id)}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        );
-                      })}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={productForm.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Product name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Product name"
-                    {...field}
-                    className={"max-w-lg"}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={productForm.control}
-            name="newImages"
-            render={({ field: { value, onChange, ...fieldProps } }) => (
-              <FormItem>
-                <FormLabel>Product images</FormLabel>
-                <FormControl>
-                  <Input
-                    {...fieldProps}
-                    placeholder="Product"
-                    className="w-64"
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={(event) => {
-                      const addedFiles = event.target.files;
-                      if (!addedFiles) {
-                        return;
-                      }
-                      const imageFiles = productForm.getValues("newImages");
-                      productForm.setValue(
-                        "newImages",
-                        Utils.mergeFileLists(imageFiles, addedFiles),
-                      );
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="description"
+              control={productForm.control}
+              render={() => (
+                <FormItem>
+                  <FormLabel className={"font-semibold"}>Description</FormLabel>
+                  <Editor
+                    apiKey={import.meta.env.VITE_TINY_EDITOR_API_KEY}
+                    onInit={(_evt, editor) => {
+                      // @ts-ignore
+                      editorRef.current = editor;
+                    }}
+                    value={productForm.getValues("description")}
+                    init={{
+                      height: 500,
+                      menubar: false,
+                      branding: false,
+                      plugins: [
+                        "advlist",
+                        "autolink",
+                        "lists",
+                        "link",
+                        "image",
+                        "charmap",
+                        "preview",
+                        "anchor",
+                        "searchreplace",
+                        "visualblocks",
+                        "code",
+                        "fullscreen",
+                        "insertdatetime",
+                        "media",
+                        "table",
+                        "code",
+                        "help",
+                        "wordcount",
+                      ],
+                      toolbar:
+                        "undo redo | blocks | " +
+                        "bold italic forecolor | alignleft aligncenter " +
+                        "alignright alignjustify | bullist numlist outdent indent | " +
+                        "removeformat | help",
+                      content_style:
+                        "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                    }}
+                    onEditorChange={(newValue) => {
+                      productForm.setValue("description", newValue, {
+                        shouldValidate: true,
+                      });
                     }}
                   />
-                </FormControl>
-                <FormMessage />
-                <div className={"grid grid-cols-3 gap-2"}>
-                  <OldProductImageList
-                    onDelete={(id) => {
-                      const oldImages = productForm.getValues("productImages");
-                      productForm.setValue(
-                        "productImages",
-                        oldImages?.filter((oldImage) => oldImage.id !== id),
-                      );
-                    }}
-                    initialValues={productForm.getValues("productImages")}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={productForm.control}
+              name="productMedia"
+              render={() => (
+                <FormItem>
+                  <ProductImageList
+                    productId={initialData?.id}
+                    initialValues={initialData?.productImages || []}
+                    onUpdateMedia={handleUpdateMedia}
+                    onDeleteMedia={handleDeleteMedia}
+                    isUpdating={updatingMedia}
+                    isDeleting={deletingMedia}
                   />
-                  <NewProductImageList
-                    onDelete={(index) => {
-                      const newImages = productForm.getValues("newImages"); // for add image file to productForm
-                      const newImagesArray = Array.from(newImages!).filter(
-                        (_file, idx) => idx !== index,
-                      );
-                      productForm.setValue(
-                        "newImages",
-                        Utils.createFileList(newImagesArray),
-                      );
-                    }}
-                    imageFiles={productForm.getValues("newImages")}
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={productForm.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem className={"mt-4"}>
+                  <FormLabel className={"font-semibold"}>Category</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories &&
+                        categories.map((category) => {
+                          return (
+                            <SelectItem
+                              key={category.id}
+                              value={String(category.id)}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          );
+                        })}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className={"bg-white rounded-md px-4 py-2 space-y-6 shadow-md"}>
+            <div className={"font-bold"}>Variants</div>
+            <FormField
+              name={"productSizes"}
+              control={productForm.control}
+              render={() => (
+                <FormItem className={"flex space-y-4 flex-col"}>
+                  <FormLabel>Product Sizes</FormLabel>
+                  <ProductSizeForm
+                    onAddSize={handleAddSize}
+                    onUpdateSize={handleUpdateSize}
+                    onDeleteSize={handleDeleteSize}
+                    initialSizes={productForm.getValues("productSizes")}
                   />
-                </div>
-              </FormItem>
-            )}
-          />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            name={"productSizes"}
-            control={productForm.control}
-            render={() => (
-              <FormItem className={"flex space-y-4 flex-col"}>
-                <FormLabel>Product Sizes</FormLabel>
-                <ProductSizeForm
-                  onAddSize={handleAddSize}
-                  onUpdateSize={handleUpdateSize}
-                  onDeleteSize={handleDeleteSize}
-                  initialSizes={productForm.getValues("productSizes")}
-                />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name={"productColors"}
-            control={productForm.control}
-            render={() => (
-              <FormItem className={"flex space-y-4 flex-col"}>
-                <FormLabel>Product Color</FormLabel>
-                <ProductColorForm
-                  onAddColor={handleAddColor}
-                  onUpdateColor={handleUpdateColor}
-                  onDeleteColor={handleDeleteColor}
-                  initialColors={productForm.getValues("productColors")}
-                />
-              </FormItem>
-            )}
-          />
+            <FormField
+              name={"productColors"}
+              control={productForm.control}
+              render={() => (
+                <FormItem className={"flex space-y-4 flex-col"}>
+                  <FormLabel>Product Color</FormLabel>
+                  <ProductColorForm
+                    onAddColor={handleAddColor}
+                    onUpdateColor={handleUpdateColor}
+                    onDeleteColor={handleDeleteColor}
+                    initialColors={productForm.getValues("productColors")}
+                  />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormField
             control={productForm.control}
@@ -396,62 +441,6 @@ function ProductForm(props: ProductFormProps) {
                     onChange={handleChangePrice}
                   />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="description"
-            control={productForm.control}
-            render={() => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <Editor
-                  apiKey={import.meta.env.VITE_TINY_EDITOR_API_KEY}
-                  onInit={(_evt, editor) => {
-                    // @ts-ignore
-                    editorRef.current = editor;
-                  }}
-                  value={productForm.getValues("description")}
-                  init={{
-                    height: 500,
-                    menubar: false,
-                    branding: false,
-                    plugins: [
-                      "advlist",
-                      "autolink",
-                      "lists",
-                      "link",
-                      "image",
-                      "charmap",
-                      "preview",
-                      "anchor",
-                      "searchreplace",
-                      "visualblocks",
-                      "code",
-                      "fullscreen",
-                      "insertdatetime",
-                      "media",
-                      "table",
-                      "code",
-                      "help",
-                      "wordcount",
-                    ],
-                    toolbar:
-                      "undo redo | blocks | " +
-                      "bold italic forecolor | alignleft aligncenter " +
-                      "alignright alignjustify | bullist numlist outdent indent | " +
-                      "removeformat | help",
-                    content_style:
-                      "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-                  }}
-                  onEditorChange={(newValue) => {
-                    productForm.setValue("description", newValue, {
-                      shouldValidate: true,
-                    });
-                  }}
-                />
                 <FormMessage />
               </FormItem>
             )}
