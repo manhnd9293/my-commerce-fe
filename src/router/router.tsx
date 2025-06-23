@@ -5,7 +5,6 @@ import Home from "@/pages/home/Home.tsx";
 import CategoryCreatePage from "@/pages/admin/categories/create/CategoryCreatePage.tsx";
 import AdminLayout from "@/pages/admin/layout/AdminLayout.tsx";
 import CategoriesList from "@/pages/admin/categories/list/CategoriesList.tsx";
-import TestPage from "@/pages/test/TestPage.tsx";
 import { UpdateCategoryPage } from "@/pages/admin/categories/update/UpdateCategoryPage.tsx";
 import SignUp from "@/pages/sign-up/SignUp.tsx";
 import ProductCreatePage from "@/pages/admin/products/new/ProductCreatePage.tsx";
@@ -26,6 +25,7 @@ import UserPaymentPage from "@/pages/my-account/account-sub-page/UserPaymentPage
 import AdminDashboard from "@/pages/admin/AdminDashboard.tsx";
 import CustomerSupportChat from "@/pages/admin/admin-chat/CustomerSupportChat.tsx";
 import ProductRatingPage from "@/pages/my-account/account-sub-page/product-rating/ProductRatingPage.tsx";
+import TestPage from "@/pages/test/TestPage.tsx";
 
 export const router = createBrowserRouter([
   {

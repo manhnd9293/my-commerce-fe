@@ -7,6 +7,8 @@ import {
   DashboardPeriod,
   DetailPeriod,
 } from "@/dto/analytic/dashboard/dashboard-query.dto.ts";
+import { ProductVariant } from "@/dto/product/product-variant.ts";
+import { KeyboardEvent } from "react";
 
 const Utils = {
   getErrorMessage(error: Error) {
@@ -83,6 +85,18 @@ const Utils = {
     };
 
     return record[period];
+  },
+
+  getProductVariantSpecsString(pv: ProductVariant) {
+    return pv.specs
+      .map((s) => `${s.optionName}:${s.optionValueName}`)
+      .join("-");
+  },
+
+  handleKeyDownAllowNumberOnly(e: KeyboardEvent<HTMLInputElement>) {
+    if (!/\d/.test(e.key) && e.key !== "Backspace") {
+      e.preventDefault();
+    }
   },
 };
 

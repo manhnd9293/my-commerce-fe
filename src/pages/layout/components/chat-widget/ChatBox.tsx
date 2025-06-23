@@ -29,16 +29,14 @@ function ChatBox({ conversationId, onConversationEnd }: ChatBoxProps) {
 
   const { data: oldMessages } = useQuery({
     queryKey: ["conversation_messages", conversationId],
-    queryFn: () =>
-      ConversationsService.getConversationMessages(conversationId as number),
+    queryFn: () => ConversationsService.getConversationMessages(conversationId),
     refetchOnWindowFocus: false,
     refetchInterval: false,
   });
 
   const { data: conversationDetail, refetch: refetchConversation } = useQuery({
     queryKey: ["conversation", conversationId],
-    queryFn: () =>
-      ConversationsService.getConversationDetail(conversationId as number),
+    queryFn: () => ConversationsService.getConversationDetail(conversationId),
   });
 
   useEffect(() => {

@@ -27,43 +27,11 @@ import { Editor } from "@tinymce/tinymce-react";
 import React, { useRef } from "react";
 import notification from "@/utils/notification.tsx";
 import ProductImageList from "@/pages/admin/products/form/ProductImageList.tsx";
-import ProductColorForm, {
-  colorFormSchema,
-} from "@/pages/admin/products/form/product-colors/ProductColorForm.tsx";
 import ProductsService from "@/services/products.service.ts";
-import ProductSizeForm, {
-  sizeFormSchema,
-} from "@/pages/admin/products/form/product-sizes/ProductSizeForm.tsx";
+import ProductVariantForm from "@/pages/admin/products/form/product-variant/ProductVariantForm.tsx";
+import { productFormSchema } from "@/pages/admin/products/form/product-form-schema.ts";
 
-const allowTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-
-export const productFormSchema = z.object({
-  name: z
-    .string()
-    .min(1, {
-      message: "Please provide product name",
-    })
-    .max(255),
-  productMedia: z.string().array().optional(),
-  price: z.number().optional(),
-  description: z.string().max(50000).optional(),
-  categoryId: z.string({ message: "Please provide category information" }),
-  productSizes: z
-    .object({
-      name: z.string(),
-      id: z.string().optional().nullable(),
-    })
-    .array()
-    .optional(),
-  productColors: z
-    .object({
-      name: z.string().min(1, { message: "Product color required" }),
-      code: z.string(),
-      id: z.string().optional().nullable(),
-    })
-    .array()
-    .optional(),
-});
+// const allowTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
 interface ProductFormProps {
   initialData?: Product;
@@ -149,74 +117,12 @@ function ProductForm(props: ProductFormProps) {
   });
 
   async function onSubmit(values: z.infer<typeof productFormSchema>) {
+    console.log(`submit product form`);
     if (isUpdate) {
       await mutateUpdate(values);
     } else {
       await mutateCreate(values);
     }
-  }
-
-  function handleAddSize(values: z.infer<typeof sizeFormSchema>) {
-    const sizes = productForm.getValues("productSizes");
-    productForm.setValue("productSizes", [
-      ...(sizes || []),
-      { name: values.name },
-    ]);
-  }
-
-  function handleUpdateSize(values: z.infer<typeof sizeFormSchema>) {
-    const sizes = productForm.getValues("productSizes");
-    const updateSizes = sizes!.map((size, index) =>
-      index === values.index
-        ? {
-            ...size,
-            ...{
-              name: values.name,
-              id: values.id,
-            },
-          }
-        : size,
-    );
-    productForm.setValue("productSizes", updateSizes);
-  }
-
-  function handleDeleteSize(removeIndex: number) {
-    const updateProductSizes = (
-      productForm.getValues("productSizes") || []
-    ).filter((_color, index) => index !== removeIndex);
-    productForm.setValue("productSizes", updateProductSizes);
-  }
-
-  function handleAddColor(values: z.infer<typeof colorFormSchema>) {
-    const colors = productForm.getValues("productColors");
-    productForm.setValue("productColors", [
-      ...(colors || []),
-      { name: values.name, code: values.code },
-    ]);
-  }
-
-  function handleUpdateColor(values: z.infer<typeof colorFormSchema>) {
-    const colors = productForm.getValues("productColors");
-    const updateColors = colors!.map((color, index) =>
-      index === values.index
-        ? {
-            ...color,
-            ...{
-              name: values.name,
-              code: values.code,
-              id: values.id,
-            },
-          }
-        : color,
-    );
-    productForm.setValue("productColors", updateColors);
-  }
-
-  function handleDeleteColor(removeIndex: number) {
-    const updateProductColors = (
-      productForm.getValues("productColors") || []
-    ).filter((_color, index) => index !== removeIndex);
-    productForm.setValue("productColors", updateProductColors);
   }
 
   function handleChangePrice(e: React.ChangeEvent<HTMLInputElement>) {
@@ -259,6 +165,8 @@ function ProductForm(props: ProductFormProps) {
     }
   }
 
+  function handleProductVariantFormUpdate() {}
+
   return (
     <div className={"mt-4 max-w-3xl"}>
       <FormProvider {...productForm}>
@@ -297,38 +205,7 @@ function ProductForm(props: ProductFormProps) {
                       editorRef.current = editor;
                     }}
                     value={productForm.getValues("description")}
-                    init={{
-                      height: 500,
-                      menubar: false,
-                      branding: false,
-                      plugins: [
-                        "advlist",
-                        "autolink",
-                        "lists",
-                        "link",
-                        "image",
-                        "charmap",
-                        "preview",
-                        "anchor",
-                        "searchreplace",
-                        "visualblocks",
-                        "code",
-                        "fullscreen",
-                        "insertdatetime",
-                        "media",
-                        "table",
-                        "code",
-                        "help",
-                        "wordcount",
-                      ],
-                      toolbar:
-                        "undo redo | blocks | " +
-                        "bold italic forecolor | alignleft aligncenter " +
-                        "alignright alignjustify | bullist numlist outdent indent | " +
-                        "removeformat | help",
-                      content_style:
-                        "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-                    }}
+                    init={editorConfig}
                     onEditorChange={(newValue) => {
                       productForm.setValue("description", newValue, {
                         shouldValidate: true,
@@ -391,60 +268,33 @@ function ProductForm(props: ProductFormProps) {
             />
           </div>
 
-          <div className={"bg-white rounded-md px-4 py-2 space-y-6 shadow-md"}>
-            <div className={"font-bold"}>Variants</div>
+          <div className={"bg-white rounded-md p-4 shadow-md"}>
+            <div className={"font-semibold"}>Pricing</div>
             <FormField
-              name={"productSizes"}
               control={productForm.control}
-              render={() => (
-                <FormItem className={"flex space-y-4 flex-col"}>
-                  <FormLabel>Product Sizes</FormLabel>
-                  <ProductSizeForm
-                    onAddSize={handleAddSize}
-                    onUpdateSize={handleUpdateSize}
-                    onDeleteSize={handleDeleteSize}
-                    initialSizes={productForm.getValues("productSizes")}
-                  />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              name={"productColors"}
-              control={productForm.control}
-              render={() => (
-                <FormItem className={"flex space-y-4 flex-col"}>
-                  <FormLabel>Product Color</FormLabel>
-                  <ProductColorForm
-                    onAddColor={handleAddColor}
-                    onUpdateColor={handleUpdateColor}
-                    onDeleteColor={handleDeleteColor}
-                    initialColors={productForm.getValues("productColors")}
-                  />
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={"font-light"}>Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Price"
+                      {...field}
+                      className={"w-64"}
+                      value={productForm.getValues("price") ?? ""}
+                      onChange={handleChangePrice}
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          <FormField
-            control={productForm.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Price"
-                    {...field}
-                    className={"w-64"}
-                    value={productForm.getValues("price") ?? ""}
-                    onChange={handleChangePrice}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className={"bg-white rounded-md px-4 py-4 space-y-6 shadow-md"}>
+            <div className={"font-semibold"}>Variants</div>
+            <ProductVariantForm onUpdate={handleProductVariantFormUpdate} />
+          </div>
 
           <div className={"flex gap-4"}>
             <Button type="submit" disabled={isPending} className={""}>
@@ -478,5 +328,38 @@ function ProductForm(props: ProductFormProps) {
     </div>
   );
 }
+
+const editorConfig = {
+  height: 500,
+  menubar: false,
+  branding: false,
+  plugins: [
+    "advlist",
+    "autolink",
+    "lists",
+    "link",
+    "image",
+    "charmap",
+    "preview",
+    "anchor",
+    "searchreplace",
+    "visualblocks",
+    "code",
+    "fullscreen",
+    "insertdatetime",
+    "media",
+    "table",
+    "code",
+    "help",
+    "wordcount",
+  ],
+  toolbar:
+    "undo redo | blocks | " +
+    "bold italic forecolor | alignleft aligncenter " +
+    "alignright alignjustify | bullist numlist outdent indent | " +
+    "removeformat | help",
+  content_style:
+    "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+};
 
 export default ProductForm;

@@ -3,21 +3,26 @@ import { ProductColor } from "@/dto/product/product-color.ts";
 import { ProductSize } from "@/dto/product/product-size.ts";
 import { Product } from "@/dto/product/product.ts";
 import { ProductVariantImage } from "@/dto/product/product-variant-image.ts";
+import { ProductVariantSpecs } from "@/dto/product/product-variant-specs.ts";
 
 export interface ProductVariant extends BaseDto {
-  productId: string;
+  productId: string | null;
 
   product?: Product | null | undefined;
 
-  productSizeId: string;
+  productSizeId?: string;
 
-  productSize: ProductSize;
+  productSize?: ProductSize;
 
-  productColorId: string;
+  productColorId?: string;
 
-  productColor: ProductColor;
+  productColor?: ProductColor;
 
-  images: ProductVariantImage[];
+  images?: ProductVariantImage[];
 
   quantity: number;
+
+  price: number;
+
+  specs: ProductVariantSpecs;
 }

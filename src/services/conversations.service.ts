@@ -11,7 +11,7 @@ class QueryConversationDto {
 }
 
 class ConversationsService {
-  getConversationMessages(conversationId: number): Promise<MessageDto[]> {
+  getConversationMessages(conversationId: string): Promise<MessageDto[]> {
     return httpClient.get(`/conversations/${conversationId}/messages`);
   }
 
@@ -23,7 +23,7 @@ class ConversationsService {
     return httpClient.get(`/conversations?${queryString}`);
   }
 
-  getConversationDetail(id: number): Promise<ConversationDto> {
+  getConversationDetail(id: string): Promise<ConversationDto> {
     return httpClient.get(`/conversations/${id}`);
   }
 

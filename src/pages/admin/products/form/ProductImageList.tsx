@@ -1,4 +1,4 @@
-import React, { MouseEvent, useState } from "react";
+import { MouseEvent, useState } from "react";
 import { LoaderCircle, PlusIcon } from "lucide-react";
 import MediaModal from "@/pages/admin/products/MediaModal.tsx";
 import { cn } from "@/lib/utils.ts";
@@ -47,7 +47,6 @@ function ProductImageList({
   productId,
   onUpdateMedia,
   onDeleteMedia,
-  isUpdating,
   isDeleting,
 }: ProductImageListProps) {
   const [mediaFiles, setMediaFiles] = useState(
@@ -268,6 +267,7 @@ function ProductImageList({
         productId={productId}
         initialSelectedIds={mediaFiles.map((file) => file.id)}
         onUpdate={handleUpdateMedia}
+        key={mediaFiles.map((file) => file.id).join("-")}
       />
     </>
   );
