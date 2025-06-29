@@ -1,10 +1,11 @@
 import { Input } from "@/components/ui/input.tsx";
 import { ProductOptionValue } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 import { ChevronDown, ChevronUp, ImagePlus } from "lucide-react";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
 import ProductVariantDetailRow from "@/pages/admin/products/form/product-variant/product-variant-table/ProductVariantDetailRow.tsx";
 import Utils from "@/utils/utils.ts";
+import { ProductVariantFormContext } from "@/pages/admin/products/form/product-variant/ProductVariantFormContext.ts";
 
 interface ProductVariantTableRowProps {
   groupByOptionValue: ProductOptionValue;
@@ -16,23 +17,35 @@ function ProductVariantTableRow({
   productVariants,
 }: ProductVariantTableRowProps) {
   const [collapse, setCollapse] = useState(true);
-  const [groupPrice, setGroupPrice] = useState<string | number>(0);
-
-  const [quantityMap, setQuantityMap] = useState<{ [key: string]: number }>(
+  const [groupPrice, setGroupPrice] = useState<string | number>(() => {
+    const minPrice = Math.min(...productVariants.map((v) => v.price));
+    const maxPrice = Math.max(...productVariants.map((v) => v.price));
+    return minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`;
+  });
+  const [quantityMap, setQuantityMap] = useState<{
+    [productVariantId: string]: number;
+  }>(
     productVariants.reduce((acc: { [key: string]: number }, pv) => {
-      const key = Utils.getProductVariantSpecsString(pv);
-      acc[key] = pv.quantity;
+      acc[pv.id!] = pv.quantity;
+
       return acc;
     }, {}),
   );
-
   const [priceMap, setPriceMap] = useState<{ [key: string]: number }>(
     productVariants.reduce((acc: { [key: string]: number }, pv) => {
-      const key = Utils.getProductVariantSpecsString(pv);
-      acc[key] = pv.price;
+      acc[pv.id!] = pv.price;
+
       return acc;
     }, {}),
   );
+
+  const context = useContext(ProductVariantFormContext);
+
+  if (!context) {
+    throw Error("Component must be in a product variant form context");
+  }
+
+  const handleProductVariantUpdate = context.handleProductVariantUpdate!;
 
   const totalAvailable = Object.values(quantityMap).reduce(
     (sum, quantity) => sum + quantity,
@@ -45,17 +58,34 @@ function ProductVariantTableRow({
     }
   }
 
-  function handleChangeQuantity(specString: string, quantity: number) {
+  function handleChangeQuantity(productVariantId: string, quantity: number) {
+    const updateVariant = productVariants.find(
+      (pv) => pv.id === productVariantId,
+    );
+    if (!updateVariant) {
+      throw Error("Invalid update variant");
+    }
     setQuantityMap({
       ...quantityMap,
-      [specString]: quantity,
+      [productVariantId]: quantity,
     });
+
+    handleProductVariantUpdate([
+      { ...structuredClone(updateVariant), quantity },
+    ]);
   }
 
-  function handleChangePrice(specString: string, price: number) {
+  function handleChangePrice(productVariantId: string, price: number) {
+    const updateVariant = productVariants.find(
+      (pv) => pv.id === productVariantId,
+    );
+    if (!updateVariant) {
+      throw Error("Invalid update variant");
+    }
+
     const updatePriceMap = {
       ...priceMap,
-      [specString]: price,
+      [productVariantId]: price,
     };
     setPriceMap(updatePriceMap);
 
@@ -64,6 +94,8 @@ function ProductVariantTableRow({
     const priceRange =
       minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`;
     setGroupPrice(priceRange);
+
+    handleProductVariantUpdate([{ ...structuredClone(updateVariant), price }]);
   }
 
   function handleChangeGroupPrice(e: ChangeEvent<HTMLInputElement>) {
@@ -75,6 +107,13 @@ function ProductVariantTableRow({
 
     setPriceMap(clonePriceMap);
     setGroupPrice(newPrice);
+
+    handleProductVariantUpdate(
+      structuredClone(productVariants).map((pv) => ({
+        ...pv,
+        price: newPrice,
+      })),
+    );
   }
 
   function handleGroupPriceBlur() {
@@ -152,15 +191,14 @@ function ProductVariantTableRow({
       {!collapse && (
         <div className={"flex flex-col gap-2"}>
           {productVariants.map((variant) => {
-            const specString = Utils.getProductVariantSpecsString(variant);
             return (
               <ProductVariantDetailRow
-                key={specString}
+                key={variant.id}
                 variant={variant}
                 groupByOptionValue={groupByOptionValue}
                 onChangeQuantity={handleChangeQuantity}
-                quantity={quantityMap[specString]}
-                price={priceMap[specString]}
+                quantity={quantityMap[variant.id!]}
+                price={priceMap[variant.id!]}
                 onChangePrice={handleChangePrice}
               />
             );

@@ -3,13 +3,12 @@ import { Input } from "@/components/ui/input.tsx";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
 import { ProductOptionValue } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
 import { ChangeEvent, KeyboardEvent } from "react";
-import Utils from "@/utils/utils.ts";
 
 interface ProductVariantDetailRowProps {
   variant: ProductVariant;
   groupByOptionValue: ProductOptionValue;
-  onChangeQuantity: (specStrings: string, q: number) => void;
-  onChangePrice: (specStrings: string, price: number) => void;
+  onChangeQuantity: (id: string, q: number) => void;
+  onChangePrice: (id: string, price: number) => void;
   quantity: number;
   price: number;
 }
@@ -23,10 +22,7 @@ function ProductVariantDetailRow({
   onChangePrice,
 }: ProductVariantDetailRowProps) {
   function handleChangeQuantity(e: ChangeEvent<HTMLInputElement>) {
-    onChangeQuantity(
-      Utils.getProductVariantSpecsString(variant),
-      Number(e.target.value),
-    );
+    onChangeQuantity(variant.id!, Number(e.target.value));
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -37,7 +33,7 @@ function ProductVariantDetailRow({
 
   function handleChangePrice(e: ChangeEvent<HTMLInputElement>) {
     const price = Number(e.target.value);
-    onChangePrice(Utils.getProductVariantSpecsString(variant), price);
+    onChangePrice(variant.id!, price);
   }
 
   return (

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
+import { ChangeEvent, KeyboardEvent, MouseEvent } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,17 +18,16 @@ import {
 } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
 import { ProductOptionsCollapse } from "@/pages/admin/products/form/product-variant/product-option-form/ProductOptionsCollapse.tsx";
 import { OptionValueInput } from "@/pages/admin/products/form/product-variant/product-option-form/OptionValueInput.tsx";
+import { v4 as uuidV4 } from "uuid";
 
 function ProductOptionForm({
   data,
   onDelete,
   onUpdate,
   index,
+  collapse,
+  updateCollapse,
 }: ProductOptionFormProps) {
-  const [collapse, setCollapse] = useState(false);
-  const [currentFormValues, setCurrentFormValues] =
-    useState<z.infer<typeof optionFormSchema>>();
-
   const form = useForm<z.infer<typeof optionFormSchema>>({
     resolver: zodResolver(optionFormSchema),
     mode: "onChange",
@@ -48,8 +47,7 @@ function ProductOptionForm({
       ...values,
       optionValues: values.optionValues.filter((v) => v.name !== ""),
     };
-    setCurrentFormValues(updateValues);
-    setCollapse(true);
+    updateCollapse(data.id!, true);
     onUpdate({ index, updateValues });
   }
 
@@ -111,6 +109,12 @@ function ProductOptionForm({
         (value, index) =>
           !(index === optionValues.length - 1 && value.name === ""),
       );
+    filterValues.forEach((optionValue) => {
+      if (optionValue.id) {
+        return;
+      }
+      optionValue.id = uuidV4();
+    });
     form.setValue("optionValues", filterValues);
     const isValid = await form.trigger();
     if (!isValid) {
@@ -120,7 +124,7 @@ function ProductOptionForm({
   }
 
   function handleUnCollapse() {
-    setCollapse(false);
+    updateCollapse(data.id!, false);
     form.setValue("optionValues", [
       ...form.getValues("optionValues"),
       { name: "", empty: true },
@@ -128,12 +132,7 @@ function ProductOptionForm({
   }
 
   if (collapse) {
-    return (
-      <ProductOptionsCollapse
-        data={currentFormValues!}
-        onClick={handleUnCollapse}
-      />
-    );
+    return <ProductOptionsCollapse data={data} onClick={handleUnCollapse} />;
   }
 
   return (

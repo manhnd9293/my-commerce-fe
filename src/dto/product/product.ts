@@ -4,6 +4,7 @@ import { ProductSize } from "@/dto/product/product-size.ts";
 import { ProductColor } from "@/dto/product/product-color.ts";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
 import { ProductImage } from "@/dto/product/product-image.ts";
+import { ProductOption } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
 
 export interface Product extends BaseDto {
   name: string;
@@ -25,4 +26,6 @@ export interface Product extends BaseDto {
   price: number;
 
   thumbnailUrl: string;
+
+  productOptions: ProductOption[];
 }

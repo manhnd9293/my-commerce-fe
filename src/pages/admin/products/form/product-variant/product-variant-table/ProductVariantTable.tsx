@@ -1,7 +1,6 @@
 import { ProductOption } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
 import ProductVariantTableRow from "@/pages/admin/products/form/product-variant/product-variant-table/ProductVariantTableRow.tsx";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
-import Utils from "@/utils/utils.ts";
 
 interface ProductVariantTableProps {
   groupByOption: ProductOption;
@@ -14,7 +13,7 @@ function ProductVariantTable({
 }: ProductVariantTableProps) {
   return (
     <div className={"mt-4 -mx-4"}>
-      <div className={"flex items-center mb-2 bg-gray-200 px-4 pt-1"}>
+      <div className={"flex items-center mb-2 bg-gray-200 px-4 py-2 pt-1"}>
         <span className={"basis-1/2 text-gray-600"}>Variant</span>
         <span className={"basis-1/3 text-gray-600"}>Price</span>
         <span className={"basis-1/6 text-gray-600"}>Available</span>
@@ -31,7 +30,7 @@ function ProductVariantTable({
           );
           return (
             <ProductVariantTableRow
-              key={`${groupByOptionValue.name}-${variantsInGroup.map((v) => Utils.getProductVariantSpecsString(v)).join("+")}`}
+              key={groupByOptionValue.id!}
               productVariants={variantsInGroup}
               groupByOptionValue={groupByOptionValue}
             />

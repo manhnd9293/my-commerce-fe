@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ProductVariant } from "@/dto/product/product-variant.ts";
 
 export const optionFormSchema = z.object({
   name: z.string().min(1, {
@@ -48,6 +49,8 @@ export type ProductOptionFormProps = {
     index: number;
   }) => void;
   index: number;
+  collapse: boolean;
+  updateCollapse: (id: string, updateValue: boolean) => void;
 };
 
 export interface ProductOption {
@@ -62,3 +65,8 @@ export interface ProductOptionValue {
   name: string;
   productOptionId?: string | null;
 }
+
+export type ProductVariantFormUpdateData = {
+  options: ProductOption[];
+  productVariants: ProductVariant[];
+};

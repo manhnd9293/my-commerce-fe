@@ -24,12 +24,14 @@ import {
   SelectValue,
 } from "@/components/ui/select.tsx";
 import { Editor } from "@tinymce/tinymce-react";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import notification from "@/utils/notification.tsx";
 import ProductImageList from "@/pages/admin/products/form/ProductImageList.tsx";
 import ProductsService from "@/services/products.service.ts";
 import ProductVariantForm from "@/pages/admin/products/form/product-variant/ProductVariantForm.tsx";
 import { productFormSchema } from "@/pages/admin/products/form/product-form-schema.ts";
+import { ProductOption } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
+import { ProductVariant } from "@/dto/product/product-variant.ts";
 
 // const allowTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
@@ -42,6 +44,13 @@ function ProductForm(props: ProductFormProps) {
   const { initialData } = props;
   const isUpdate = !!initialData;
   const productId = initialData?.id;
+
+  const [productVariants, setProductVariants] = useState<ProductVariant[]>(
+    initialData?.productVariants || [],
+  );
+  const [productOptions, setProductOptions] = useState<ProductOption[]>(
+    initialData?.productOptions || [],
+  );
 
   const queryClient = useQueryClient();
   const editorRef = useRef(null);
@@ -70,7 +79,10 @@ function ProductForm(props: ProductFormProps) {
 
   const { isPending, mutateAsync: mutateUpdate } = useMutation({
     mutationFn: (variables: z.infer<typeof productFormSchema>) =>
-      ProductsService.update(initialData!.id, variables),
+      ProductsService.update(initialData!.id!, {
+        ...variables,
+        productVariants,
+      }),
     onSuccess: async () => {
       notification.success("Update product success");
       await queryClient.invalidateQueries({
@@ -117,11 +129,10 @@ function ProductForm(props: ProductFormProps) {
   });
 
   async function onSubmit(values: z.infer<typeof productFormSchema>) {
-    console.log(`submit product form`);
     if (isUpdate) {
       await mutateUpdate(values);
     } else {
-      await mutateCreate(values);
+      await mutateCreate({ ...values, productOptions, productVariants });
     }
   }
 
@@ -165,7 +176,13 @@ function ProductForm(props: ProductFormProps) {
     }
   }
 
-  function handleProductVariantFormUpdate() {}
+  function handleUpdateOptions(options: ProductOption[]) {
+    setProductOptions(options);
+  }
+
+  function handleUpdateProductVariants(updateVariants: ProductVariant[]) {
+    setProductVariants(updateVariants);
+  }
 
   return (
     <div className={"mt-4 max-w-3xl"}>
@@ -293,7 +310,12 @@ function ProductForm(props: ProductFormProps) {
 
           <div className={"bg-white rounded-md px-4 py-4 space-y-6 shadow-md"}>
             <div className={"font-semibold"}>Variants</div>
-            <ProductVariantForm onUpdate={handleProductVariantFormUpdate} />
+            <ProductVariantForm
+              productVariants={productVariants}
+              options={productOptions}
+              onUpdateOptions={handleUpdateOptions}
+              onUpdateProductVariants={handleUpdateProductVariants}
+            />
           </div>
 
           <div className={"flex gap-4"}>

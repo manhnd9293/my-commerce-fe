@@ -1,14 +1,21 @@
 import httpClient from "@/http-client/http-client.ts";
 import { Product } from "@/dto/product/product.ts";
 import { z } from "zod";
-import { productFormSchema } from "@/pages/admin/products/form/ProductForm.tsx";
 import { ProductQueryDto } from "@/dto/product/product-query.dto.ts";
 import { PageData } from "@/dto/page-data/page-data.ts";
 import { BaseQueryDto } from "@/dto/query/base-query.dto.ts";
 import Utils from "@/utils/utils.ts";
+import { productFormSchema } from "@/pages/admin/products/form/product-form-schema.ts";
+import { ProductOption } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
+import { ProductVariant } from "@/dto/product/product-variant.ts";
 
 class ProductsService {
-  async create(data: z.infer<typeof productFormSchema>) {
+  async create(
+    data: z.infer<typeof productFormSchema> & {
+      productOptions: ProductOption[];
+      productVariants: ProductVariant[];
+    },
+  ) {
     return httpClient.post("/products", data);
   }
 
@@ -27,9 +34,11 @@ class ProductsService {
 
   async update(
     productId: string,
-    updateProduct: z.infer<typeof productFormSchema>,
+    updateProduct: z.infer<typeof productFormSchema> & {
+      productVariants: ProductVariant[];
+    },
   ) {
-    console.log({ productId });
+    console.log({ updateProduct });
     return httpClient.put(`/products/${productId}`, updateProduct);
   }
 

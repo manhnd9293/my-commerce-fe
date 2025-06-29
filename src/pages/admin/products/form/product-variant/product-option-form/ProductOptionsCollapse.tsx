@@ -1,10 +1,9 @@
-import { optionFormSchema } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
+import { ProductOption } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
 import { v4 as uuidV4 } from "uuid";
-import { z } from "zod";
 import { MouseEvent } from "react";
 
 type ProductOptionsCollapseProps = {
-  data: z.infer<typeof optionFormSchema>;
+  data: ProductOption;
   onClick: (e: MouseEvent<HTMLDivElement>) => void;
 };
 
