@@ -71,16 +71,20 @@ function getUpdateProductVariantOnChangeOptionList(
     },
     {},
   );
+  const currentOptionId = new Set();
   const productVariantsClone = structuredClone(productVariants);
   for (const pv of productVariantsClone) {
     const specs = pv.specs;
     for (const spec of specs) {
       const optionId = spec.optionId;
+      currentOptionId.add(optionId);
       const updateOption = optionIdToOption[optionId];
+
       if (!updateOption) {
         //todo: handle this case later
         throw new Error("Update option not exist");
       }
+
       spec.optionName = updateOption.name;
       const updateOptionValue = updateOption.optionValues!.find(
         (v) => v.id === spec.optionValueId,
@@ -93,7 +97,41 @@ function getUpdateProductVariantOnChangeOptionList(
     }
   }
 
-  return productVariantsClone;
+  const newOptionIds = Object.keys(optionIdToOption).filter(
+    (id) => !currentOptionId.has(id),
+  );
+
+  if (newOptionIds.length === 0) {
+    return productVariantsClone;
+  }
+
+  let updateVariants = productVariantsClone;
+  for (const newOptionId of newOptionIds) {
+    const newOption = optionIdToOption[newOptionId];
+    const next = [];
+    for (const variant of updateVariants) {
+      for (let index = 0; index < newOption.optionValues!.length; index++) {
+        const optionValue = newOption.optionValues![index];
+        const newSpec = {
+          optionId: newOptionId,
+          optionName: newOption.name,
+          optionValueId: optionValue.id!,
+          optionValueName: optionValue.name,
+        };
+        const cloneVariant = structuredClone(variant);
+        cloneVariant.specs.push(newSpec);
+
+        if (index !== 0) {
+          cloneVariant.id = uuidV4();
+          cloneVariant.quantity = 0;
+        }
+        next.push(cloneVariant);
+      }
+    }
+    updateVariants = next;
+  }
+
+  return updateVariants;
 }
 
 type ProductVariantFormProps = {
@@ -101,6 +139,7 @@ type ProductVariantFormProps = {
   options: ProductOption[];
   onUpdateOptions: (options: ProductOption[]) => void;
   onUpdateProductVariants: (productVariants: ProductVariant[]) => void;
+  initialData: ProductVariant[] | undefined;
 };
 
 function ProductVariantForm({
@@ -108,6 +147,7 @@ function ProductVariantForm({
   options,
   onUpdateOptions,
   onUpdateProductVariants,
+  initialData,
 }: ProductVariantFormProps) {
   const [groupById, setGroupById] = useState<string | null>(
     options.length > 0 && options[0].id ? options[0].id : null,
@@ -122,7 +162,9 @@ function ProductVariantForm({
   );
 
   function handleAddOption() {
-    onUpdateOptions([...options, { name: "", id: uuidV4(), isNew: true }]);
+    const newId = uuidV4();
+    onUpdateOptions([...options, { name: "", id: newId, isNew: true }]);
+    setCollapseOptionForm((prev) => ({ ...prev, [newId]: false }));
   }
 
   function onDeleteOptionForm(id: string) {
@@ -154,13 +196,12 @@ function ProductVariantForm({
       setGroupById(cloneOptionList[0].id);
     }
 
-    const updateProductVariants = productVariants
+    const updateProductVariants = initialData
       ? getUpdateProductVariantOnChangeOptionList(
           productVariants,
           cloneOptionList,
         )
       : getProductVariants(cloneOptionList);
-
     onUpdateProductVariants(updateProductVariants);
   }
 
@@ -259,7 +300,7 @@ function ProductVariantForm({
           </div>
         )}
 
-        {groupByOption && productVariants.length > 0 && (
+        {groupByOption && productVariants && productVariants.length > 0 && (
           <ProductVariantTable
             groupByOption={groupByOption}
             productVariants={productVariants}
