@@ -22,22 +22,6 @@ function ProductVariantTableRow({
     const maxPrice = Math.max(...productVariants.map((v) => v.price));
     return minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`;
   });
-  const [quantityMap, setQuantityMap] = useState<{
-    [productVariantId: string]: number;
-  }>(
-    productVariants.reduce((acc: { [key: string]: number }, pv) => {
-      acc[pv.id!] = pv.quantity;
-
-      return acc;
-    }, {}),
-  );
-  const [priceMap, setPriceMap] = useState<{ [key: string]: number }>(
-    productVariants.reduce((acc: { [key: string]: number }, pv) => {
-      acc[pv.id!] = pv.price;
-
-      return acc;
-    }, {}),
-  );
 
   const context = useContext(ProductVariantFormContext);
 
@@ -47,8 +31,8 @@ function ProductVariantTableRow({
 
   const handleProductVariantUpdate = context.handleProductVariantUpdate!;
 
-  const totalAvailable = Object.values(quantityMap).reduce(
-    (sum, quantity) => sum + quantity,
+  const totalAvailable = productVariants.reduce(
+    (sum, variant) => sum + variant.quantity,
     0,
   );
 
@@ -65,10 +49,6 @@ function ProductVariantTableRow({
     if (!updateVariant) {
       throw Error("Invalid update variant");
     }
-    setQuantityMap({
-      ...quantityMap,
-      [productVariantId]: quantity,
-    });
 
     handleProductVariantUpdate([
       { ...structuredClone(updateVariant), quantity },
@@ -83,14 +63,15 @@ function ProductVariantTableRow({
       throw Error("Invalid update variant");
     }
 
-    const updatePriceMap = {
-      ...priceMap,
-      [productVariantId]: price,
-    };
-    setPriceMap(updatePriceMap);
+    const prices = productVariants.map((p) => {
+      if (p.id !== productVariantId) {
+        return p.price;
+      }
+      return price;
+    });
 
-    const minPrice = Math.min(...Object.values(updatePriceMap));
-    const maxPrice = Math.max(...Object.values(updatePriceMap));
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
     const priceRange =
       minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`;
     setGroupPrice(priceRange);
@@ -100,12 +81,7 @@ function ProductVariantTableRow({
 
   function handleChangeGroupPrice(e: ChangeEvent<HTMLInputElement>) {
     const newPrice = Number(e.target.value);
-    const clonePriceMap = structuredClone(priceMap);
-    for (const key of Object.keys(priceMap)) {
-      clonePriceMap[key] = newPrice;
-    }
 
-    setPriceMap(clonePriceMap);
     setGroupPrice(newPrice);
 
     handleProductVariantUpdate(
@@ -120,8 +96,9 @@ function ProductVariantTableRow({
     if (typeof groupPrice === "number") {
       return;
     }
-    const minPrice = Math.min(...Object.values(priceMap));
-    const maxPrice = Math.max(...Object.values(priceMap));
+    const prices = productVariants.map((p) => p.price);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
     const priceRange =
       minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`;
     setGroupPrice(priceRange);
@@ -197,8 +174,6 @@ function ProductVariantTableRow({
                 variant={variant}
                 groupByOptionValue={groupByOptionValue}
                 onChangeQuantity={handleChangeQuantity}
-                quantity={quantityMap[variant.id!]}
-                price={priceMap[variant.id!]}
                 onChangePrice={handleChangePrice}
               />
             );

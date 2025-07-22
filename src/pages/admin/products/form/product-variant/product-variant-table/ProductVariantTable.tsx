@@ -28,6 +28,7 @@ function ProductVariantTable({
                 spec.optionName === groupByOption.name,
             ),
           );
+
           return (
             <ProductVariantTableRow
               key={groupByOptionValue.id!}

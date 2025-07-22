@@ -9,16 +9,12 @@ interface ProductVariantDetailRowProps {
   groupByOptionValue: ProductOptionValue;
   onChangeQuantity: (id: string, q: number) => void;
   onChangePrice: (id: string, price: number) => void;
-  quantity: number;
-  price: number;
 }
 
 function ProductVariantDetailRow({
   variant,
   groupByOptionValue,
   onChangeQuantity,
-  quantity,
-  price,
   onChangePrice,
 }: ProductVariantDetailRowProps) {
   function handleChangeQuantity(e: ChangeEvent<HTMLInputElement>) {
@@ -62,7 +58,7 @@ function ProductVariantDetailRow({
       <Input
         className={"basis-1/3"}
         placeholder={"price"}
-        value={price}
+        value={variant.price}
         onKeyDown={handleKeyDown}
         onChange={handleChangePrice}
       />
@@ -70,7 +66,7 @@ function ProductVariantDetailRow({
       <Input
         className={"basis-1/6"}
         placeholder={"available"}
-        value={quantity}
+        value={variant.quantity}
         onChange={handleChangeQuantity}
         onKeyDown={handleKeyDown}
       />

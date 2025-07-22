@@ -82,6 +82,7 @@ function ProductForm(props: ProductFormProps) {
       ProductsService.update(initialData!.id!, {
         ...variables,
         productVariants,
+        productOptions,
       }),
     onSuccess: async () => {
       notification.success("Update product success");

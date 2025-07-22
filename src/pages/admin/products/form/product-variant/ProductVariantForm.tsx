@@ -60,6 +60,42 @@ function getProductVariants(optionList: ProductOption[]): ProductVariant[] {
   return productVariants;
 }
 
+function getUpdateProductVariantOnChangeOptionList(
+  productVariants: ProductVariant[],
+  optionList: ProductOption[],
+) {
+  const optionIdToOption = optionList.reduce<{ [key: string]: ProductOption }>(
+    (map, option) => {
+      map[option.id!] = option;
+      return map;
+    },
+    {},
+  );
+  const productVariantsClone = structuredClone(productVariants);
+  for (const pv of productVariantsClone) {
+    const specs = pv.specs;
+    for (const spec of specs) {
+      const optionId = spec.optionId;
+      const updateOption = optionIdToOption[optionId];
+      if (!updateOption) {
+        //todo: handle this case later
+        throw new Error("Update option not exist");
+      }
+      spec.optionName = updateOption.name;
+      const updateOptionValue = updateOption.optionValues!.find(
+        (v) => v.id === spec.optionValueId,
+      );
+      if (!updateOptionValue) {
+        //todo: handle this case later
+        throw new Error("option value id not exist");
+      }
+      spec.optionValueName = updateOptionValue.name;
+    }
+  }
+
+  return productVariantsClone;
+}
+
 type ProductVariantFormProps = {
   productVariants: ProductVariant[];
   options: ProductOption[];
@@ -117,10 +153,15 @@ function ProductVariantForm({
     if (cloneOptionList.length === 1 && cloneOptionList[0].id) {
       setGroupById(cloneOptionList[0].id);
     }
-    const productVariants = getProductVariants(cloneOptionList);
 
-    onUpdateOptions(cloneOptionList);
-    onUpdateProductVariants(productVariants);
+    const updateProductVariants = productVariants
+      ? getUpdateProductVariantOnChangeOptionList(
+          productVariants,
+          cloneOptionList,
+        )
+      : getProductVariants(cloneOptionList);
+
+    onUpdateProductVariants(updateProductVariants);
   }
 
   function handleProductVariantUpdate(updateProductVariants: ProductVariant[]) {

@@ -36,6 +36,7 @@ class ProductsService {
     productId: string,
     updateProduct: z.infer<typeof productFormSchema> & {
       productVariants: ProductVariant[];
+      productOptions: ProductOption[];
     },
   ) {
     console.log({ updateProduct });
