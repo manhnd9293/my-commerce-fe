@@ -25,4 +25,6 @@ export interface ProductVariant extends BaseDto {
   price: number;
 
   specs: ProductVariantSpecs;
+
+  isNew?: boolean;
 }

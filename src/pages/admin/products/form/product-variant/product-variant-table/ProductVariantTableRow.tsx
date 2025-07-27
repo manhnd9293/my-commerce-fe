@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input.tsx";
 import { ProductOptionValue } from "@/pages/admin/products/form/product-variant/product-option-form/product-options-form-types.ts";
-import { ChangeEvent, useContext, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, ImagePlus } from "lucide-react";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
 import ProductVariantDetailRow from "@/pages/admin/products/form/product-variant/product-variant-table/ProductVariantDetailRow.tsx";
@@ -12,18 +12,27 @@ interface ProductVariantTableRowProps {
   productVariants: ProductVariant[];
 }
 
+function getGroupPriceFromProductVariants(productVariants: ProductVariant[]) {
+  const minPrice = Math.min(...productVariants.map((v) => v.price));
+  const maxPrice = Math.max(...productVariants.map((v) => v.price));
+  return minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`;
+}
+
 function ProductVariantTableRow({
   groupByOptionValue,
   productVariants,
 }: ProductVariantTableRowProps) {
   const [collapse, setCollapse] = useState(true);
-  const [groupPrice, setGroupPrice] = useState<string | number>(() => {
-    const minPrice = Math.min(...productVariants.map((v) => v.price));
-    const maxPrice = Math.max(...productVariants.map((v) => v.price));
-    return minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`;
-  });
+  const [groupPrice, setGroupPrice] = useState<string | number>(
+    getGroupPriceFromProductVariants(productVariants),
+  );
 
   const context = useContext(ProductVariantFormContext);
+
+  /*Sync group price with data from product variant list*/
+  useEffect(() => {
+    setGroupPrice(getGroupPriceFromProductVariants(productVariants));
+  }, [productVariants]);
 
   if (!context) {
     throw Error("Component must be in a product variant form context");

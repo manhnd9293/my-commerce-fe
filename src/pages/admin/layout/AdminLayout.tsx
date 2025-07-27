@@ -107,7 +107,7 @@ function AdminLayout() {
                 "text-lg font-bold bg-amber-600 text-white p-2 m-[-8px]"
               }
             >
-              MyCommerce Admin
+              Ecommerce Admin
             </div>
           </SidebarHeader>
           <SidebarContent>

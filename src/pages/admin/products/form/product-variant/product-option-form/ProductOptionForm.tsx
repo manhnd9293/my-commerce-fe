@@ -114,6 +114,9 @@ function ProductOptionForm({
         return;
       }
       optionValue.id = uuidV4();
+      if (!data.isNew) {
+        optionValue.isNew = true;
+      }
     });
     form.setValue("optionValues", filterValues);
     const isValid = await form.trigger();

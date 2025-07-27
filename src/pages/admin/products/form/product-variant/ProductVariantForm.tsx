@@ -15,9 +15,13 @@ import {
   SelectValue,
 } from "@/components/ui/select.tsx";
 import ProductVariantTable from "@/pages/admin/products/form/product-variant/product-variant-table/ProductVariantTable.tsx";
-import { SingleSpec } from "@/dto/product/product-variant-specs.ts";
+import {
+  ProductVariantSpecs,
+  SingleSpec,
+} from "@/dto/product/product-variant-specs.ts";
 import { ProductVariant } from "@/dto/product/product-variant.ts";
 import { ProductVariantFormContext } from "@/pages/admin/products/form/product-variant/ProductVariantFormContext.ts";
+import { Product } from "@/dto/product/product.ts";
 
 function getProductVariants(optionList: ProductOption[]): ProductVariant[] {
   if (optionList.length === 0) return [];
@@ -61,18 +65,20 @@ function getProductVariants(optionList: ProductOption[]): ProductVariant[] {
 }
 
 function getUpdateProductVariantOnChangeOptionList(
-  productVariants: ProductVariant[],
-  optionList: ProductOption[],
+  newOptionListClient: ProductOption[],
+  initialData: Product,
 ) {
-  const optionIdToOption = optionList.reduce<{ [key: string]: ProductOption }>(
-    (map, option) => {
-      map[option.id!] = option;
-      return map;
-    },
-    {},
-  );
+  const initialProductVariants = initialData.productVariants || [];
+  // const initialOptionList = initialData.productOptions || [];
+  const optionIdToOption = newOptionListClient.reduce<{
+    [key: string]: ProductOption;
+  }>((map, option) => {
+    map[option.id!] = option;
+    return map;
+  }, {});
   const currentOptionId = new Set();
-  const productVariantsClone = structuredClone(productVariants);
+  const productVariantsClone = structuredClone(initialProductVariants);
+  /* update option name and option value name in spec field of product variant */
   for (const pv of productVariantsClone) {
     const specs = pv.specs;
     for (const spec of specs) {
@@ -97,15 +103,70 @@ function getUpdateProductVariantOnChangeOptionList(
     }
   }
 
+  /* add variants of existing options but have new option names */
+  const existingOptions = newOptionListClient.filter((op) => !op.isNew);
+  const optionsWithNewOptionValue = existingOptions.filter((op) => {
+    return op.optionValues?.some((ov) => ov.isNew);
+  });
+  const productVariantsFromNewOption = [];
+  for (const option of optionsWithNewOptionValue) {
+    const otherOptions = existingOptions.filter((op) => op.id !== option.id);
+    let otherProductVariantSpecs: ProductVariantSpecs[] = [[]];
+    for (const option of otherOptions) {
+      const next: ProductVariantSpecs[] = [];
+      for (const ov of option.optionValues!) {
+        for (const spec of otherProductVariantSpecs) {
+          next.push([
+            ...structuredClone(spec),
+            {
+              optionId: option.id!,
+              optionName: option.name,
+              optionValueId: ov.id!,
+              optionValueName: ov.name,
+            },
+          ]);
+        }
+      }
+      otherProductVariantSpecs = next;
+    }
+
+    const newOptionValues = option.optionValues?.filter((ov) => ov.isNew) || [];
+    for (const newOptionValue of newOptionValues) {
+      for (const productVariantSpec of otherProductVariantSpecs) {
+        const pv: ProductVariant = {
+          id: uuidV4(),
+          productId: initialData.id!,
+          quantity: 0,
+          price: 0,
+          isNew: true,
+          specs: [
+            {
+              optionId: option.id!,
+              optionName: option.name,
+              optionValueId: newOptionValue.id!,
+              optionValueName: newOptionValue.name,
+            },
+            ...productVariantSpec,
+          ],
+        };
+        productVariantsFromNewOption.push(pv);
+      }
+    }
+  }
+
+  /* create new variants from existing variants and new options */
   const newOptionIds = Object.keys(optionIdToOption).filter(
     (id) => !currentOptionId.has(id),
   );
 
   if (newOptionIds.length === 0) {
-    return productVariantsClone;
+    return [...productVariantsClone, ...productVariantsFromNewOption];
   }
 
-  let updateVariants = productVariantsClone;
+  let updateVariants = [
+    ...productVariantsClone,
+    ...productVariantsFromNewOption,
+  ];
   for (const newOptionId of newOptionIds) {
     const newOption = optionIdToOption[newOptionId];
     const next = [];
@@ -139,7 +200,7 @@ type ProductVariantFormProps = {
   options: ProductOption[];
   onUpdateOptions: (options: ProductOption[]) => void;
   onUpdateProductVariants: (productVariants: ProductVariant[]) => void;
-  initialData: ProductVariant[] | undefined;
+  initialData: Product | undefined;
 };
 
 function ProductVariantForm({
@@ -163,7 +224,15 @@ function ProductVariantForm({
 
   function handleAddOption() {
     const newId = uuidV4();
-    onUpdateOptions([...options, { name: "", id: newId, isNew: true }]);
+    onUpdateOptions([
+      ...options,
+      {
+        name: "",
+        id: newId,
+        isNew: true,
+        productId: initialData ? initialData.id! : undefined,
+      },
+    ]);
     setCollapseOptionForm((prev) => ({ ...prev, [newId]: false }));
   }
 
@@ -184,12 +253,11 @@ function ProductVariantForm({
     const { index, updateValues } = data;
     const { name, optionValues } = updateValues;
     const cloneOptionList: ProductOption[] = structuredClone(options);
-    const item: ProductOption = {
+    cloneOptionList[index] = {
       ...cloneOptionList[index],
       name,
       optionValues,
     };
-    cloneOptionList[index] = item;
     onUpdateOptions(cloneOptionList);
 
     if (cloneOptionList.length === 1 && cloneOptionList[0].id) {
@@ -197,10 +265,7 @@ function ProductVariantForm({
     }
 
     const updateProductVariants = initialData
-      ? getUpdateProductVariantOnChangeOptionList(
-          productVariants,
-          cloneOptionList,
-        )
+      ? getUpdateProductVariantOnChangeOptionList(cloneOptionList, initialData)
       : getProductVariants(cloneOptionList);
     onUpdateProductVariants(updateProductVariants);
   }

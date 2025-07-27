@@ -316,7 +316,7 @@ function ProductForm(props: ProductFormProps) {
               options={productOptions}
               onUpdateOptions={handleUpdateOptions}
               onUpdateProductVariants={handleUpdateProductVariants}
-              initialData={initialData?.productVariants}
+              initialData={initialData}
             />
           </div>
 

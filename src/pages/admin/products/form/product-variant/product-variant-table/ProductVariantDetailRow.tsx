@@ -45,13 +45,17 @@ function ProductVariantDetailRow({
         >
           <ImagePlus className={"size-3 text-blue-800"} />
         </div>
-        <div>
+        <div className={'flex gap-2 items-center'}>
           <div className={"text-sm"}>
             {variant.specs
               .filter((s) => s.optionValueName !== groupByOptionValue.name)
               .map((spec) => spec.optionValueName)
               .join(" / ")}
           </div>
+
+          {variant.isNew && (
+            <span className={"bg-sky-400 text-white text-xs p-1 rounded-sm"}>New</span>
+          )}
         </div>
       </div>
 
