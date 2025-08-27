@@ -65,21 +65,23 @@ function getProductVariants(optionList: ProductOption[]): ProductVariant[] {
 }
 
 function getUpdateProductVariantOnChangeOptionList(
-  newOptionListClient: ProductOption[],
+  newOptionList: ProductOption[],
   initialData: Product,
 ) {
   const initialProductVariants = initialData.productVariants || [];
-  // const initialOptionList = initialData.productOptions || [];
-  const optionIdToOption = newOptionListClient.reduce<{
+  const optionIdToOption = newOptionList.reduce<{
     [key: string]: ProductOption;
   }>((map, option) => {
     map[option.id!] = option;
     return map;
   }, {});
   const currentOptionId = new Set();
-  const productVariantsClone = structuredClone(initialProductVariants);
+  let currentProductVariants = structuredClone(initialProductVariants);
+  const deleteOptionValueIdSet = new Set<string>();
+  const deleteOptionIdSet = new Set<string>();
+
   /* update option name and option value name in spec field of product variant */
-  for (const pv of productVariantsClone) {
+  for (const pv of currentProductVariants) {
     const specs = pv.specs;
     for (const spec of specs) {
       const optionId = spec.optionId;
@@ -87,8 +89,8 @@ function getUpdateProductVariantOnChangeOptionList(
       const updateOption = optionIdToOption[optionId];
 
       if (!updateOption) {
-        //todo: handle this case later
-        throw new Error("Update option not exist");
+        deleteOptionIdSet.add(optionId);
+        continue;
       }
 
       spec.optionName = updateOption.name;
@@ -96,22 +98,29 @@ function getUpdateProductVariantOnChangeOptionList(
         (v) => v.id === spec.optionValueId,
       );
       if (!updateOptionValue) {
-        //todo: handle this case later
-        throw new Error("option value id not exist");
+        deleteOptionValueIdSet.add(spec.optionValueId);
+        continue;
       }
       spec.optionValueName = updateOptionValue.name;
     }
   }
+  console.log({ deleteOptionValueIdSet });
+  currentProductVariants = currentProductVariants.filter(
+    (pv) =>
+      !pv.specs.some((spec) => deleteOptionValueIdSet.has(spec.optionValueId)),
+  );
 
-  /* add variants of existing options but have new option names */
-  const existingOptions = newOptionListClient.filter((op) => !op.isNew);
+  /* add variants of existing options but have new option values */
+  const existingOptions = newOptionList.filter((op) => !op.isNew);
   const optionsWithNewOptionValue = existingOptions.filter((op) => {
     return op.optionValues?.some((ov) => ov.isNew);
   });
   const productVariantsFromNewOption = [];
   for (const option of optionsWithNewOptionValue) {
+    /*Get a list of product variants specs from options other than current looping option*/
     const otherOptions = existingOptions.filter((op) => op.id !== option.id);
     let otherProductVariantSpecs: ProductVariantSpecs[] = [[]];
+
     for (const option of otherOptions) {
       const next: ProductVariantSpecs[] = [];
       for (const ov of option.optionValues!) {
@@ -130,6 +139,7 @@ function getUpdateProductVariantOnChangeOptionList(
       otherProductVariantSpecs = next;
     }
 
+    /*Create product variants from new option values and specs created by other options*/
     const newOptionValues = option.optionValues?.filter((ov) => ov.isNew) || [];
     for (const newOptionValue of newOptionValues) {
       for (const productVariantSpec of otherProductVariantSpecs) {
@@ -160,11 +170,11 @@ function getUpdateProductVariantOnChangeOptionList(
   );
 
   if (newOptionIds.length === 0) {
-    return [...productVariantsClone, ...productVariantsFromNewOption];
+    return [...currentProductVariants, ...productVariantsFromNewOption];
   }
 
   let updateVariants = [
-    ...productVariantsClone,
+    ...currentProductVariants,
     ...productVariantsFromNewOption,
   ];
   for (const newOptionId of newOptionIds) {
