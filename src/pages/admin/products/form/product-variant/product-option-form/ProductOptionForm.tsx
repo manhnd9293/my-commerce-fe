@@ -61,9 +61,15 @@ function ProductOptionForm({
         return { ...optionValue, name: updateName, empty: false };
       });
       if (index === optionValues.length - 1 && updateName !== "") {
-        newValues.push({ name: "", empty: true });
+        newValues.push({
+          name: "",
+          empty: true,
+          position: optionValues.length,
+          isNew: true,
+        });
       }
       form.setValue("optionValues", newValues);
+
       const duplicate = newValues.find((item, index) =>
         newValues.some(
           (v, idx) => item.name !== "" && v.name === item.name && idx !== index,
@@ -85,6 +91,9 @@ function ProductOptionForm({
       return;
     }
     const newVals = optionValues.filter((_v, idx) => idx !== index);
+    newVals.forEach((value, index) => {
+      value.position = index;
+    });
     setTimeout(() => form.setValue("optionValues", newVals), 0);
   }
 
@@ -109,15 +118,6 @@ function ProductOptionForm({
         (value, index) =>
           !(index === optionValues.length - 1 && value.name === ""),
       );
-    filterValues.forEach((optionValue) => {
-      if (optionValue.id) {
-        return;
-      }
-      optionValue.id = uuidV4();
-      if (!data.isNew) {
-        optionValue.isNew = true;
-      }
-    });
     form.setValue("optionValues", filterValues);
     const isValid = await form.trigger();
     if (!isValid) {
@@ -128,10 +128,15 @@ function ProductOptionForm({
 
   function handleUnCollapse() {
     updateCollapse(data.id!, false);
-    form.setValue("optionValues", [
-      ...form.getValues("optionValues"),
-      { name: "", empty: true },
-    ]);
+    const currentValues = form.getValues("optionValues");
+    const emptyOptionValue = {
+      name: "",
+      empty: true,
+      position: currentValues.length,
+      isNew: true,
+      id: uuidV4(),
+    };
+    form.setValue("optionValues", [...currentValues, emptyOptionValue]);
   }
 
   if (collapse) {

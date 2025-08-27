@@ -224,15 +224,14 @@ function ProductVariantForm({
 
   function handleAddOption() {
     const newId = uuidV4();
-    onUpdateOptions([
-      ...options,
-      {
-        name: "",
-        id: newId,
-        isNew: true,
-        productId: initialData ? initialData.id! : undefined,
-      },
-    ]);
+    const newOption = {
+      name: "",
+      id: newId,
+      isNew: true,
+      productId: initialData ? initialData.id! : undefined,
+      position: options.length,
+    };
+    onUpdateOptions([...options, newOption]);
     setCollapseOptionForm((prev) => ({ ...prev, [newId]: false }));
   }
 
@@ -240,6 +239,9 @@ function ProductVariantForm({
     const updateOptions = structuredClone(options).filter(
       (option) => option.id !== id,
     );
+    updateOptions.forEach((option, index) => {
+      option.position = index;
+    });
     onUpdateOptions(updateOptions);
     const productVariants = getProductVariants(updateOptions);
 
@@ -369,6 +371,7 @@ function ProductVariantForm({
           <ProductVariantTable
             groupByOption={groupByOption}
             productVariants={productVariants}
+            options={options}
           />
         )}
       </div>

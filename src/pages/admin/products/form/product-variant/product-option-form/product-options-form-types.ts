@@ -13,6 +13,7 @@ export const optionFormSchema = z.object({
         .min(1, { message: "Option value must be at least 1 character" }),
       empty: z.boolean().optional().nullable(),
       isNew: z.boolean().optional(),
+      position: z.number(),
     })
     .array()
     .refine(
@@ -60,6 +61,7 @@ export interface ProductOption {
   optionValues?: ProductOptionValue[] | null;
   isNew?: boolean;
   productId?: string;
+  position: number;
 }
 
 export interface ProductOptionValue {
@@ -67,6 +69,7 @@ export interface ProductOptionValue {
   name: string;
   productOptionId?: string | null;
   isNew?: boolean;
+  position: number;
 }
 
 export type ProductVariantFormUpdateData = {

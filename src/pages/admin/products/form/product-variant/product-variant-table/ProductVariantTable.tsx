@@ -5,12 +5,24 @@ import { ProductVariant } from "@/dto/product/product-variant.ts";
 interface ProductVariantTableProps {
   groupByOption: ProductOption;
   productVariants: ProductVariant[];
+  options: ProductOption[];
 }
 
 function ProductVariantTable({
   groupByOption,
   productVariants,
+  options,
 }: ProductVariantTableProps) {
+  const idToPosition = options.reduce<{ [key: string]: number }>(
+    (map, option) => {
+      map[`op-${option.id}`] = option.position;
+      option.optionValues?.forEach((ov) => {
+        map[`opv-${ov.id}`] = ov.position;
+      });
+      return map;
+    },
+    {},
+  );
   return (
     <div className={"mt-4 -mx-4"}>
       <div className={"flex items-center mb-2 bg-gray-200 px-4 py-2 pt-1"}>
@@ -28,11 +40,33 @@ function ProductVariantTable({
                 spec.optionName === groupByOption.name,
             ),
           );
+          variantsInGroup.forEach((pv) => {
+            pv.specs = pv.specs.sort((specA, specB) => {
+              return idToPosition[`op-${specA.optionId}`] <
+                idToPosition[`op-${specB.optionId}`]
+                ? -1
+                : 1;
+            });
+          });
+
+          const sortVariants = variantsInGroup.sort((pvA, pvB) => {
+            for (let i = 0; i < pvB.specs.length; i++) {
+              if (pvA.specs[i].optionValueId !== pvB.specs[i].optionValueId) {
+                const optionValuePositionA =
+                  idToPosition[`opv-${pvA.specs[i].optionValueId}`];
+                const optionValuePositionB =
+                  idToPosition[`opv-${pvB.specs[i].optionValueId}`];
+
+                return optionValuePositionA < optionValuePositionB ? -1 : 1;
+              }
+            }
+            return 1;
+          });
 
           return (
             <ProductVariantTableRow
               key={groupByOptionValue.id!}
-              productVariants={variantsInGroup}
+              productVariants={sortVariants}
               groupByOptionValue={groupByOptionValue}
             />
           );
