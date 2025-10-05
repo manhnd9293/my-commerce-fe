@@ -1,0 +1,15 @@
+apps:
+  - name: 'ansa-health-fe'
+    script: 'serve'
+    kill_timeout: 10000
+    appendEnvToName: true
+    env_dev:
+      NODE_ENV: development
+      PM2_SERVE_PATH: './dist'
+      PM2_SERVE_PORT: '3000'
+      PM2_SERVE_SPA: 'true'
+    env_staging:
+      NODE_ENV: staging
+      PM2_SERVE_PATH: './dist'
+      PM2_SERVE_PORT: '3001'
+      PM2_SERVE_SPA: 'true'
